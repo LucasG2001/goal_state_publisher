@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"> 
+<!-- Enable the Joint Feedback -->
+<gazebo reference="panda_finger_joint1">
+<provideFeedback>true</provideFeedback>
+</gazebo>
+<!-- The ft_sensor plugin -->
+<gazebo>
+<plugin name="ft_sensor_left" filename="libgazebo_ros_ft_sensor.so">
+<updateRate>500.0</updateRate>
+<topicName>ft_left_gripper</topicName>
+<jointName>panda_finger_joint1</jointName>
+</plugin>
+</gazebo>
+
+<gazebo reference="panda_finger_joint2">
+<provideFeedback>true</provideFeedback>
+</gazebo>
+<!-- The ft_sensor plugin -->
+<gazebo>
+<plugin name="ft_sensor_right" filename="libgazebo_ros_ft_sensor.so">
+<updateRate>500.0</updateRate>
+<topicName>ft_right_gripper</topicName>
+<jointName>panda_finger_joint2</jointName>
+</plugin>
+</gazebo>
+
+</robot>

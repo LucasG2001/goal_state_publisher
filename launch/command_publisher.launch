@@ -1,0 +1,8 @@
+<launch>
+  <!-- Launch the command publisher node -->
+  <node name="command_publisher" pkg="goal_state_publisher" type="command_publisher" />
+
+  <!-- Launch the subscriber node -->
+  <node name="subscriber" pkg="goal_state_publisher" type="subscriber" />
+</launch>
+
