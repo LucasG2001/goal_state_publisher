@@ -9,6 +9,7 @@
 #include <vector>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <franka_msgs/SetLoad.h>
 //watch out with these h-files. Only building with catkin build in the workspace will build everything correctly, even when not including these files
 //these are for the IDE. If you can't find them in the referenced location, the cMake dependencies should make sure catkin can build and auto-generate the headers
 #include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/GraspMsg.h"
@@ -21,7 +22,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "command_publisher");
     ros::NodeHandle n;
 
-    ros::AsyncSpinner spinner(4);
+    ros::AsyncSpinner spinner(6);
     spinner.start();
 
     ros::Publisher commander = n.advertise<geometry_msgs::Pose>("panda_pose_reference", 1);
@@ -42,6 +43,16 @@ int main(int argc, char **argv)
 
     actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> force_client("force_action_controller/follow_joint_trajectory", true);
     force_client.waitForServer();
+    // create a ROS service client for the SetLoad service
+    ros::ServiceClient client = n.serviceClient<franka_msgs::SetLoad>("/franka_control/set_load");
+
+    // create a SetLoad service message
+    franka_msgs::SetLoad srv;
+    boost::array<double, 9> inertia = {0.005, 0 ,0, 0, 0.005, 0, 0, 0, 0.005};
+    // set the mass and inertia tensor of the object
+    srv.request.mass = 0.3;
+    srv.request.load_inertia = inertia;
+    srv.request.F_x_center_load = {0, 0, 0.1}; //translation of object center of mass form flange frame in [m]
 
     control_msgs::FollowJointTrajectoryGoal force_command;
     force_command.trajectory.joint_names = {"0"};
@@ -77,7 +88,14 @@ int main(int argc, char **argv)
                 gripper_stop_publisher.publish(gripper_stop);
                 break;
             case 4:
+                force_command.trajectory.points[0].velocities = {0, 0.1, 0, 0, 0, 0, 0};
+                force_command.trajectory.points[0].effort = {0, 0, -5, 0, 0, 0, 0};
                 force_client.sendGoal(force_command);
+                if (client.call(srv)) {
+                    ROS_INFO("Load parameters set successfully!");
+                } else {
+                    ROS_ERROR("Failed to set load parameters.");
+                }
                 break;
             case 5:
                 gripper_move.speed = 1;
