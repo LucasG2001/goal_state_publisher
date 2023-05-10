@@ -17,6 +17,18 @@
 #include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/StopGripperMsg.h"
 
 
+namespace {
+    template <class T, size_t N>
+    std::ostream& operator<<(std::ostream& ostream, const std::array<T, N>& array) {
+        //ostream << "[";
+        std::copy(array.cbegin(), array.cend() - 1, std::ostream_iterator<T>(ostream, ","));
+        std::copy(array.cend() - 1, array.cend(), std::ostream_iterator<T>(ostream));
+        //ostream << "]";
+        return ostream;
+    }
+}  // anonymous namespace
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "command_publisher");
@@ -56,6 +68,9 @@ int main(int argc, char **argv)
 
     control_msgs::FollowJointTrajectoryGoal force_command;
     force_command.trajectory.joint_names = {"0"};
+    trajectory_msgs::JointTrajectoryPoint test;
+    double force = 0;
+    double velocity = 0;
 
     while (ros::ok())
     {
@@ -88,11 +103,19 @@ int main(int argc, char **argv)
                 gripper_stop_publisher.publish(gripper_stop);
                 break;
             case 4:
-                force_command.trajectory.points[0].velocities = {0, 0.1, 0, 0, 0, 0, 0};
-                force_command.trajectory.points[0].effort = {0, 0, -5, 0, 0, 0, 0};
+                std::cout << "Enter Reference Velocity in y-dir: ";
+                std::cin >> velocity;
+                std::cout << "Enter Reference Force in neg-z-direction: ";
+                std::cin >> force;
+                test.velocities = {0, velocity, 0, 0, 0, 0};
+                test.effort = {0, 0, -force, 0, 0, 0};
+                force_command.trajectory.points.push_back(test);
                 force_client.sendGoal(force_command);
                 if (client.call(srv)) {
                     ROS_INFO("Load parameters set successfully!");
+                    for(int i = 0; i < 6; i++){
+                        std::cout << force_command.trajectory.points[i] << std::endl;
+                    }
                 } else {
                     ROS_ERROR("Failed to set load parameters.");
                 }

@@ -1743,6 +1743,82 @@
 					<DistClean command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="unity">
+				<Option output="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher/unity" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;goal_state_publisher&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add directory="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/goal_state_publisher/include"/>
+					<Add directory="/home/lucas/catkin_ws/devel/.private/franka_gripper/include"/>
+					<Add directory="/home/lucas/catkin_ws/devel/.private/franka_msgs/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_gripper/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_hw/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_control/include"/>
+					<Add directory="/opt/ros/noetic/include"/>
+					<Add directory="/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/bullet"/>
+					<Add directory="/usr/include/OGRE"/>
+					<Add directory="/catkin_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher}"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 unity"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="unity/fast">
+				<Option output="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher/unity" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;goal_state_publisher&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add directory="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/goal_state_publisher/include"/>
+					<Add directory="/home/lucas/catkin_ws/devel/.private/franka_gripper/include"/>
+					<Add directory="/home/lucas/catkin_ws/devel/.private/franka_msgs/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_gripper/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_hw/include"/>
+					<Add directory="/home/lucas/catkin_ws/src/franka_ros/franka_control/include"/>
+					<Add directory="/opt/ros/noetic/include"/>
+					<Add directory="/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/bullet"/>
+					<Add directory="/usr/include/OGRE"/>
+					<Add directory="/catkin_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher}"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 unity/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="computer_vision">
 				<Option output="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher/computer_vision" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher"/>
@@ -2131,6 +2207,9 @@
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/subscriber_node.cpp">
 			<Option target="subscriber"/>
+		</Unit>
+		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/unity.cpp">
+			<Option target="unity"/>
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/utility.cpp">
 			<Option target="utility"/>

@@ -1901,6 +1901,19 @@ command_publisher/fast:
 .PHONY : command_publisher/fast
 
 #=============================================================================
+# Target rules for targets named unity
+
+# Build rule for target.
+unity: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unity
+.PHONY : unity
+
+# fast build rule for target.
+unity/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/build
+.PHONY : unity/fast
+
+#=============================================================================
 # Target rules for targets named computer_vision
 
 # Build rule for target.
@@ -2148,6 +2161,30 @@ src/subscriber_node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/src/subscriber_node.cpp.s
 .PHONY : src/subscriber_node.cpp.s
 
+src/unity.o: src/unity.cpp.o
+.PHONY : src/unity.o
+
+# target to build an object file
+src/unity.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/src/unity.cpp.o
+.PHONY : src/unity.cpp.o
+
+src/unity.i: src/unity.cpp.i
+.PHONY : src/unity.i
+
+# target to preprocess a source file
+src/unity.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/src/unity.cpp.i
+.PHONY : src/unity.cpp.i
+
+src/unity.s: src/unity.cpp.s
+.PHONY : src/unity.s
+
+# target to generate assembly for a file
+src/unity.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/src/unity.cpp.s
+.PHONY : src/unity.cpp.s
+
 src/utility.o: src/utility.cpp.o
 .PHONY : src/utility.o
 
@@ -2331,6 +2368,7 @@ help:
 	@echo "... moveit_cpp_test2"
 	@echo "... scratch"
 	@echo "... subscriber"
+	@echo "... unity"
 	@echo "... utility"
 	@echo "... src/callback_classes.o"
 	@echo "... src/callback_classes.i"
@@ -2353,6 +2391,9 @@ help:
 	@echo "... src/subscriber_node.o"
 	@echo "... src/subscriber_node.i"
 	@echo "... src/subscriber_node.s"
+	@echo "... src/unity.o"
+	@echo "... src/unity.i"
+	@echo "... src/unity.s"
 	@echo "... src/utility.o"
 	@echo "... src/utility.i"
 	@echo "... src/utility.s"
