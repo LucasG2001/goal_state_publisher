@@ -5,12 +5,12 @@
       <inertial>
         <mass>300</mass>
         <inertia>
-          <ixx>485</ixx>
+          <ixx>425</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyy>0.6</iyy>
           <iyz>0</iyz>
-          <izz>485</izz>
+          <izz>425</izz>
         </inertia>
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
@@ -22,7 +22,7 @@
       <visual name='visual'>
         <geometry>
           <box>
-            <size>0.2 4.4 0.4</size>
+            <size>0.2 3 0.4</size>
           </box>
         </geometry>
         <material>
@@ -33,10 +33,10 @@
           <shader type='pixel'>
             <normal_map>__default__</normal_map>
           </shader>
-          <ambient>0.3 0.3 0.3 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
-          <specular>0.01 0.01 0.01 1</specular>
-          <emissive>0 0 0 1</emissive>
+          <ambient>0.4 0.7 0.9 1</ambient>
+          <diffuse>0.7 0.9 0.9 1</diffuse>
+          <specular>0.03 0.07 0.01 1</specular>
+          <emissive>0.01 0.01 0.01 1</emissive>
         </material>
         <pose>0 0 0 0 -0 0</pose>
         <transparency>0</transparency>
@@ -48,7 +48,7 @@
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <box>
-            <size>0.2 4.4 0.4</size>
+            <size>0.2 3 0.4</size>
           </box>
         </geometry>
         <surface>
@@ -81,24 +81,24 @@
             <ode>
               <soft_cfm>0</soft_cfm>
               <soft_erp>0.2</soft_erp>
-              <kp>1e+7</kp>
-              <kd>100</kd>
+              <kp>1e+10</kp>
+              <kd>0.1</kd>
               <max_vel>0.01</max_vel>
-              <min_depth>0</min_depth>
+              <min_depth>0.01</min_depth>
             </ode>
             <bullet>
               <split_impulse>1</split_impulse>
               <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
               <soft_cfm>0</soft_cfm>
               <soft_erp>0.2</soft_erp>
-              <kp>1e+13</kp>
-              <kd>1</kd>
+              <kp>1e+10</kp>
+              <kd>0.1</kd>
             </bullet>
           </contact>
         </surface>
       </collision>
     </link>
-    <static>0</static>
+    <static>1</static>
     <allow_auto_disable>1</allow_auto_disable>
   </model>
 </sdf>
