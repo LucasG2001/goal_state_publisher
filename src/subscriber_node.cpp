@@ -26,18 +26,18 @@ int main(int argc, char **argv)
     move_client.waitForServer();
     stop_client.waitForServer();
 
-    moveit::planning_interface::MoveGroupInterface move_group("panda_arm");
+    moveit::planning_interface::MoveGroupInterface move_group("panda_arm"); //or panda_arm
     moveit::planning_interface::MoveGroupInterface gripper_group("panda_hand");
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
     // Instantiate MoveItVisualTools for visualizing plans
     moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
     ROS_INFO("adding objects to the scene");
-    std::vector<std::string> object_names = addCollisionObjects(planning_scene_interface);
+    //std::vector<std::string> object_names = addCollisionObjects(planning_scene_interface);
     ROS_INFO("Initialized Moveit and Clients");
     ROS_INFO("Listener Node Created");
 
     // Set the planner parameters
-    setPlanningParameters(move_group, 5.0, 10, 0.8, 0.8);
+    setPlanningParameters(move_group, 10.0, 10, 0.1, 0.1);
     PoseListener pose_listener(&move_group);
     GripperListener gripper_listener(&grasp_client, &move_client, &stop_client);
     ros::Subscriber pose_sub = n.subscribe("panda_pose_reference", 1, &PoseListener::poseCallback, &pose_listener);

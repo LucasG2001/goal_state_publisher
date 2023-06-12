@@ -184,7 +184,7 @@ devel/lib/libgripper_functions.so: /home/lucas/catkin_ws/devel/.private/franka_g
 devel/lib/libgripper_functions.so: /home/lucas/catkin_ws/devel/.private/franka_control/lib/libfranka_state_controller.so
 devel/lib/libgripper_functions.so: /home/lucas/catkin_ws/devel/.private/franka_hw/lib/libfranka_hw.so
 devel/lib/libgripper_functions.so: /home/lucas/catkin_ws/devel/.private/franka_hw/lib/libfranka_control_services.so
-devel/lib/libgripper_functions.so: /opt/ros/noetic/lib/x86_64-linux-gnu/libfranka.so.0.9.2
+devel/lib/libgripper_functions.so: /usr/lib/libfranka.so.0.10.0
 devel/lib/libgripper_functions.so: /opt/ros/noetic/lib/libactionlib.so
 devel/lib/libgripper_functions.so: /opt/ros/noetic/lib/libcombined_robot_hw.so
 devel/lib/libgripper_functions.so: /opt/ros/noetic/lib/liburdf.so

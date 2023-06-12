@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     franka_msgs::SetLoad srv;
     boost::array<double, 9> inertia = {0.0003, 0, 0, 0, 0.0003, 0, 0, 0, 0.0004};
     // set the mass and inertia tensor of the object
-    srv.request.mass = 0.3;
+    srv.request.mass = 0.0;
     srv.request.load_inertia = inertia;
     srv.request.F_x_center_load = {0, 0, 0.1}; //translation of object center of mass form flange frame in [m]
 
@@ -128,11 +128,11 @@ int main(int argc, char **argv) {
                 std::cout << "Enter Reference Orientation: ";
                 std::cin >> orientation[0] >> orientation[1] >> orientation[2];
                 //configure external load parameter
-                if (client.call(srv)) {
-                    ROS_INFO("Load parameters set successfully!");
-                } else {
-                    ROS_ERROR("Failed to set load parameters.");
-                }
+                //if (client.call(srv)) {
+                    //ROS_INFO("Load parameters set successfully!");
+                //} else {
+                   // ROS_ERROR("Failed to set load parameters.");
+               // }
                 //use sinusoidal trajectory
                 std::cout << " enter 1 to move in sinusoidal trajectory ";
                 std::cin >> sin_trajectory;
@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
                 double t;
                 std::vector<double> p_reference = {0, 0, 0, 0, 0, 0};
                 ros::Time start = ros::Time::now();
-                while ((t < (time_for_direction_change + 0.1))){
+                while ((t < (time_for_direction_change + 0.1)) && t < 5.0){
                     t = (ros::Time::now() - start).toSec();
                     double x = a * sin(omega * t);
                     double v_x = a * omega * cos(omega * t);

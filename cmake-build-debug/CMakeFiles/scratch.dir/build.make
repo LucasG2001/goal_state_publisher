@@ -200,7 +200,7 @@ devel/lib/goal_state_publisher/scratch: /home/lucas/catkin_ws/devel/.private/fra
 devel/lib/goal_state_publisher/scratch: /home/lucas/catkin_ws/devel/.private/franka_control/lib/libfranka_state_controller.so
 devel/lib/goal_state_publisher/scratch: /home/lucas/catkin_ws/devel/.private/franka_hw/lib/libfranka_hw.so
 devel/lib/goal_state_publisher/scratch: /home/lucas/catkin_ws/devel/.private/franka_hw/lib/libfranka_control_services.so
-devel/lib/goal_state_publisher/scratch: /opt/ros/noetic/lib/x86_64-linux-gnu/libfranka.so.0.9.2
+devel/lib/goal_state_publisher/scratch: /usr/lib/libfranka.so.0.10.0
 devel/lib/goal_state_publisher/scratch: /opt/ros/noetic/lib/libactionlib.so
 devel/lib/goal_state_publisher/scratch: /opt/ros/noetic/lib/libcombined_robot_hw.so
 devel/lib/goal_state_publisher/scratch: /opt/ros/noetic/lib/liburdf.so
