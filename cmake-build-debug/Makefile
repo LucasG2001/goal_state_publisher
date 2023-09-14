@@ -1914,19 +1914,6 @@ unity/fast:
 .PHONY : unity/fast
 
 #=============================================================================
-# Target rules for targets named computer_vision
-
-# Build rule for target.
-computer_vision: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 computer_vision
-.PHONY : computer_vision
-
-# fast build rule for target.
-computer_vision/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/computer_vision.dir/build.make CMakeFiles/computer_vision.dir/build
-.PHONY : computer_vision/fast
-
-#=============================================================================
 # Target rules for targets named gmock
 
 # Build rule for target.
@@ -2031,30 +2018,6 @@ src/command_publisher.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/utility.dir/build.make CMakeFiles/utility.dir/src/command_publisher.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/command_publisher.dir/build.make CMakeFiles/command_publisher.dir/src/command_publisher.cpp.s
 .PHONY : src/command_publisher.cpp.s
-
-src/computer_vision.o: src/computer_vision.cpp.o
-.PHONY : src/computer_vision.o
-
-# target to build an object file
-src/computer_vision.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/computer_vision.dir/build.make CMakeFiles/computer_vision.dir/src/computer_vision.cpp.o
-.PHONY : src/computer_vision.cpp.o
-
-src/computer_vision.i: src/computer_vision.cpp.i
-.PHONY : src/computer_vision.i
-
-# target to preprocess a source file
-src/computer_vision.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/computer_vision.dir/build.make CMakeFiles/computer_vision.dir/src/computer_vision.cpp.i
-.PHONY : src/computer_vision.cpp.i
-
-src/computer_vision.s: src/computer_vision.cpp.s
-.PHONY : src/computer_vision.s
-
-# target to generate assembly for a file
-src/computer_vision.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/computer_vision.dir/build.make CMakeFiles/computer_vision.dir/src/computer_vision.cpp.s
-.PHONY : src/computer_vision.cpp.s
 
 src/gripper_functions.o: src/gripper_functions.cpp.o
 .PHONY : src/gripper_functions.o
@@ -2359,7 +2322,6 @@ help:
 	@echo "... visualization_msgs_generate_messages_nodejs"
 	@echo "... visualization_msgs_generate_messages_py"
 	@echo "... command_publisher"
-	@echo "... computer_vision"
 	@echo "... gmock"
 	@echo "... gmock_main"
 	@echo "... gripper_functions"
@@ -2376,9 +2338,6 @@ help:
 	@echo "... src/command_publisher.o"
 	@echo "... src/command_publisher.i"
 	@echo "... src/command_publisher.s"
-	@echo "... src/computer_vision.o"
-	@echo "... src/computer_vision.i"
-	@echo "... src/computer_vision.s"
 	@echo "... src/gripper_functions.o"
 	@echo "... src/gripper_functions.i"
 	@echo "... src/gripper_functions.s"

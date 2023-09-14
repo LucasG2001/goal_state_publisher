@@ -128,11 +128,10 @@
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/gripper_functions.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/utility.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/moveit_cpp_test2.dir
-/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/scratch.dir
+/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/force_field.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/subscriber.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/command_publisher.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/unity.dir
-/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/computer_vision.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/test.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/edit_cache.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/rebuild_cache.dir

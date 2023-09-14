@@ -225,13 +225,12 @@ add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cp
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
 add_library(utility src/utility.cpp src/command_publisher.cpp)
-#add_executable(moveit_goal_publisher src/moveit_goal_publisher.cpp)
-#add_executable(moveitcpp_test src/moveit_goal_publisher.cpp src/moveitcpp_test.cpp)
+
 add_executable(moveit_cpp_test2 src/moveit_cpp_test2.cpp src/gripper_functions.cpp src/gripper_functions.h)
 target_link_libraries(moveit_cpp_test2 ${catkin_LIBRARIES})
 
-add_executable(scratch src/scratch.cpp src/gripper_functions.cpp src/gripper_functions.h src/utility.cpp src/utility.h)
-target_link_libraries(scratch ${catkin_LIBRARIES})
+add_executable(force_field src/force_field.cpp include/goal_state_publisher/scene_geometry.h include/goal_state_publisher/bounding_box.h)
+target_link_libraries(force_field ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/utility.h src/callback_classes.cpp src/callback_classes.h src/gripper_functions.cpp src/gripper_functions.h)
 target_link_libraries(subscriber ${catkin_LIBRARIES})
@@ -243,15 +242,6 @@ add_dependencies(command_publisher ${goal_state_publisher_EXPORTED_TARGETS} ${ca
 add_executable(unity src/unity.cpp)
 target_link_libraries(unity ${catkin_LIBRARIES})
 
-#add_executable(franka_hardware src/franka_hardware.cpp)
-#target_link_libraries(franka_hardware ${catkin_LIBRARIES})
-
-add_executable(computer_vision src/computer_vision.cpp)
-target_link_libraries(computer_vision ${catkin_LIBRARIES})
-
-
-#target_link_libraries(moveit_goal_publisher ${catkin_LIBRARIES})
-#target_link_libraries(moveitcpp_test ${catkin_LIBRARIES})
 
 
 
