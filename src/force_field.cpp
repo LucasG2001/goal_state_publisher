@@ -10,6 +10,7 @@
 #include <moveit_msgs/PlanningSceneWorld.h>
 #include <goal_state_publisher/scene_geometry.h>
 #include <tf2_msgs/TFMessage.h>
+#include <franka_msgs/FrankaState.h>
 
 #define DIMENSION_X 0
 #define DIMENSION_Y 1
@@ -17,12 +18,13 @@
 
 Eigen::Vector3d global_EE_position;
 
-void ee_callback(const geometry_msgs::Pose::ConstPtr& msg){
+//ToDo (OPTIONAL) add subscriber for moveit planning scene or similar to simulate robot movement for work at home
+void ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
     // for the time being we only need ee positions without orientations
-    ROS_INFO("got new end effector position");
-    global_EE_position.x() = msg->position.x;
-    global_EE_position.y() = msg->position.y;
-    global_EE_position.z() = msg->position.z;
+    //ROS_INFO("got new end effector position");
+    global_EE_position.x() = msg->O_T_EE[12]; // O_T_EE is a float[16] array in COLUMN MAJOR format!
+    global_EE_position.y() = msg->O_T_EE[13];
+    global_EE_position.z() = msg->O_T_EE[14];
 }
 
 void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg){
@@ -121,18 +123,19 @@ int main(int argc, char **argv) {
     ros::NodeHandle n;
     ros::AsyncSpinner spinner(4);
     spinner.start();
-    SceneGeometry aligned_geometry(1, 2.0, 0.02);
+    SceneGeometry aligned_geometry(1, 200.0, 0.5);
     ROS_INFO("set up node");
+    global_EE_position << 0.2, 0.0, 0.5;
     // Create a ros::Rate object to control the loop rate
     ros::Rate loop_rate(0.3333);
     //subscribers
     //1) subscribe to ee-pos
-    ros::Subscriber ee_pose = n.subscribe("ee_pose", 10, ee_callback);
+    ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, ee_callback);
     //2) and transforms and bbox_subscriber
     ros::Subscriber bbox_subscriber = n.subscribe("/force_bboxes", 10, &SceneGeometry::bbox_callback, &aligned_geometry);
     ros::Subscriber transforms = n.subscribe("/ee_transforms", 10, &SceneGeometry::transform_callback, &aligned_geometry);
     // force field publisher (3)
-    ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("resulting_force", 10);
+    ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("/resulting_force", 10);
     ROS_INFO("set up publishers and subscribers");
     geometry_msgs:: Vector3 resulting_force_msg;
 
@@ -141,13 +144,12 @@ int main(int argc, char **argv) {
     Eigen::Vector3d projected_point;
     Eigen::Vector3d F_res;
     F_res << 0, 0, 0;
-    ee_pos << 0.3, 0.1, 0.5;
     while (ros::ok()){
         size_t size = aligned_geometry.getSize();
         std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
-        F_res = aligned_geometry.compute_force(ee_pos);
+        F_res = aligned_geometry.compute_force(global_EE_position);
         ROS_INFO_STREAM(F_res);
         resulting_force_msg.x = F_res.x();
         resulting_force_msg.y = F_res.y();
