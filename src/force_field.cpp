@@ -28,6 +28,7 @@ void ee_callback(const geometry_msgs::Pose::ConstPtr& msg){
 void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg){
     ROS_INFO("got new objects for force field planning scene");
     int size = msg->collision_objects.size();
+    ROS_INFO(" new planning scene has size ");ROS_INFO_STREAM(size);
     this->resize_scene(size);
     double x_bound;
     double y_bound;
@@ -37,11 +38,10 @@ void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr&
        y_bound = msg->collision_objects[k].primitives[0].dimensions[1] * 0.5;
        z_bound = msg->collision_objects[k].primitives[0].dimensions[2] * 0.5;
 
-       this->boundingBoxes_[k].setXBounds(std::make_tuple(-x_bound, x_bound));
-       this->boundingBoxes_[k].setYBounds(std::make_tuple(-y_bound, y_bound));
-       this->boundingBoxes_[k].setZBounds(std::make_tuple(-z_bound, z_bound));
+       this->boundingBoxes_[k].setXBounds({-x_bound, x_bound});
+       this->boundingBoxes_[k].setYBounds({-y_bound, y_bound});
+       this->boundingBoxes_[k].setZBounds({-z_bound, z_bound});
     }
-
 }
 
 void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
     ros::AsyncSpinner spinner(2);
     spinner.start();
     SceneGeometry aligned_geometry(1);
-
+    ROS_INFO("set up node");
     //subscribers
     //1) subscribe to ee-pos
     ros::Subscriber ee_pose = n.subscribe("ee_pose", 10, ee_callback);
@@ -107,35 +107,47 @@ int main(int argc, char **argv) {
     ros::Subscriber transforms = n.subscribe("/ee_transforms", 10, &SceneGeometry::transform_callback, &aligned_geometry);
     // force field publisher (3)
     ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("resulting_force", 10);
+    ROS_INFO("set up publishers and subscribers");
     geometry_msgs::Vector3 resulting_force_msg;
     // test box dimensions ((4.1) extract coordinate intervals)
     std::vector<double> x_extensions = {-1.0, 2.0};
     std::vector<double> y_extensions = {1.0, 2.5};
     std::vector<double> z_extensions = {1.2, 3.4};
 
-    Eigen::Matrix<double, 3, 3> transform = Eigen::MatrixXd::Identity(3,3);
+
     Eigen::Vector3d ee_pos;
     Eigen::Vector3d projected_point;
     Eigen::Vector3d F_res;
     F_res << 0, 0, 0;
     double k = 2;
     ee_pos << 0.0, 0.0, 0.0;
-    std::cout << "Starting time measurement in loop" << std::endl;
+    int size = aligned_geometry.getSize();
+    std::cout << "Starting time measurement in loop" <<  "size of loop is " << size << std::endl;
     auto start = std::chrono::high_resolution_clock ::now();
-    for (int i=0; i<20; i++){
+    for (int i=0; i<size; i++){
         //generate a random vector for the ee-position (testing)
         ee_pos.x() = distr(gen);
         ee_pos.y() = distr(gen);
         ee_pos.y() = distr(gen);
+        ROS_INFO("got ee position");
+        //get bbox bounds
+        std::vector<double>  x_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
+        std::vector<double>  y_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
+        std::vector<double>  z_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
+        ROS_INFO("got bounding boxes");
         //transform ee-position into globally aligned coordinate frame (4.2)
+        Eigen::Affine3d transform = aligned_geometry.getTransforms()[i];
         ee_pos = transform * ee_pos;
+        ROS_INFO("transformed end effector   position");
         //compute nearest point on BBOX (4.3)
-        projected_point.x() = get_nearest_point_coordinate(ee_pos, x_extensions, DIMENSION_X);
-        projected_point.y() = get_nearest_point_coordinate(ee_pos, y_extensions, DIMENSION_Y);
-        projected_point.z() = get_nearest_point_coordinate(ee_pos, z_extensions, DIMENSION_Z);
+        projected_point.x() = get_nearest_point_coordinate(ee_pos, x_bound, DIMENSION_X);
+        projected_point.y() = get_nearest_point_coordinate(ee_pos, y_bound, DIMENSION_Y);
+        projected_point.z() = get_nearest_point_coordinate(ee_pos, z_bound, DIMENSION_Z);
+        ROS_INFO("projected point on box");
         //compute force for the corresponding object (4.4)
         //and add up (5)
         F_res += (ee_pos - projected_point) * k * (1/(ee_pos-projected_point).norm());
+        ROS_INFO_STREAM(F_res);
     }
     resulting_force_msg.x = F_res.x();
     resulting_force_msg.y = F_res.y();

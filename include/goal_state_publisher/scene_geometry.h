@@ -19,7 +19,7 @@ public:
         // Initialize the bounding boxes vector with 'size' default-constructed bounding boxes
         boundingBoxes_.resize(size_);
         // Initialize the transformations vector with 'size' default-constructed Eigen::Affine3d
-        transforms_.resize(size_);
+        transforms_.resize(size_, Eigen::Affine3d::Identity());
     }
     void resize_scene(int new_size){
         size_ = new_size;
@@ -29,11 +29,9 @@ public:
     }
 
     // Getters for bounding boxes and transformations
-    const std::vector<BoundingBox>& getBoundingBoxes() const { return boundingBoxes_; }
-    std::vector<BoundingBox>& getBoundingBoxes() { return boundingBoxes_; }
+    std::vector<BoundingBox> getBoundingBoxes() { return boundingBoxes_; }
 
-    const std::vector<Eigen::Affine3d>& getTransforms() const { return transforms_; }
-    std::vector<Eigen::Affine3d>& getTransforms() { return transforms_; }
+    std::vector<Eigen::Affine3d> getTransforms() { return transforms_; }
 
     int getSize() const { return size_; }
 
