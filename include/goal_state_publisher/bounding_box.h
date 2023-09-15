@@ -14,9 +14,9 @@ public:
     // Default Constructor
     BoundingBox() {
         // Initialize x_bounds_, y_bounds_, and z_bounds_ with unit vectors
-        x_bounds_ = {0.0, 1.0};
-        y_bounds_ = {0.0, 1.0};
-        z_bounds_ = {0.0, 1.0};
+        x_bounds_ = {0.0, 0.1};
+        y_bounds_ = {0.0, 0.1};
+        z_bounds_ = {0.0, 0.1};
     }
     // Getters for x_bounds, y_bounds, and z_bounds
     const std::vector<double>& getXBounds() const { return x_bounds_; }

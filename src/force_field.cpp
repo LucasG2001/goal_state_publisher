@@ -27,8 +27,8 @@ void ee_callback(const geometry_msgs::Pose::ConstPtr& msg){
 
 void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg){
     ROS_INFO("got new objects for force field planning scene");
-    int size = msg->collision_objects.size();
-    ROS_INFO(" new planning scene has size ");ROS_INFO_STREAM(size);
+    size_t size = msg->collision_objects.size();
+    std::cout << "New planning scene has size of " << size << std::endl;
     this->resize_scene(size);
     double x_bound;
     double y_bound;
@@ -46,7 +46,7 @@ void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr&
 
 void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
     ROS_INFO("got the transforms for EE");
-    int size = msg->transforms.size();
+    size_t size = msg->transforms.size();
     this->transforms_.resize(size);
     Eigen::Vector3d position;
 
@@ -64,11 +64,39 @@ void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
         this->transforms_[k] = ee_transform;
 
     }
-
-
 }
 
-double get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::vector<double> x_extensions, int dimension){
+Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_position){
+    Eigen::Vector3d F_res;
+    F_res << 0, 0, 0;
+    for (int i=0; i<size_; i++){
+        //get bbox bounds
+        std::vector<double>  x_bound = boundingBoxes_[i].getXBounds();
+        std::vector<double>  y_bound = boundingBoxes_[i].getYBounds();
+        std::vector<double>  z_bound = boundingBoxes_[i].getZBounds();
+        //transform ee-position into globally aligned coordinate frame (4.2)
+        Eigen::Affine3d transform = transforms_[i];
+        Eigen::Vector3d local_ee_position = transform * global_ee_position;
+        ROS_INFO("transformed end effector position");
+        //compute nearest point on BBOX (4.3)
+        Eigen::Vector3d projected_point; //this is the nearest point in the corresponding bounding box
+        projected_point.x() = get_nearest_point_coordinate(local_ee_position, x_bound, DIMENSION_X);
+        projected_point.y() = get_nearest_point_coordinate(local_ee_position, y_bound, DIMENSION_Y);
+        projected_point.z() = get_nearest_point_coordinate(local_ee_position, z_bound, DIMENSION_Z);
+        ROS_INFO("projected point on box");
+        //compute repulsive Force and add up to the total
+        Eigen::Vector3d effective_distance = local_ee_position - projected_point;
+        double D = effective_distance.norm();
+        if (D <= Q_){
+            Eigen::Vector3d nabla_D = effective_distance * (1/D); //unit distance vector
+            F_res += -stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
+        }
+        else{ F_res += 0 * F_res; }
+        ROS_INFO_STREAM(F_res);
+    }
+    return F_res;
+}
+double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::vector<double> x_extensions, int dimension){
     double x = ee_pos(dimension, 0);
     double coordinate;
 
@@ -88,17 +116,15 @@ double get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::vector<double> 
 
 
 int main(int argc, char **argv) {
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 gen(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(-5, 5); // define the range
-
     //node functionality
     ros::init(argc, argv, "force_field");
     ros::NodeHandle n;
-    ros::AsyncSpinner spinner(2);
+    ros::AsyncSpinner spinner(4);
     spinner.start();
-    SceneGeometry aligned_geometry(1);
+    SceneGeometry aligned_geometry(1, 2.0, 0.02);
     ROS_INFO("set up node");
+    // Create a ros::Rate object to control the loop rate
+    ros::Rate loop_rate(0.3333);
     //subscribers
     //1) subscribe to ee-pos
     ros::Subscriber ee_pose = n.subscribe("ee_pose", 10, ee_callback);
@@ -108,56 +134,33 @@ int main(int argc, char **argv) {
     // force field publisher (3)
     ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("resulting_force", 10);
     ROS_INFO("set up publishers and subscribers");
-    geometry_msgs::Vector3 resulting_force_msg;
-    // test box dimensions ((4.1) extract coordinate intervals)
-    std::vector<double> x_extensions = {-1.0, 2.0};
-    std::vector<double> y_extensions = {1.0, 2.5};
-    std::vector<double> z_extensions = {1.2, 3.4};
+    geometry_msgs:: Vector3 resulting_force_msg;
 
 
     Eigen::Vector3d ee_pos;
     Eigen::Vector3d projected_point;
     Eigen::Vector3d F_res;
     F_res << 0, 0, 0;
-    double k = 2;
-    ee_pos << 0.0, 0.0, 0.0;
-    int size = aligned_geometry.getSize();
-    std::cout << "Starting time measurement in loop" <<  "size of loop is " << size << std::endl;
-    auto start = std::chrono::high_resolution_clock ::now();
-    for (int i=0; i<size; i++){
-        //generate a random vector for the ee-position (testing)
-        ee_pos.x() = distr(gen);
-        ee_pos.y() = distr(gen);
-        ee_pos.y() = distr(gen);
-        ROS_INFO("got ee position");
+    ee_pos << 0.3, 0.1, 0.5;
+    while (ros::ok()){
+        size_t size = aligned_geometry.getSize();
+        std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
+        auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
-        std::vector<double>  x_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
-        std::vector<double>  y_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
-        std::vector<double>  z_bound = aligned_geometry.getBoundingBoxes()[i].getXBounds();
-        ROS_INFO("got bounding boxes");
-        //transform ee-position into globally aligned coordinate frame (4.2)
-        Eigen::Affine3d transform = aligned_geometry.getTransforms()[i];
-        ee_pos = transform * ee_pos;
-        ROS_INFO("transformed end effector   position");
-        //compute nearest point on BBOX (4.3)
-        projected_point.x() = get_nearest_point_coordinate(ee_pos, x_bound, DIMENSION_X);
-        projected_point.y() = get_nearest_point_coordinate(ee_pos, y_bound, DIMENSION_Y);
-        projected_point.z() = get_nearest_point_coordinate(ee_pos, z_bound, DIMENSION_Z);
-        ROS_INFO("projected point on box");
-        //compute force for the corresponding object (4.4)
-        //and add up (5)
-        F_res += (ee_pos - projected_point) * k * (1/(ee_pos-projected_point).norm());
+        F_res = aligned_geometry.compute_force(ee_pos);
         ROS_INFO_STREAM(F_res);
+        resulting_force_msg.x = F_res.x();
+        resulting_force_msg.y = F_res.y();
+        resulting_force_msg.z = F_res.z();
+
+        force_publisher.publish(resulting_force_msg);
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        std::cout << "Time taken by update (whole loop): " << time.count() << " microseconds" << std::endl;
+        loop_rate.sleep();
     }
-    resulting_force_msg.x = F_res.x();
-    resulting_force_msg.y = F_res.y();
-    resulting_force_msg.z = F_res.z();
 
-    force_publisher.publish(resulting_force_msg);
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "Time taken by update (whole loop): " << time.count() << " microseconds" << std::endl;
 
     ros::waitForShutdown();
 
