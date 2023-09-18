@@ -11,6 +11,7 @@
 #include <goal_state_publisher/scene_geometry.h>
 #include <tf2_msgs/TFMessage.h>
 #include <franka_msgs/FrankaState.h>
+#include <moveit_msgs/PlanningScene.h>
 
 #define DIMENSION_X 0
 #define DIMENSION_Y 1
@@ -28,6 +29,9 @@ void ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
 }
 
 void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg){
+    /*
+     * This callback handles the reception of the initial planning scene directly after segmenting
+     */
     ROS_INFO("got new objects for force field planning scene");
     size_t size = msg->collision_objects.size();
     std::cout << "New planning scene has size of " << size << std::endl;
@@ -46,6 +50,42 @@ void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr&
     }
 }
 
+void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg){
+    /*
+     * This callback handles the reception of planning scene updates under /move_group/monitored_planning_scene
+     */
+    if(msg->is_diff == true){ return; }
+    size_t size = msg->world.collision_objects.size();
+    this->resize_scene(size);
+    double x_bound;
+    double y_bound;
+    double z_bound;
+    for (int k = 0; k < size; k++){
+        x_bound = msg->world.collision_objects[k].primitives[0].dimensions[0] * 0.5;
+        y_bound = msg->world.collision_objects[k].primitives[0].dimensions[1] * 0.5;
+        z_bound = msg->world.collision_objects[k].primitives[0].dimensions[2] * 0.5;
+
+        this->boundingBoxes_[k].setXBounds({-x_bound, x_bound});
+        this->boundingBoxes_[k].setYBounds({-y_bound, y_bound});
+        this->boundingBoxes_[k].setZBounds({-z_bound, z_bound});
+
+        //state transforms according to box translation
+        Eigen::Vector3d translation;
+        Eigen::Quaterniond rotation;
+        //note that we need the inverse transform of the object's pose so to say
+        translation.x() = -1*msg->world.collision_objects[k].pose.position.x;
+        translation.y() = -1*msg->world.collision_objects[k].pose.position.y;
+        translation.z() = -1*msg->world.collision_objects[k].pose.position.z;
+        rotation.coeffs() << msg->world.collision_objects[k].pose.orientation.x, msg->world.collision_objects[k].pose.orientation.y,
+                msg->world.collision_objects[k].pose.orientation.z, msg->world.collision_objects[k].pose.orientation.w;
+
+        Eigen::MatrixXd R_matrix = rotation.toRotationMatrix();
+        Eigen::Affine3d ee_transform; //this should transform the end effector into the same reference frame as the aligned bounding box
+        ee_transform = Eigen::Translation3d(R_matrix.transpose() * translation) * R_matrix.transpose();
+        this->transforms_[k] = ee_transform;
+    }
+}
+
 void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
     ROS_INFO("got the transforms for EE");
     size_t size = msg->transforms.size();
@@ -58,7 +98,7 @@ void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
          position.y() = msg->transforms[k].transform.translation.y;
          position.z() = msg->transforms[k].transform.translation.z;
          orientation.coeffs() << msg->transforms[k].transform.rotation.x, msg->transforms[k].transform.rotation.y,
-                msg->transforms[k].transform.rotation.z, msg->transforms[k].transform.rotation.z;
+                msg->transforms[k].transform.rotation.z, msg->transforms[k].transform.rotation.w;
 
         Eigen::Affine3d ee_transform; //this should transform the end effector into the same reference frame as the aligned bounding box
         ee_transform = Eigen::Translation3d(position)* orientation.toRotationMatrix();
@@ -79,7 +119,7 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         //transform ee-position into globally aligned coordinate frame (4.2)
         Eigen::Affine3d transform = transforms_[i];
         Eigen::Vector3d local_ee_position = transform * global_ee_position;
-        ROS_INFO("transformed end effector position");
+        ROS_INFO_STREAM("transformed end effector position to " << local_ee_position);
         //compute nearest point on BBOX (4.3)
         Eigen::Vector3d projected_point; //this is the nearest point in the corresponding bounding box
         projected_point.x() = get_nearest_point_coordinate(local_ee_position, x_bound, DIMENSION_X);
@@ -94,7 +134,6 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
             F_res += -stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
         }
         else{ F_res += 0 * F_res; }
-        ROS_INFO_STREAM(F_res);
     }
     return F_res;
 }
@@ -118,12 +157,25 @@ double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::
 
 
 int main(int argc, char **argv) {
+    double stiffness = 20.0;  // Default value
+    double Q = 0.1;         // Default value
+
+    if (argc >= 3) {
+        try {
+            stiffness = std::stod(argv[1]);
+            Q = std::stod(argv[2]);
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing arguments: " << e.what() << std::endl;
+            return 1;  // Return an error code
+        }
+    }
+
     //node functionality
     ros::init(argc, argv, "force_field");
     ros::NodeHandle n;
     ros::AsyncSpinner spinner(4);
     spinner.start();
-    SceneGeometry aligned_geometry(1, 200.0, 0.5);
+    SceneGeometry aligned_geometry(1, stiffness, Q);
     ROS_INFO("set up node");
     global_EE_position << 0.2, 0.0, 0.5;
     // Create a ros::Rate object to control the loop rate
@@ -133,6 +185,7 @@ int main(int argc, char **argv) {
     ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, ee_callback);
     //2) and transforms and bbox_subscriber
     ros::Subscriber bbox_subscriber = n.subscribe("/force_bboxes", 10, &SceneGeometry::bbox_callback, &aligned_geometry);
+    ros::Subscriber planning_scene_subscriber = n.subscribe("/move_group/monitored_planning_scene", 10, &SceneGeometry::planning_scene_callback, &aligned_geometry);
     ros::Subscriber transforms = n.subscribe("/ee_transforms", 10, &SceneGeometry::transform_callback, &aligned_geometry);
     // force field publisher (3)
     ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("/resulting_force", 10);
@@ -150,7 +203,7 @@ int main(int argc, char **argv) {
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
         F_res = aligned_geometry.compute_force(global_EE_position);
-        ROS_INFO_STREAM(F_res);
+        ROS_INFO_STREAM("Resultant Force is " << F_res.transpose() << " N");
         resulting_force_msg.x = F_res.x();
         resulting_force_msg.y = F_res.y();
         resulting_force_msg.z = F_res.z();

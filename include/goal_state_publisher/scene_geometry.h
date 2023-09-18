@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <goal_state_publisher/bounding_box.h>
 #include <tf2_msgs/TFMessage.h>
+#include <moveit_msgs/PlanningScene.h>
 
 #ifndef GOAL_STATE_PUBLISHER_SCENE_GEOMETRY_H
 #define GOAL_STATE_PUBLISHER_SCENE_GEOMETRY_H
@@ -35,7 +36,7 @@ public:
     double get_stiffness() const { return stiffness_; }
 
     //callbacks
-
+    void planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg);
     void bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg);
     void transform_callback(const tf2_msgs::TFMessageConstPtr& msg);
     Eigen::Vector3d compute_force(const Eigen::Vector3d& global_ee_position);
