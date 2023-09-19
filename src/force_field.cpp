@@ -131,7 +131,7 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         double D = effective_distance.norm();
         if (D <= Q_){
             Eigen::Vector3d nabla_D = effective_distance * (1/D); //unit distance vector
-            F_res += -stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
+            F_res += stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
         }
         else{ F_res += 0 * F_res; }
     }
@@ -157,7 +157,7 @@ double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::
 
 
 int main(int argc, char **argv) {
-    double stiffness = 20.0;  // Default value
+    double stiffness = 0.002;  // Default value
     double Q = 0.1;         // Default value
 
     if (argc >= 3) {
@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
     ROS_INFO("set up node");
     global_EE_position << 0.2, 0.0, 0.5;
     // Create a ros::Rate object to control the loop rate
-    ros::Rate loop_rate(0.3333);
+    ros::Rate loop_rate(75);
     //subscribers
     //1) subscribe to ee-pos
     ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, ee_callback);
