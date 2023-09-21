@@ -175,10 +175,10 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS
+   scripts/demo_classes.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
@@ -231,6 +231,9 @@ target_link_libraries(moveit_cpp_test2 ${catkin_LIBRARIES})
 
 add_executable(force_field src/force_field.cpp include/goal_state_publisher/scene_geometry.h include/goal_state_publisher/bounding_box.h)
 target_link_libraries(force_field ${catkin_LIBRARIES})
+
+add_executable(demo src/demo_tasks.cpp)
+target_link_libraries(demo ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/utility.h src/callback_classes.cpp src/callback_classes.h src/gripper_functions.cpp src/gripper_functions.h)
 target_link_libraries(subscriber ${catkin_LIBRARIES})

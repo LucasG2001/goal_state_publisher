@@ -188,6 +188,10 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/goal_state_publisher" TYPE FILE FILES "/home/lucas/catkin_ws/src/goal_state_publisher/package.xml")
 endif()
 
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/goal_state_publisher" TYPE PROGRAM FILES "/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/catkin_generated/installspace/demo_classes.py")
+endif()
+
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/gtest/cmake_install.cmake")

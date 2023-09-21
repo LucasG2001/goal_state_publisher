@@ -39,7 +39,7 @@ public:
     void planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg);
     void bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr& msg);
     void transform_callback(const tf2_msgs::TFMessageConstPtr& msg);
-    Eigen::Vector3d compute_force(const Eigen::Vector3d& global_ee_position);
+    Eigen::Vector3d compute_force(const Eigen::Vector3d& global_ee_position, double exponent);
     static double get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::vector<double> x_extensions, int dimension);
 
 private:

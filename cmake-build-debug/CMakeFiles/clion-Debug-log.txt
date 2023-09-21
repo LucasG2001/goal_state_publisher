@@ -42,6 +42,7 @@ CMake Deprecation Warning at /usr/src/googletest/googletest/CMakeLists.txt:56 (c
 -- BUILD_SHARED_LIBS is on
 -- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
 -- goal_state_publisher: 3 messages, 0 services
+-- Installing devel-space wrapper /home/lucas/catkin_ws/src/goal_state_publisher/scripts/demo_classes.py to /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/lib/goal_state_publisher
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug

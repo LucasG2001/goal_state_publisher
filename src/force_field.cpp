@@ -53,6 +53,7 @@ void SceneGeometry::bbox_callback(const moveit_msgs::PlanningSceneWorldConstPtr&
 void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg){
     /*
      * This callback handles the reception of planning scene updates under /move_group/monitored_planning_scene
+     * it is also somewhat redundant with the "bbox callback"
      */
     if(msg->is_diff == true){ return; }
     size_t size = msg->world.collision_objects.size();
@@ -73,16 +74,26 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
         Eigen::Vector3d translation;
         Eigen::Quaterniond rotation;
         //note that we need the inverse transform of the object's pose so to say
-        translation.x() = -1*msg->world.collision_objects[k].pose.position.x;
-        translation.y() = -1*msg->world.collision_objects[k].pose.position.y;
-        translation.z() = -1*msg->world.collision_objects[k].pose.position.z;
+        translation.x() = msg->world.collision_objects[k].pose.position.x;
+        translation.y() = msg->world.collision_objects[k].pose.position.y;
+        translation.z() = msg->world.collision_objects[k].pose.position.z;
         rotation.coeffs() << msg->world.collision_objects[k].pose.orientation.x, msg->world.collision_objects[k].pose.orientation.y,
                 msg->world.collision_objects[k].pose.orientation.z, msg->world.collision_objects[k].pose.orientation.w;
 
         Eigen::MatrixXd R_matrix = rotation.toRotationMatrix();
         Eigen::Affine3d ee_transform; //this should transform the end effector into the same reference frame as the aligned bounding box
-        ee_transform = Eigen::Translation3d(R_matrix.transpose() * translation) * R_matrix.transpose();
+        //ee_transform = Eigen::Translation3d(R_matrix.transpose() * translation) * R_matrix.transpose();
+        ee_transform = Eigen::Translation3d(-1 * R_matrix.transpose() * translation) * R_matrix.transpose();
         this->transforms_[k] = ee_transform;
+        std::cout << "resulting translation is " << ee_transform.translation().array() << std::endl;
+        std::cout << "resulting translation is " << ee_transform.rotation().array() << std::endl;
+        /*
+         * Check if we don't need to transform the bounding boxes coming in from this message
+         * UPDATE: We don't need to I think. They are assumed at 0 0 0 with their dimension only.
+         * it suffices to transform the end-effector
+         * CHECK also if the correct transformation (and when) is the inverse or just R,t. I think it should be R,t always
+         * as we set by definition our boxes to be at 0 0 0
+         * */
     }
 }
 
@@ -108,7 +119,7 @@ void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
     }
 }
 
-Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_position){
+Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_position, double exponent){
     Eigen::Vector3d F_res;
     F_res << 0, 0, 0;
     for (int i=0; i<size_; i++){
@@ -125,13 +136,15 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         projected_point.x() = get_nearest_point_coordinate(local_ee_position, x_bound, DIMENSION_X);
         projected_point.y() = get_nearest_point_coordinate(local_ee_position, y_bound, DIMENSION_Y);
         projected_point.z() = get_nearest_point_coordinate(local_ee_position, z_bound, DIMENSION_Z);
-        ROS_INFO("projected point on box");
         //compute repulsive Force and add up to the total
         Eigen::Vector3d effective_distance = local_ee_position - projected_point;
+        ROS_INFO_STREAM("effective distance is " << (transforms_[i].rotation().transpose() * effective_distance).transpose());
         double D = effective_distance.norm();
         if (D <= Q_){
             Eigen::Vector3d nabla_D = effective_distance * (1/D); //unit distance vector
-            F_res += stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
+            //F_res += stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
+            F_res += transforms_[i].rotation().transpose() *
+                    (stiffness_ * std::pow((1/D - 1/Q_), exponent) * nabla_D); //transform back to global frame global_F = T_lg^-1 * l_F
         }
         else{ F_res += 0 * F_res; }
     }
@@ -157,13 +170,17 @@ double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::
 
 
 int main(int argc, char **argv) {
-    double stiffness = 0.002;  // Default value
-    double Q = 0.1;         // Default value
-
-    if (argc >= 3) {
+    double stiffness = 1;  // Default value
+    double Q = 0.2;         // Default value
+    double publishing_frequency = 50;
+    double exponent = 0.8;
+    if (argc >= 4) {
         try {
             stiffness = std::stod(argv[1]);
             Q = std::stod(argv[2]);
+            exponent = std::stod(argv[3]);
+            publishing_frequency = std::stod(argv[4]);
+
         } catch (const std::exception& e) {
             std::cerr << "Error parsing arguments: " << e.what() << std::endl;
             return 1;  // Return an error code
@@ -179,7 +196,7 @@ int main(int argc, char **argv) {
     ROS_INFO("set up node");
     global_EE_position << 0.2, 0.0, 0.5;
     // Create a ros::Rate object to control the loop rate
-    ros::Rate loop_rate(75);
+    ros::Rate loop_rate(publishing_frequency);
     //subscribers
     //1) subscribe to ee-pos
     ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, ee_callback);
@@ -202,7 +219,7 @@ int main(int argc, char **argv) {
         std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
-        F_res = aligned_geometry.compute_force(global_EE_position);
+        F_res = aligned_geometry.compute_force(global_EE_position, exponent);
         ROS_INFO_STREAM("Resultant Force is " << F_res.transpose() << " N");
         resulting_force_msg.x = F_res.x();
         resulting_force_msg.y = F_res.y();
