@@ -226,13 +226,10 @@ target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
 add_library(utility src/utility.cpp src/command_publisher.cpp)
 
-add_executable(moveit_cpp_test2 src/moveit_cpp_test2.cpp src/gripper_functions.cpp src/gripper_functions.h)
-target_link_libraries(moveit_cpp_test2 ${catkin_LIBRARIES})
-
 add_executable(force_field src/force_field.cpp include/goal_state_publisher/scene_geometry.h include/goal_state_publisher/bounding_box.h)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_classes.cpp src/demo_classes.h)
+add_executable(demo src/demo_classes.cpp src/demo_classes.h src/utility.h src/utility.cpp)
 target_link_libraries(demo ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/utility.h src/callback_classes.cpp src/callback_classes.h src/gripper_functions.cpp src/gripper_functions.h)

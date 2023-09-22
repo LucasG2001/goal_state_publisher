@@ -39,3 +39,28 @@ void setPlanningParameters(moveit::planning_interface::MoveGroupInterface& move_
 
 }
 
+void move(ros::Publisher& commander, std::vector<double> position, std::vector<double> orientation){
+    geometry_msgs::Pose target_pose;
+    target_pose = createGoalPose(position, orientation);
+    commander.publish(target_pose);
+    ROS_INFO_STREAM("published pose " << target_pose.position << " " << target_pose.orientation);
+}
+
+void open_gripper(ros::Publisher& gripper_move_publisher, double speed, double width){
+    franka_gripper::MoveAction gripper_open;
+    gripper_open.action_goal.goal.width = width;
+    gripper_open.action_goal.goal.speed = speed;
+    gripper_move_publisher.publish(gripper_open);
+    ros::Duration(0.001).sleep();
+}
+
+void grasp_object(ros::Publisher& grasp_publisher, double speed=0.1, double width=0.01, double force=25, double tol=0.005){
+    franka_gripper::GraspAction grasp;
+    grasp.action_goal.goal.speed = speed;
+    grasp.action_goal.goal.width = width;
+    grasp.action_goal.goal.force = force;
+    grasp.action_goal.goal.epsilon.inner = tol;
+    grasp.action_goal.goal.epsilon.outer = tol;
+    grasp_publisher.publish(grasp);
+}
+
