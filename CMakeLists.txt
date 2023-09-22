@@ -232,7 +232,7 @@ target_link_libraries(moveit_cpp_test2 ${catkin_LIBRARIES})
 add_executable(force_field src/force_field.cpp include/goal_state_publisher/scene_geometry.h include/goal_state_publisher/bounding_box.h)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_tasks.cpp)
+add_executable(demo src/demo_classes.cpp src/demo_classes.h)
 target_link_libraries(demo ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/utility.h src/callback_classes.cpp src/callback_classes.h src/gripper_functions.cpp src/gripper_functions.h)

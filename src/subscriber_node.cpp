@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     stop_client.waitForServer();
 
     moveit::planning_interface::MoveGroupInterface move_group("panda_arm"); //or panda_arm
-        moveit::planning_interface::MoveGroupInterface gripper_group("panda_hand");
-    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+    moveit::planning_interface::MoveGroupInterface gripper_group("panda_hand");
+
     // Instantiate MoveItVisualTools for visualizing plans
     moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
     ROS_INFO("adding objects to the scene");
