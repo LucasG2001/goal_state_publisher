@@ -8,7 +8,7 @@ The use case should contain following activities to show the human robot collabo
    The human then debarasses the surface, while robot pours ingredients into pan. The robot puts down the dish near soap (and gets idle), which the human has to get
    to simultaneously, to spray the now empty table.
    -> safety bubble
-3) Human gives robot another push, the robot starts cleaning the surface, while the human stars cooking
+3) Human gives robot another push, the robot starts cleaning the surface, while the human starts cooking
    -> Force control
 
 END od use case

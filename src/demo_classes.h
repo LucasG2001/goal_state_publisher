@@ -11,6 +11,7 @@
 #include <vector>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <franka_msgs/FrankaState.h>
 
 #ifndef GOAL_STATE_PUBLISHER_DEMO_CLASSES_H
 #define GOAL_STATE_PUBLISHER_DEMO_CLASSES_H
@@ -23,11 +24,15 @@ public:
     ros::Publisher gripper_move_pub;
     ros::Publisher grasp_pub;
     ros::Publisher stop_pub;
+    Eigen::Vector3d global_ee_position;
+    Eigen::Matrix<double, 6, 1> F_ext;
+    ros::Publisher control_mode_pub; // controls control mode on high level (0/1 = normal/free float)
 
     //methods
-    void move(std::vector<double> position, std::vector<double> orientation);
+    void move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher);
     void open_gripper(double speed=0.1, double width=0.04);
     void grasp_object(double speed=0.1, double width=0.0, double force=25, double tol=0.005);
+    void ee_callback(const franka_msgs::FrankaStateConstPtr & msg);
 
 private:
     ros::NodeHandlePtr nh_;
@@ -36,6 +41,7 @@ private:
     actionlib::SimpleActionClient<franka_gripper::GraspAction> gripper_grasp_client;
     actionlib::SimpleActionClient<franka_gripper::MoveAction> gripper_move_client;
     actionlib::SimpleActionClient<franka_gripper::StopAction> gripper_stop_client;
+
 };
 
 #endif //GOAL_STATE_PUBLISHER_DEMO_CLASSES_H
