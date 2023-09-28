@@ -224,18 +224,18 @@ catkin_install_python(PROGRAMS
 add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cpp)
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
-add_library(utility src/utility.cpp src/command_publisher.cpp)
+add_library(utility src/utility.cpp)
 
-add_executable(force_field src/force_field.cpp include/goal_state_publisher/scene_geometry.h include/goal_state_publisher/bounding_box.h)
+add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_classes.cpp src/demo_classes.h src/utility.h src/utility.cpp)
+add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp)
 target_link_libraries(demo ${catkin_LIBRARIES})
 
-add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/utility.h src/callback_classes.cpp src/callback_classes.h src/gripper_functions.cpp src/gripper_functions.h)
+add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})
 
-add_executable(command_publisher src/command_publisher.cpp src/utility.cpp src/utility.h)
+add_executable(command_publisher src/command_publisher.cpp src/utility.cpp)
 target_link_libraries(command_publisher ${catkin_LIBRARIES})
 add_dependencies(command_publisher ${goal_state_publisher_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} goal_state_publisher_generate_messages_cpp)
 
