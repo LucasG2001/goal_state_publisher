@@ -127,7 +127,6 @@
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/goal_state_publisher_genpy.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/gripper_functions.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/utility.dir
-/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/moveit_cpp_test2.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/force_field.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/demo.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/subscriber.dir

@@ -1,17 +1,22 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
 Change Dir: /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/home/lucas/clion-2022.3.3/bin/ninja/linux/x64/ninja cmTC_a3d55 && [1/2] Building C object CMakeFiles/cmTC_a3d55.dir/src.c.o
-[2/2] Linking C executable cmTC_a3d55
-FAILED: cmTC_a3d55 
-: && /usr/bin/cc  -rdynamic CMakeFiles/cmTC_a3d55.dir/src.c.o -o cmTC_a3d55   && :
-/usr/bin/ld: CMakeFiles/cmTC_a3d55.dir/src.c.o: in function `main':
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_8caa6/fast && /usr/bin/make  -f CMakeFiles/cmTC_8caa6.dir/build.make CMakeFiles/cmTC_8caa6.dir/build
+make[1]: Entering directory '/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8caa6.dir/src.c.o
+/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD  -fdiagnostics-color=always -o CMakeFiles/cmTC_8caa6.dir/src.c.o -c /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_8caa6
+/home/lucas/clion-2022.3.3/bin/cmake/linux/x64/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8caa6.dir/link.txt --verbose=1
+/usr/bin/cc -rdynamic CMakeFiles/cmTC_8caa6.dir/src.c.o -o cmTC_8caa6 
+/usr/bin/ld: CMakeFiles/cmTC_8caa6.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.c:(.text+0x5e): undefined reference to `pthread_cancel'
 /usr/bin/ld: src.c:(.text+0x6f): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-ninja: build stopped: subcommand failed.
+make[1]: *** [CMakeFiles/cmTC_8caa6.dir/build.make:99: cmTC_8caa6] Error 1
+make[1]: Leaving directory '/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp'
+make: *** [Makefile:127: cmTC_8caa6/fast] Error 2
 
 
 Source file was:
@@ -38,13 +43,18 @@ int main(void)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/home/lucas/clion-2022.3.3/bin/ninja/linux/x64/ninja cmTC_10ec9 && [1/2] Building C object CMakeFiles/cmTC_10ec9.dir/CheckFunctionExists.c.o
-[2/2] Linking C executable cmTC_10ec9
-FAILED: cmTC_10ec9 
-: && /usr/bin/cc -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_10ec9.dir/CheckFunctionExists.c.o -o cmTC_10ec9  -lpthreads && :
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_0ada0/fast && /usr/bin/make  -f CMakeFiles/cmTC_0ada0.dir/build.make CMakeFiles/cmTC_0ada0.dir/build
+make[1]: Entering directory '/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0ada0.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -fdiagnostics-color=always -o CMakeFiles/cmTC_0ada0.dir/CheckFunctionExists.c.o -c /home/lucas/clion-2022.3.3/bin/cmake/linux/x64/share/cmake-3.24/Modules/CheckFunctionExists.c
+Linking C executable cmTC_0ada0
+/home/lucas/clion-2022.3.3/bin/cmake/linux/x64/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0ada0.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_0ada0.dir/CheckFunctionExists.c.o -o cmTC_0ada0  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-ninja: build stopped: subcommand failed.
+make[1]: *** [CMakeFiles/cmTC_0ada0.dir/build.make:99: cmTC_0ada0] Error 1
+make[1]: Leaving directory '/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/CMakeTmp'
+make: *** [Makefile:127: cmTC_0ada0/fast] Error 2
 
 
 

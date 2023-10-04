@@ -1,0 +1,19 @@
+    /**
+    ros::ServiceClient collisionBehaviorClient = n.serviceClient<franka_msgs::SetForceTorqueCollisionBehavior>(
+            "/franka_control/set_force_torque_collision_behavior");
+    franka_msgs::SetForceTorqueCollisionBehavior collisionBehaviorMsg;
+
+    // Set the desired maximum torque and force values
+    collisionBehaviorMsg.request.upper_force_thresholds_nominal = {100.0, 100.0, 100.0, 100.0, 100.0, 100.0}; // Set the maximum torque
+    collisionBehaviorMsg.request.upper_torque_thresholds_nominal = {100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0};   // Set the maximum force
+    collisionBehaviorMsg.request.lower_force_thresholds_nominal = {100.0, 100.0, 100.0, 100.0, 100.0, 100.0}; // Set the maximum torque
+    collisionBehaviorMsg.request.lower_torque_thresholds_nominal = {100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0};   // Set the maximum force
+    // Publish the message to the appropriate topic
+    if (collisionBehaviorClient.call(collisionBehaviorMsg)) {
+        // Service call was successful
+        // You can access the response using srv.response.some_field
+        ROS_INFO("Set new collision thresholds");
+    } else {
+        ROS_ERROR("Service call failed with error message: %s", collisionBehaviorMsg.response.error.c_str());
+    }
+     **/
