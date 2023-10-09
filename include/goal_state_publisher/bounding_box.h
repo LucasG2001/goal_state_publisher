@@ -14,10 +14,20 @@ public:
     // Default Constructor
     BoundingBox() {
         // Initialize x_bounds_, y_bounds_, and z_bounds_ with unit vectors
-        x_bounds_ = {0.0, 0.1};
-        y_bounds_ = {0.0, 0.1};
-        z_bounds_ = {0.0, 0.1};
+        x_bounds_ = {0.0, 0.01};
+        y_bounds_ = {0.0, 0.01};
+        z_bounds_ = {0.0, 0.01};
+        x_center = 0.1;
+        y_center = 0.1;
+        z_center = 0.1;
+        force_mode = 1; //0 for GRasp (no force), 1 for normal (repulsion)
     }
+
+    double x_center;
+    double y_center;
+    double z_center;
+    int force_mode;
+    moveit_msgs::CollisionObject collision_object;
     // Getters for x_bounds, y_bounds, and z_bounds
     const std::vector<double>& getXBounds() const { return x_bounds_; }
     const std::vector<double>& getYBounds() const { return y_bounds_; }

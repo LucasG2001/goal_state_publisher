@@ -229,7 +229,7 @@ add_library(utility src/utility.cpp)
 add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp)
+add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
 target_link_libraries(demo ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)

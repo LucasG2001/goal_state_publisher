@@ -65,9 +65,10 @@ void TaskPlanner::moveit_move(std::vector<double> position, std::vector<double> 
     bool success = plan_until_successful(this->move_group_ptr, 3);
 }
 
-void TaskPlanner::move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol, bool clear_integrator){
-    double trajectory_intervals = 0.12;
+void TaskPlanner::move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info){
+    double trajectory_intervals = 0.15;
     geometry_msgs::PoseStamped target_pose;
+    target_pose.header.frame_id = " ";
     Eigen::Map<Eigen::Vector3d> goal_position(position.data());
     Eigen::Map<Eigen::Vector3d> goal_orientation(position.data());
     Eigen::Matrix<double, 6, 1> waypoint_number;
@@ -81,15 +82,23 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
     Eigen::Vector3d start_position = global_ee_position;
     Eigen::Vector3d lower_bound = start_position.cwiseMin(goal_position);
     Eigen::Vector3d upper_bound = start_position.cwiseMax(goal_position);
-    ROS_INFO_STREAM("going from " << start_position << " to ");
-    ROS_INFO_STREAM(" " << goal_position);
+    ROS_INFO_STREAM("going from " << start_position.transpose() << " to " << " " << goal_position.transpose());
     tol *= 3; //double tolerance for middle waypoints
     double goal_time = 1;
-    if (clear_integrator){ target_pose.header.frame_id = "clear_integrator"; }  //send this to clear integrator at waypoint start
+    /** publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint **/
+    //but only if it is a grasping task, otherwise it makes no sense
+    /**
+    if(header_info=="grasp"){
+        target_pose.header.frame_id = header_info;
+        target_pose.pose = createGoalPose(position, orientation);
+        goal_pose_publisher->publish(target_pose); ros::Duration(0.5).sleep();
+        target_pose.header.frame_id = " "; //immediately reset header for next point
+    } **/
+    /** --------------------------------------------------------- **/
     for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
         if (i == waypoint_number.maxCoeff()){
             tol *= 0.25;//get back tolerance for last waypoint
-            target_pose.header.frame_id = "continue";
+            target_pose.header.frame_id = header_info;
             goal_time = 10;
         }
         Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
@@ -107,8 +116,7 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
             elapsed_time = current_time - start_time;
             ros::Duration(0.1).sleep();
         }
-        //target_pose.header.frame_id = "fill_integrator"; //start filling the integrator again
-    }
+    }//for loop
 
 }
 

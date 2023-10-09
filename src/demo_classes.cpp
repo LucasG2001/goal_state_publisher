@@ -5,42 +5,44 @@
 #include <vector>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
-#include "demo_classes.h"
+#include <demo_classes.h>
 #include "utility.h"
 #include <Eigen/Dense>
 #include <std_msgs/Int16.h>
-#include <franka_msgs/SetForceTorqueCollisionBehavior.h>
+
 
 void task1(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher){
 
-    std::vector<double> object_location = {0.5, 0.0, 0.03};
+    std::vector<double> object_location = {0.5, 0.0, 0.06};
     std::vector<double> place_location = {0.4, 0.45, 0.06};
     std::vector<double> mid_location = {0.45, 0.2, 0.2};
     std::vector<double> neutral_orientation = {-3.14156, 0.0, -1.571}; //moveit has it at -0.785 while for ee direct it's 0 ?????
     std::vector<double> place_orientation = {-3.14156, 0.0, -0.125}; //moveit has 0 orientation at -0.785 while for ee direct it's 0 ?????
-    std::vector<double> object_heights = {0.065, 0.0906, 0.0906, 0.3345};
+    std::vector<double> object_heights = {0.045, 0.0906, 0.0906, 0.3345}; //bowl spice, spice, bottle
     for (size_t i = 0; i < 4; i++){
         if (i == 3){
             place_location = {0.27, -0.7, 0.16}; //last location (bottle)
         }
+        //TODO write function pick & place
         task_planner.open_gripper(); //reset open gripper
+        //set place locations and waypoints
         object_location[2] = object_heights[i];
         place_location[2] = object_location[2] + 0.005;
         mid_location[0] = (object_location[0] + place_location[0])/2;
         mid_location[1] = (object_location[1] + place_location[1])/2;
         mid_location[2] = (object_location[2] + place_location[2])/2 + 0.15; //go up a little after grasping the object, and down again to place it
         ROS_INFO("going to next object");
-        task_planner.move(object_location, neutral_orientation, goal_pose_publisher, 0.03);
+        task_planner.move(object_location, neutral_orientation, goal_pose_publisher, 0.02, "grasp");
         ros::Duration(0.2).sleep();
         ROS_INFO("Move1 done");
         task_planner.grasp_object();
         ros::Duration(0.2).sleep();
         ROS_INFO("grasp done");
-        task_planner.move(mid_location, place_orientation, goal_pose_publisher, 0.07);
-        task_planner.move(place_location, place_orientation,goal_pose_publisher, 0.06); ros::Duration(0.3).sleep();
+        task_planner.move(mid_location, place_orientation, goal_pose_publisher, 0.07, "continue");
+        task_planner.move(place_location, place_orientation,goal_pose_publisher, 0.06, "place"); ros::Duration(0.3).sleep();
         ROS_INFO("move2 done");
         task_planner.open_gripper(); ros::Duration(0.2).sleep();
-        task_planner.move(mid_location, neutral_orientation, goal_pose_publisher, 0.07);
+        task_planner.move(mid_location, neutral_orientation, goal_pose_publisher, 0.07, "continue");
         ROS_INFO("placed object");
         object_location[0] -= 0.03;
         object_location[1] -= 0.1;
@@ -70,7 +72,7 @@ void task2(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher){
     std::vector<double> neutral_orientation = {-3.14156, 0.0, -0.0};
     task_planner.open_gripper(); //reset open gripper
     ROS_INFO("Directing towards Bowl");
-    task_planner.move(bowl_location, neutral_orientation, goal_pose_publisher); ros::Duration(0.2).sleep();
+    task_planner.move(bowl_location, neutral_orientation, goal_pose_publisher, 0.02, "grasp"); ros::Duration(0.2).sleep();
     task_planner.grasp_object(); ros::Duration(0.2).sleep();
     ROS_INFO("Directing towards pan");
     task_planner.move(pan_location, neutral_orientation, goal_pose_publisher);
@@ -78,11 +80,11 @@ void task2(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher){
     task_planner.move(pan_location, {-3.14156, 1.6, -0.0}, goal_pose_publisher);
     ros::Duration(3).sleep(); //WATCH OUT -> Here we set the "POURING" time
     //place bowl
-    ROS_INFO("Going back to idle");
-    task_planner.move({0.2, 0.3, 0.06}, {-3.14156, -0.0, -0.0}, goal_pose_publisher); ros::Duration(0.2).sleep();
+    task_planner.move({0.2, 0.3, 0.06}, {-3.14156, -0.0, -0.0}, goal_pose_publisher, 0.04, "place"); ros::Duration(0.2).sleep();
     task_planner.open_gripper();
     ros::Duration(0.2).sleep();
     //go back to ready position
+    ROS_INFO("Going back to idle");
     task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher);
 
 }
@@ -98,6 +100,7 @@ void task3(TaskPlanner& task_planner, double downward_force, ros::Publisher* cle
     int trajectory_size = 40;
     Eigen::VectorXd x = Eigen::VectorXd::LinSpaced(trajectory_size, 0.30, 0.7);
     Eigen::VectorXd y = a * ((x*omega).array().sin()).matrix();
+    Eigen::VectorXd z_orientations = (3.14156/3) * ((x*50).array().sin()).matrix();
     //set free float
     std_msgs::Int16 control_mode;
     control_mode.data = 1;
@@ -117,16 +120,17 @@ void task3(TaskPlanner& task_planner, double downward_force, ros::Publisher* cle
     task_planner.control_mode_pub.publish(control_mode);
     //move to start point
     ROS_INFO_STREAM("Moving to starting position " << x(0,0) << " " << y(0,0));
-    task_planner.move({0.5, 0.0, 0.03}, {-3.14156, 0.0, 0.0}, &task_planner.equilibrium_pose_pub, 0.02);
+    task_planner.move({0.5, 0.0, 0.033}, {-3.14156, 0.0, 0.0}, &task_planner.equilibrium_pose_pub, 0.02);
     ROS_INFO("re-setting stiffness");
     task_planner.control_mode_pub.publish(control_mode);
     for(int k = 0; k < trajectory_size; k++){
         ROS_INFO("proceeding to next trajectory point");
         //send force, x, y to right client
-        task_planner.move({x(k,0), y(k,0), 0.025}, {-3.14156, 0.0, 0.0}, cleaning_task_publisher, 0.06, true); //higher tolerance, no precision needed
+        task_planner.move({x(k,0), y(k,0), 0.025}, {-3.14156, 0.0, z_orientations(k, 0)}, cleaning_task_publisher, 0.06); //higher tolerance, no precision needed
         ros::Duration(0.05).sleep();
         //wait to finish (or send whole trajectory)
         } //for loop
+    task_planner.move({0.4, 0.0, 0.5}, {-3.14156, 0.0, 0.0}, &task_planner.equilibrium_pose_pub); ros::Duration(0.5).sleep(); // go back to default position
     }
 
 
@@ -163,7 +167,7 @@ int main(int argc, char **argv) {
 
         // Prompt user to input three values
         std::cout
-                << "Enter 0 (nothing) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float)";
+                << "Enter 0 (go home) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float) | 6 (reactivate stiffness) ";
         std::cin >> grip_action;
         switch (grip_action) {
             case 0:
@@ -184,7 +188,11 @@ int main(int argc, char **argv) {
                 task3(task_planner, 5.0, &cleaning_task_pub);
                 break;
             case 5:
-                control_mode_msg.data = 1;
+                control_mode_msg.data = 1; // 1 for free float!
+                task_planner.control_mode_pub.publish(control_mode_msg);
+                break;
+            case 6:
+                control_mode_msg.data = 0;
                 task_planner.control_mode_pub.publish(control_mode_msg);
                 break;
         } //switch case

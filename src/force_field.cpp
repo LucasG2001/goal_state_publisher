@@ -1,18 +1,16 @@
 #include <Eigen/Dense>
-#include <geometry_msgs/Transform.h>
 #include <ros/ros.h>
-#include <geometry_msgs/Pose.h>
 #include <iostream>
 #include <random>
 #include <chrono>
 #include <geometry_msgs/Vector3.h>
-#include <std_msgs/Float32MultiArray.h>
 #include <moveit_msgs/PlanningSceneWorld.h>
 #include <goal_state_publisher/scene_geometry.h>
 #include <tf2_msgs/TFMessage.h>
 #include <franka_msgs/FrankaState.h>
 #include <moveit_msgs/PlanningScene.h>
 
+// Macro Definitions
 #define DIMENSION_X 0
 #define DIMENSION_Y 1
 #define DIMENSION_Z 2
@@ -62,6 +60,8 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
     double y_bound;
     double z_bound;
     for (int k = 0; k < size; k++){
+        this->boundingBoxes_[k].collision_object = msg->world.collision_objects[k];
+        ROS_INFO_STREAM("size of collsiion object in boundnig box is " << this->boundingBoxes_[k].collision_object.primitives.size());
         x_bound = msg->world.collision_objects[k].primitives[0].dimensions[0] * 0.5;
         y_bound = msg->world.collision_objects[k].primitives[0].dimensions[1] * 0.5;
         z_bound = msg->world.collision_objects[k].primitives[0].dimensions[2] * 0.5;
@@ -70,6 +70,9 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
         this->boundingBoxes_[k].setYBounds({-y_bound, y_bound});
         this->boundingBoxes_[k].setZBounds({-z_bound, z_bound});
 
+        this->boundingBoxes_[k].x_center = msg->world.collision_objects[k].pose.position.x;
+        this->boundingBoxes_[k].y_center = msg->world.collision_objects[k].pose.position.y;
+        this->boundingBoxes_[k].z_center = msg->world.collision_objects[k].pose.position.z;
         //state transforms according to box translation
         Eigen::Vector3d translation;
         Eigen::Quaterniond rotation;
@@ -121,6 +124,7 @@ void SceneGeometry::transform_callback(const tf2_msgs::TFMessageConstPtr& msg){
 
 Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_position, double exponent){
     Eigen::Vector3d F_res;
+    Eigen::Vector3d F_object;
     F_res << 0, 0, 0;
     for (int i=0; i<size_; i++){
         //get bbox bounds
@@ -130,7 +134,7 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         //transform ee-position into globally aligned coordinate frame (4.2)
         Eigen::Affine3d transform = transforms_[i];
         Eigen::Vector3d local_ee_position = transform * global_ee_position;
-        ROS_INFO_STREAM("transformed end effector position to " << local_ee_position);
+        //ROS_INFO_STREAM("transformed end effector position to " << local_ee_position);
         //compute nearest point on BBOX (4.3)
         Eigen::Vector3d projected_point; //this is the nearest point in the corresponding bounding box
         projected_point.x() = get_nearest_point_coordinate(local_ee_position, x_bound, DIMENSION_X);
@@ -138,16 +142,26 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         projected_point.z() = get_nearest_point_coordinate(local_ee_position, z_bound, DIMENSION_Z);
         //compute repulsive Force and add up to the total
         Eigen::Vector3d effective_distance = local_ee_position - projected_point;
-        ROS_INFO_STREAM("effective distance is " << (transforms_[i].rotation().transpose() * effective_distance).transpose());
+        //ROS_INFO_STREAM("effective distance is " << (transforms_[i].rotation().transpose() * effective_distance).transpose());
         double D = effective_distance.norm();
         if (D <= Q_){
             Eigen::Vector3d nabla_D = effective_distance * (1/D); //unit distance vector
-            //F_res += stiffness_ * (1/D - 1/Q_) * (1/std::pow(D, 2)) * nabla_D;
-            F_res += transforms_[i].rotation().transpose() *
-                    (stiffness_ * std::pow((1/D - 1/Q_), exponent) * nabla_D); //transform back to global frame global_F = T_lg^-1 * l_F
+            F_object = (transforms_[i].rotation().transpose() * //transform back to global frame global_F = T_lg^-1 * l_F
+                    (stiffness_ * std::pow((1/D - 1/Q_), exponent) * nabla_D)); //is 0 if object is to be grasped (no repulsion)
+                    if(i==grasped_index){
+                        F_object.setZero(); //quick and dirty fix if f_objects tends to infinity * 0 or nan * 0
+                        ROS_INFO_STREAM("grasp goal force contribution is " << F_object);
+                        ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[i].force_mode);
+                        ROS_INFO_STREAM("grasped box is at index " << grasped_index);
+                    }
+                    F_res += F_object;
         }
         else{ F_res += 0 * F_res; }
     }
+    //clamp reaction forces between -70 and 70
+    F_res.x() = std::min(70.0, std::max(-70.0, F_res.x()));
+    F_res.y() = std::min(70.0, std::max(-70.0, F_res.y()));
+    F_res.z() = std::min(70.0, std::max(-70.0, F_res.z()));
     return F_res;
 }
 double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::vector<double> x_extensions, int dimension){
@@ -168,12 +182,96 @@ double SceneGeometry::get_nearest_point_coordinate(Eigen::Vector3d ee_pos, std::
 }
 
 
+void SceneGeometry::graspFeedbackCallback(const franka_gripper::GraspActionResultConstPtr & result) {
+    ROS_INFO("got successful grasp message");
+    if (result->result.success) {
+        has_grasped = true;
+        // Grasp was successful; attach object it to the end-effector
+        // TODO: You can use the MoveIt planning scene to find and attach objects
+        // TODO: Use moveit_msgs::AttachedCollisionObject to attach the object
+        // Now: delete object
+        moveit_msgs::PlanningScene planning_scene_update;
+        planning_scene_update.is_diff = true; // publish the difference to the current planning scene
+        picked_object->collision_object.operation = moveit_msgs::CollisionObject::REMOVE; //delete object from the planning scene
+        planning_scene_update.world.collision_objects.push_back(picked_object->collision_object);
+        this->planning_scene_publisher.publish(planning_scene_update);
+        //TODO ?? delete object from scene geometry object ??
+    }
+}
+
+void SceneGeometry::moveFeedbackCallback(const franka_gripper::MoveActionResultConstPtr & result) {
+    if (result->result.success && has_grasped) {
+        ROS_INFO("got successful place message");
+        has_grasped = false;
+        // Move was successful; de-attach the object from the end-effector
+        // You can use the MoveIt planning scene to detach objects
+        // If necessary, re-spawn the object into the planning scene
+        // You can also delete the object from the end-effector if needed
+        moveit_msgs::PlanningScene planning_scene;
+        geometry_msgs::Pose respawn_location;
+        /** move the box center **/
+        picked_object->collision_object.pose.position.x = global_EE_position.x() + grasp_diff[0];
+        picked_object->collision_object.pose.position.y = global_EE_position.y() + grasp_diff[1];
+        picked_object->collision_object.pose.position.z = global_EE_position.z() + grasp_diff[2];
+        picked_object->x_center = global_EE_position.x() + grasp_diff[0];
+        picked_object->y_center = global_EE_position.y() + grasp_diff[1];
+        picked_object->z_center = global_EE_position.z() + grasp_diff[2];
+        /** Publish to planning scene **/
+        picked_object->collision_object.operation = moveit_msgs::CollisionObject::ADD;
+        planning_scene.world.collision_objects.push_back(picked_object->collision_object);
+        planning_scene.is_diff = true;
+        planning_scene_publisher.publish(planning_scene);
+        /** change transform for force generation**/
+        Eigen::Vector3d new_translation; new_translation << picked_object->collision_object.pose.position.x, picked_object->collision_object.pose.position.y, picked_object->collision_object.pose.position.z;
+        transforms_[grasped_index].translation() = -1 * transforms_[grasped_index].rotation().transpose() * new_translation; //we assume the orientation is unchanged
+        //wait for 2 seconds for the end effector to get away and re-activate the force
+        ros::Duration(0.5).sleep();
+        this->boundingBoxes_[grasped_index].force_mode = 1; //now we apply forces again
+    }
+}
+
+void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedConstPtr & target_pose){
+    if(target_pose->header.frame_id == "grasp") {
+        ROS_INFO("started pick & place action");
+        //grasping logic
+        //find nearest box of target pose
+        double minDistanceSquared = 100.0;
+        BoundingBox* nearestBox = &this->boundingBoxes_[0];
+        int box_index = 0;
+        for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
+            grasp_diff[0] = box.x_center - target_pose->pose.position.x;
+            grasp_diff[1] = box.y_center - target_pose->pose.position.y;
+            grasp_diff[2] = box.z_center - target_pose->pose.position.z;
+            double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
+            if (distanceSquared < minDistanceSquared) {
+                minDistanceSquared = distanceSquared;
+                nearestBox = &box;
+                grasped_index = box_index;
+            }
+            box_index++;
+        } //for loop
+        ROS_INFO_STREAM("Grasping box at " << nearestBox->collision_object.pose.position);
+        grasp_diff[0] = nearestBox->x_center - target_pose->pose.position.x;
+        grasp_diff[1] = nearestBox->y_center - target_pose->pose.position.y;
+        grasp_diff[2] = nearestBox->z_center - target_pose->pose.position.z;
+        nearestBox->force_mode = 0; //disable repulsion for grasping -> no need to change transform yet since contribution is 0 anyway
+        this->boundingBoxes_[grasped_index].force_mode = 0;
+        ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[grasped_index].force_mode);
+        ROS_INFO_STREAM("grasped box is at index " << grasped_index);
+        ROS_INFO("----------------------------------");
+        picked_object = nearestBox; //sets object to be picked at nearest box
+
+    }
+    else if (target_pose->header.frame_id == "place"){
+        //do placement logic
+    }
+}
 
 int main(int argc, char **argv) {
-    double stiffness = 1;  // Default value
-    double Q = 0.2;         // Default value
-    double publishing_frequency = 50;
-    double exponent = 0.8;
+    double stiffness = 4;  // Default value
+    double Q = 0.03;         // Default value
+    double publishing_frequency = 20;
+    double exponent = 0.6;
     if (argc >= 4) {
         try {
             stiffness = std::stod(argv[1]);
@@ -190,7 +288,7 @@ int main(int argc, char **argv) {
     //node functionality
     ros::init(argc, argv, "force_field");
     ros::NodeHandle n;
-    ros::AsyncSpinner spinner(4);
+    ros::AsyncSpinner spinner(10);
     spinner.start();
     SceneGeometry aligned_geometry(1, stiffness, Q);
     ROS_INFO("set up node");
@@ -199,13 +297,19 @@ int main(int argc, char **argv) {
     ros::Rate loop_rate(publishing_frequency);
     //subscribers
     //1) subscribe to ee-pos
-    ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, ee_callback);
+    ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 1, ee_callback);
+    ros::Subscriber grasp_feedback_sub = n.subscribe("franka_gripper/grasp/result", 1, &SceneGeometry::graspFeedbackCallback, &aligned_geometry);
+    ros::Subscriber move_feedback_sub = n.subscribe("franka_gripper/move/result", 1, &SceneGeometry::moveFeedbackCallback, &aligned_geometry);
     //2) and transforms and bbox_subscriber
     ros::Subscriber bbox_subscriber = n.subscribe("/force_bboxes", 10, &SceneGeometry::bbox_callback, &aligned_geometry);
-    ros::Subscriber planning_scene_subscriber = n.subscribe("/move_group/monitored_planning_scene", 10, &SceneGeometry::planning_scene_callback, &aligned_geometry);
+    ros::Subscriber planning_scene_subscriber = n.subscribe("/move_group/monitored_planning_scene", 1, &SceneGeometry::planning_scene_callback, &aligned_geometry);
     ros::Subscriber transforms = n.subscribe("/ee_transforms", 10, &SceneGeometry::transform_callback, &aligned_geometry);
+    //subscriber for goal commands
+    aligned_geometry.goal_pose_subscriber = n.subscribe("/cartesian_impedance_controller/reference_pose", 1, &SceneGeometry::pick_and_place_callback, &aligned_geometry);
     // force field publisher (3)
-    ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("/resulting_force", 10);
+    ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("/resulting_force", 1);
+    //planning scene publisher
+    aligned_geometry.planning_scene_publisher = n.advertise<moveit_msgs::PlanningScene>("/move_group/monitored_planning_scene", 1);
     ROS_INFO("set up publishers and subscribers");
     geometry_msgs:: Vector3 resulting_force_msg;
 
@@ -216,11 +320,11 @@ int main(int argc, char **argv) {
     F_res << 0, 0, 0;
     while (ros::ok()){
         size_t size = aligned_geometry.getSize();
-        std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
+        //std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
         F_res = aligned_geometry.compute_force(global_EE_position, exponent);
-        ROS_INFO_STREAM("Resultant Force is " << F_res.transpose() << " N");
+        //ROS_INFO_STREAM("Resultant Force is " << F_res.transpose() << " N");
         resulting_force_msg.x = F_res.x();
         resulting_force_msg.y = F_res.y();
         resulting_force_msg.z = F_res.z();
@@ -229,7 +333,7 @@ int main(int argc, char **argv) {
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        std::cout << "Time taken by update (whole loop): " << time.count() << " microseconds" << std::endl;
+        //std::cout << "Time taken by update (whole loop): " << time.count() << " microseconds" << std::endl;
         loop_rate.sleep();
     }
 
