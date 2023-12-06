@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "devel/lib/goal_state_publisher/impedance_param_controller"
+			"path" : "devel/lib/goal_state_publisher/subscriber"
 		}
 	],
 	"backtrace" : 1,
@@ -43,13 +43,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 237,
+				"line" : 241,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 238,
+				"line" : 242,
 				"parent" : 0
 			},
 			{
@@ -267,7 +267,7 @@
 			]
 		}
 	],
-	"id" : "impedance_param_controller::@6890427a1f51a3e7e1df",
+	"id" : "subscriber::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -828,8 +828,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "impedance_param_controller",
-	"nameOnDisk" : "impedance_param_controller",
+	"name" : "subscriber",
+	"nameOnDisk" : "subscriber",
 	"paths" : 
 	{
 		"build" : ".",
@@ -853,25 +853,25 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/impedance_setter_node.cpp",
+			"path" : "src/subscriber_node.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/ImpedanceParameterController.cpp",
+			"path" : "src/utility.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/ActionPrimitive.cpp",
+			"path" : "src/callback_classes.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/AtomicTasks.cpp",
+			"path" : "src/gripper_functions.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

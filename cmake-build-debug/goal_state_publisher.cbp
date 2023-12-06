@@ -2174,7 +2174,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/include/demo_classes.h">
+		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/include/TaskPlanner.h">
 			<Option target="demo"/>
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/ActionPrimitive.cpp">

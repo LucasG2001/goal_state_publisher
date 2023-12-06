@@ -8,6 +8,7 @@
 #include <goal_state_publisher/AtomicTasks.h>
 #include <geometry_msgs/Pose.h>
 #include <Eigen/Dense>
+#include <TaskPlanner.h>
 
 class ImpedanceParameterController {
 public:
@@ -20,6 +21,7 @@ public:
 
 	// Setters for active task
 	void setActiveTask(ActionPrimitive& desired_task);
+	// setter to execute a task
 
 	// Call this method to update the impedance parameters based on the active task
 	void updateImpedanceParameters();
@@ -27,6 +29,8 @@ public:
 	//dummy function
 	//ToDo: implement fully
 	Eigen::Matrix<double, 6, 6> getStiffness();
+	TaskPlanner task_planner;
+	ActionPrimitive* activeTask;
 
 private:
 	GetMe get_me_task;
@@ -36,7 +40,7 @@ private:
 	AvoidMe avoid_me_task;
 	/* Add other actions here */
 
-	ActionPrimitive* activeTask;
+
 	Eigen::Matrix<double, 6, 1> rightHandPose;
 	Eigen::Matrix<double, 6, 1> leftHandPose;
 	Eigen::Matrix<double, 6, 1> externalForce;

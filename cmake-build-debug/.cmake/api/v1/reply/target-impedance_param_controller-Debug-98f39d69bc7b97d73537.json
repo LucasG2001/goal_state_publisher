@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "devel/lib/goal_state_publisher/unity"
+			"path" : "devel/lib/goal_state_publisher/impedance_param_controller"
 		}
 	],
 	"backtrace" : 1,
@@ -43,13 +43,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 247,
+				"line" : 238,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 248,
+				"line" : 239,
 				"parent" : 0
 			},
 			{
@@ -260,11 +260,14 @@
 			"language" : "CXX",
 			"sourceIndexes" : 
 			[
-				0
+				0,
+				1,
+				2,
+				3
 			]
 		}
 	],
-	"id" : "unity::@6890427a1f51a3e7e1df",
+	"id" : "impedance_param_controller::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -825,8 +828,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "unity",
-	"nameOnDisk" : "unity",
+	"name" : "impedance_param_controller",
+	"nameOnDisk" : "impedance_param_controller",
 	"paths" : 
 	{
 		"build" : ".",
@@ -838,7 +841,10 @@
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
-				0
+				0,
+				1,
+				2,
+				3
 			]
 		}
 	],
@@ -847,7 +853,25 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/unity.cpp",
+			"path" : "src/impedance_setter_node.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/ImpedanceParameterController.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/ActionPrimitive.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/AtomicTasks.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

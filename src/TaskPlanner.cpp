@@ -2,7 +2,7 @@
 // Created by lucas on 27.09.23.
 //
 // Default constructor
-#include <demo_classes.h>
+#include <TaskPlanner.h>
 
 bool plan_until_successful(moveit::planning_interface::MoveGroupInterface* move_group_ptr, int tries){
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -40,6 +40,18 @@ TaskPlanner::TaskPlanner( moveit::planning_interface::MoveGroupInterface* move_g
     gripper_grasp_client.waitForServer();
     gripper_move_client.waitForServer();
     gripper_stop_client.waitForServer();
+} // end constructor
+
+TaskPlanner::TaskPlanner() :
+		gripper_grasp_client("franka_gripper/grasp", true),
+		gripper_move_client("franka_gripper/move", true),
+		gripper_stop_client("franka_gripper/stop", true)
+{
+
+	// Wait for the action servers to start up
+	gripper_grasp_client.waitForServer();
+	gripper_move_client.waitForServer();
+	gripper_stop_client.waitForServer();
 } // end constructor
 
 
@@ -86,15 +98,6 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
     tol *= 3; //double tolerance for middle waypoints
     double goal_time = 1;
     /** publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint **/
-    //but only if it is a grasping task, otherwise it makes no sense
-    /**
-    if(header_info=="grasp"){
-        target_pose.header.frame_id = header_info;
-        target_pose.pose = createGoalPose(position, orientation);
-        goal_pose_publisher->publish(target_pose); ros::Duration(0.5).sleep();
-        target_pose.header.frame_id = " "; //immediately reset header for next point
-    } **/
-    /** --------------------------------------------------------- **/
     for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
         if (i == waypoint_number.maxCoeff()){
             tol *= 0.25;//get back tolerance for last waypoint
@@ -117,6 +120,45 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
             ros::Duration(0.1).sleep();
         }
     }//for loop
+
+}
+
+const void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol){
+	double trajectory_intervals = 0.15;
+	geometry_msgs::PoseStamped target_pose;
+	Eigen::Matrix<double, 6, 1> waypoint_number;
+	waypoint_number.head(3) = ((goal_position-global_ee_position)/trajectory_intervals).array().abs().ceil(); //position with 0.1 spaced waypoints
+	waypoint_number.tail(3).setZero();
+	//at the moment only use position
+	Eigen::Vector3d step_size = (goal_position - global_ee_position).array() / waypoint_number.head(3).array();
+	ROS_INFO_STREAM("step sizes are " << step_size);
+	Eigen::Vector3d start_position = global_ee_position;
+	Eigen::Vector3d lower_bound = start_position.cwiseMin(goal_position);
+	Eigen::Vector3d upper_bound = start_position.cwiseMax(goal_position);
+	ROS_INFO_STREAM("going from " << start_position.transpose() << " to " << " " << goal_position.transpose());
+	tol *= 3; //double tolerance for middle waypoints
+	double goal_time = 1;
+	/** publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint **/
+	for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
+		if (i == waypoint_number.maxCoeff()){
+			tol *= 0.25;//get back tolerance for last waypoint
+			goal_time = 10;
+		}
+		Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
+		reference_pos = reference_pos.cwiseMax(lower_bound).cwiseMin(upper_bound);
+		std::vector<double> reference_for_msg = {reference_pos(0,0), reference_pos(1,0), reference_pos(2,0)};
+		ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
+		//generate a trajectory with waypoints
+		target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
+		goal_pose_publisher->publish(target_pose);
+		double elapsed_time = 0.0;
+		double start_time = ros::Time::now().toSec();
+		while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time){
+			double current_time = ros::Time::now().toSec();
+			elapsed_time = current_time - start_time;
+			ros::Duration(0.1).sleep();
+		}
+	}//for loop
 
 }
 

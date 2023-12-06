@@ -5,7 +5,7 @@
 #include <vector>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
-#include <demo_classes.h>
+#include <TaskPlanner.h>
 #include "utility.h"
 #include <Eigen/Dense>
 #include <std_msgs/Int16.h>

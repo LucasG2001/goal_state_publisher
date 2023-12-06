@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 		// Publish stiffness parameter of the active task
 		std_msgs::Float64 stiffness_msg;
 		// Assuming there is a method to get stiffness from the active task
-		//ToDo: update with corresct datatype
+		//ToDo: update with correct datatype
 		//stiffness_msg.data = controller.getStiffness(); // Update with actual method
 		ros::Publisher stiffness_pub = nh.advertise<std_msgs::Float64>("/stiffness", 1);
 		stiffness_pub.publish(stiffness_msg);
