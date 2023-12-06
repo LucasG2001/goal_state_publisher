@@ -222,7 +222,9 @@ catkin_install_python(PROGRAMS
 # catkin_add_nosetests(test)
 
 add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cpp)
+
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
+
 
 add_library(utility src/utility.cpp)
 
@@ -231,6 +233,10 @@ target_link_libraries(force_field ${catkin_LIBRARIES})
 
 add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
 target_link_libraries(demo ${catkin_LIBRARIES})
+
+# task primitives for research paper
+add_executable(impedance_param_controller src/impedance_setter_node.cpp src/ImpedanceParameterController.cpp src/ActionPrimitive.cpp src/AtomicTasks.cpp)
+target_link_libraries(impedance_param_controller ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})

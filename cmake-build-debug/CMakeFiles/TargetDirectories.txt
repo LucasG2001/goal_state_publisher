@@ -129,6 +129,7 @@
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/utility.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/force_field.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/demo.dir
+/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/impedance_param_controller.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/subscriber.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/command_publisher.dir
 /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles/unity.dir
