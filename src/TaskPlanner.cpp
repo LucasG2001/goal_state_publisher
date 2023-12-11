@@ -123,12 +123,15 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 
 }
 
-const void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol){
+void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
 	double trajectory_intervals = 0.15;
 	geometry_msgs::PoseStamped target_pose;
 	Eigen::Matrix<double, 6, 1> waypoint_number;
 	waypoint_number.head(3) = ((goal_position-global_ee_position)/trajectory_intervals).array().abs().ceil(); //position with 0.1 spaced waypoints
+	//EXCEPTION HANDLING Waypoint number = 0 (is at goal):
+	waypoint_number.head(3) = waypoint_number.head(3).cwiseMax(Eigen::Vector3d::Ones());
 	waypoint_number.tail(3).setZero();
+	//END of EXCEPTION
 	//at the moment only use position
 	Eigen::Vector3d step_size = (goal_position - global_ee_position).array() / waypoint_number.head(3).array();
 	ROS_INFO_STREAM("step sizes are " << step_size);

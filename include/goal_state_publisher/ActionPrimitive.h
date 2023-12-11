@@ -1,10 +1,10 @@
 #ifndef ACTION_PRIMITIVE_H
 #define ACTION_PRIMITIVE_H
-#endif //ACTION_PRIMITIVE_H
+
 
 #include <Eigen/Dense>
-#include <goal_state_publisher/ImpedanceParameterController.h>
 #include <ros/ros.h>
+#include <TaskPlanner.h>
 
 class ActionPrimitive {
 public:
@@ -12,7 +12,7 @@ public:
     ActionPrimitive();
 
     // Pure virtual function - to be implemented by derived classes
-    virtual void performAction(ImpedanceParameterController &impedance_param_controller, ros::Publisher &publisher) = 0;
+    virtual void performAction(TaskPlanner& task_planner, ros::Publisher &publisher) = 0;
 
     // Setters
     void setStartPose(const Eigen::Matrix<double, 6, 1>& start_pose);
@@ -48,4 +48,4 @@ protected:
     Eigen::Matrix<double, 6, 6> repulsion_damping_;
 };
 
-
+#endif //ACTION_PRIMITIVE_H

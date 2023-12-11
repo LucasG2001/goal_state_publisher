@@ -3,12 +3,13 @@
 //
 #ifndef IMPEDANCE_PARAMETER_CONTROLLER_H
 #define IMPEDANCE_PARAMETER_CONTROLLER_H
-#endif // IMPEDANCE_PARAMETER_CONTROLLER_H
+
 
 #include <goal_state_publisher/AtomicTasks.h>
 #include <geometry_msgs/Pose.h>
 #include <Eigen/Dense>
 #include <TaskPlanner.h>
+#include <std_msgs/Int32.h>
 
 class ImpedanceParameterController {
 public:
@@ -18,6 +19,7 @@ public:
 	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void TaskCallback(const std_msgs::Int32::ConstPtr& int_msg);
 
 	// Setters for active task
 	void setActiveTask(ActionPrimitive& desired_task);
@@ -29,15 +31,16 @@ public:
 	//dummy function
 	//ToDo: implement fully
 	Eigen::Matrix<double, 6, 6> getStiffness();
-	TaskPlanner task_planner;
 	ActionPrimitive* activeTask;
 
-private:
 	GetMe get_me_task;
 	FollowMe follow_me_task;
 	HoldThis hold_this_task;
 	TakeThis take_this_task;
 	AvoidMe avoid_me_task;
+
+private:
+
 	/* Add other actions here */
 
 
@@ -46,5 +49,4 @@ private:
 	Eigen::Matrix<double, 6, 1> externalForce;
 };
 
-
-
+#endif // IMPEDANCE_PARAMETER_CONTROLLER_H

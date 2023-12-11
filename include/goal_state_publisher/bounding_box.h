@@ -7,7 +7,7 @@
 #ifndef GOAL_STATE_PUBLISHER_BOUNDING_BOX_H
 #define GOAL_STATE_PUBLISHER_BOUNDING_BOX_H
 
-#endif //GOAL_STATE_PUBLISHER_BOUNDING_BOX_H
+
 
 class BoundingBox {
 public:
@@ -43,3 +43,5 @@ private:
     std::vector<double> y_bounds_;
     std::vector<double> z_bounds_;
 };
+
+#endif //GOAL_STATE_PUBLISHER_BOUNDING_BOX_H

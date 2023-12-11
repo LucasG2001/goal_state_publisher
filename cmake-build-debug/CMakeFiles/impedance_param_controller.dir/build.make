@@ -125,12 +125,27 @@ CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lucas/catkin_ws/src/goal_state_publisher/src/AtomicTasks.cpp -o CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.s
 
+CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o: CMakeFiles/impedance_param_controller.dir/flags.make
+CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o: /home/lucas/catkin_ws/src/goal_state_publisher/src/TaskPlanner.cpp
+CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o: CMakeFiles/impedance_param_controller.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o -MF CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o.d -o CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o -c /home/lucas/catkin_ws/src/goal_state_publisher/src/TaskPlanner.cpp
+
+CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lucas/catkin_ws/src/goal_state_publisher/src/TaskPlanner.cpp > CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.i
+
+CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lucas/catkin_ws/src/goal_state_publisher/src/TaskPlanner.cpp -o CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.s
+
 # Object files for target impedance_param_controller
 impedance_param_controller_OBJECTS = \
 "CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.o" \
 "CMakeFiles/impedance_param_controller.dir/src/ImpedanceParameterController.cpp.o" \
 "CMakeFiles/impedance_param_controller.dir/src/ActionPrimitive.cpp.o" \
-"CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.o"
+"CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.o" \
+"CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o"
 
 # External object files for target impedance_param_controller
 impedance_param_controller_EXTERNAL_OBJECTS =
@@ -139,6 +154,7 @@ devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_
 devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/src/ImpedanceParameterController.cpp.o
 devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/src/ActionPrimitive.cpp.o
 devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.o
+devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o
 devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/build.make
 devel/lib/goal_state_publisher/impedance_param_controller: /opt/ros/noetic/lib/libmoveit_common_planning_interface_objects.so
 devel/lib/goal_state_publisher/impedance_param_controller: /opt/ros/noetic/lib/libmoveit_planning_scene_interface.so
@@ -252,8 +268,9 @@ devel/lib/goal_state_publisher/impedance_param_controller: /opt/ros/noetic/lib/l
 devel/lib/goal_state_publisher/impedance_param_controller: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0
 devel/lib/goal_state_publisher/impedance_param_controller: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 devel/lib/goal_state_publisher/impedance_param_controller: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
+devel/lib/goal_state_publisher/impedance_param_controller: devel/lib/libutility.so
 devel/lib/goal_state_publisher/impedance_param_controller: CMakeFiles/impedance_param_controller.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable devel/lib/goal_state_publisher/impedance_param_controller"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable devel/lib/goal_state_publisher/impedance_param_controller"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/impedance_param_controller.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

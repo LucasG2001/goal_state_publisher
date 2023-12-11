@@ -2188,6 +2188,7 @@
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/TaskPlanner.cpp">
 			<Option target="demo"/>
+			<Option target="impedance_param_controller"/>
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/callback_classes.cpp">
 			<Option target="subscriber"/>
@@ -2196,7 +2197,7 @@
 			<Option target="gripper_functions"/>
 			<Option target="command_publisher"/>
 		</Unit>
-		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/demo_classes.cpp">
+		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/demo.cpp">
 			<Option target="demo"/>
 		</Unit>
 		<Unit filename="/home/lucas/catkin_ws/src/goal_state_publisher/src/force_field.cpp">

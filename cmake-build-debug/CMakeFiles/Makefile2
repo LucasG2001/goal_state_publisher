@@ -3620,7 +3620,7 @@ CMakeFiles/gripper_functions.dir/clean:
 CMakeFiles/utility.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/utility.dir/build.make CMakeFiles/utility.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/utility.dir/build.make CMakeFiles/utility.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=50,51 "Built target utility"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=51,52 "Built target utility"
 .PHONY : CMakeFiles/utility.dir/all
 
 # Build rule for subdir invocation for target.
@@ -3695,15 +3695,15 @@ CMakeFiles/demo.dir/clean:
 # Target rules for target CMakeFiles/impedance_param_controller.dir
 
 # All Build rule for target.
-CMakeFiles/impedance_param_controller.dir/all:
+CMakeFiles/impedance_param_controller.dir/all: CMakeFiles/utility.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=38,39,40,41,42 "Built target impedance_param_controller"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=38,39,40,41,42,43 "Built target impedance_param_controller"
 .PHONY : CMakeFiles/impedance_param_controller.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/impedance_param_controller.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/impedance_param_controller.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/impedance_param_controller.dir/rule
@@ -3724,7 +3724,7 @@ CMakeFiles/impedance_param_controller.dir/clean:
 CMakeFiles/subscriber.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=43,44,45,46,47 "Built target subscriber"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=44,45,46,47,48 "Built target subscriber"
 .PHONY : CMakeFiles/subscriber.dir/all
 
 # Build rule for subdir invocation for target.
@@ -3888,7 +3888,7 @@ CMakeFiles/command_publisher.dir/clean:
 CMakeFiles/unity.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=48,49 "Built target unity"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=49,50 "Built target unity"
 .PHONY : CMakeFiles/unity.dir/all
 
 # Build rule for subdir invocation for target.

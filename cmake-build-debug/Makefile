@@ -2056,6 +2056,7 @@ src/TaskPlanner.o: src/TaskPlanner.cpp.o
 # target to build an object file
 src/TaskPlanner.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o
 .PHONY : src/TaskPlanner.cpp.o
 
 src/TaskPlanner.i: src/TaskPlanner.cpp.i
@@ -2064,6 +2065,7 @@ src/TaskPlanner.i: src/TaskPlanner.cpp.i
 # target to preprocess a source file
 src/TaskPlanner.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.i
 .PHONY : src/TaskPlanner.cpp.i
 
 src/TaskPlanner.s: src/TaskPlanner.cpp.s
@@ -2072,6 +2074,7 @@ src/TaskPlanner.s: src/TaskPlanner.cpp.s
 # target to generate assembly for a file
 src/TaskPlanner.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.s
 .PHONY : src/TaskPlanner.cpp.s
 
 src/callback_classes.o: src/callback_classes.cpp.o
@@ -2125,29 +2128,29 @@ src/command_publisher.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/command_publisher.dir/build.make CMakeFiles/command_publisher.dir/src/command_publisher.cpp.s
 .PHONY : src/command_publisher.cpp.s
 
-src/demo_classes.o: src/demo_classes.cpp.o
-.PHONY : src/demo_classes.o
+src/demo.o: src/demo.cpp.o
+.PHONY : src/demo.o
 
 # target to build an object file
-src/demo_classes.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.o
-.PHONY : src/demo_classes.cpp.o
+src/demo.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.o
+.PHONY : src/demo.cpp.o
 
-src/demo_classes.i: src/demo_classes.cpp.i
-.PHONY : src/demo_classes.i
+src/demo.i: src/demo.cpp.i
+.PHONY : src/demo.i
 
 # target to preprocess a source file
-src/demo_classes.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.i
-.PHONY : src/demo_classes.cpp.i
+src/demo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.i
+.PHONY : src/demo.cpp.i
 
-src/demo_classes.s: src/demo_classes.cpp.s
-.PHONY : src/demo_classes.s
+src/demo.s: src/demo.cpp.s
+.PHONY : src/demo.s
 
 # target to generate assembly for a file
-src/demo_classes.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.s
-.PHONY : src/demo_classes.cpp.s
+src/demo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.s
+.PHONY : src/demo.cpp.s
 
 src/force_field.o: src/force_field.cpp.o
 .PHONY : src/force_field.o
@@ -2475,9 +2478,9 @@ help:
 	@echo "... src/command_publisher.o"
 	@echo "... src/command_publisher.i"
 	@echo "... src/command_publisher.s"
-	@echo "... src/demo_classes.o"
-	@echo "... src/demo_classes.i"
-	@echo "... src/demo_classes.s"
+	@echo "... src/demo.o"
+	@echo "... src/demo.i"
+	@echo "... src/demo.s"
 	@echo "... src/force_field.o"
 	@echo "... src/force_field.i"
 	@echo "... src/force_field.s"

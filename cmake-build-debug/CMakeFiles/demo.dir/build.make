@@ -69,19 +69,19 @@ include CMakeFiles/demo.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/demo.dir/flags.make
 
-CMakeFiles/demo.dir/src/demo_classes.cpp.o: CMakeFiles/demo.dir/flags.make
-CMakeFiles/demo.dir/src/demo_classes.cpp.o: /home/lucas/catkin_ws/src/goal_state_publisher/src/demo_classes.cpp
-CMakeFiles/demo.dir/src/demo_classes.cpp.o: CMakeFiles/demo.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/demo.dir/src/demo_classes.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/src/demo_classes.cpp.o -MF CMakeFiles/demo.dir/src/demo_classes.cpp.o.d -o CMakeFiles/demo.dir/src/demo_classes.cpp.o -c /home/lucas/catkin_ws/src/goal_state_publisher/src/demo_classes.cpp
+CMakeFiles/demo.dir/src/demo.cpp.o: CMakeFiles/demo.dir/flags.make
+CMakeFiles/demo.dir/src/demo.cpp.o: /home/lucas/catkin_ws/src/goal_state_publisher/src/demo.cpp
+CMakeFiles/demo.dir/src/demo.cpp.o: CMakeFiles/demo.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/demo.dir/src/demo.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/src/demo.cpp.o -MF CMakeFiles/demo.dir/src/demo.cpp.o.d -o CMakeFiles/demo.dir/src/demo.cpp.o -c /home/lucas/catkin_ws/src/goal_state_publisher/src/demo.cpp
 
-CMakeFiles/demo.dir/src/demo_classes.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/demo.dir/src/demo_classes.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lucas/catkin_ws/src/goal_state_publisher/src/demo_classes.cpp > CMakeFiles/demo.dir/src/demo_classes.cpp.i
+CMakeFiles/demo.dir/src/demo.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/demo.dir/src/demo.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lucas/catkin_ws/src/goal_state_publisher/src/demo.cpp > CMakeFiles/demo.dir/src/demo.cpp.i
 
-CMakeFiles/demo.dir/src/demo_classes.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/demo.dir/src/demo_classes.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lucas/catkin_ws/src/goal_state_publisher/src/demo_classes.cpp -o CMakeFiles/demo.dir/src/demo_classes.cpp.s
+CMakeFiles/demo.dir/src/demo.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/demo.dir/src/demo.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lucas/catkin_ws/src/goal_state_publisher/src/demo.cpp -o CMakeFiles/demo.dir/src/demo.cpp.s
 
 CMakeFiles/demo.dir/src/utility.cpp.o: CMakeFiles/demo.dir/flags.make
 CMakeFiles/demo.dir/src/utility.cpp.o: /home/lucas/catkin_ws/src/goal_state_publisher/src/utility.cpp
@@ -113,14 +113,14 @@ CMakeFiles/demo.dir/src/TaskPlanner.cpp.s: cmake_force
 
 # Object files for target demo
 demo_OBJECTS = \
-"CMakeFiles/demo.dir/src/demo_classes.cpp.o" \
+"CMakeFiles/demo.dir/src/demo.cpp.o" \
 "CMakeFiles/demo.dir/src/utility.cpp.o" \
 "CMakeFiles/demo.dir/src/TaskPlanner.cpp.o"
 
 # External object files for target demo
 demo_EXTERNAL_OBJECTS =
 
-devel/lib/goal_state_publisher/demo: CMakeFiles/demo.dir/src/demo_classes.cpp.o
+devel/lib/goal_state_publisher/demo: CMakeFiles/demo.dir/src/demo.cpp.o
 devel/lib/goal_state_publisher/demo: CMakeFiles/demo.dir/src/utility.cpp.o
 devel/lib/goal_state_publisher/demo: CMakeFiles/demo.dir/src/TaskPlanner.cpp.o
 devel/lib/goal_state_publisher/demo: CMakeFiles/demo.dir/build.make

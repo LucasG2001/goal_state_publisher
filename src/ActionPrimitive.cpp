@@ -6,13 +6,18 @@
 
 // Constructor
 ActionPrimitive::ActionPrimitive()
-		: start_pose_(), goal_pose_(), object_pose_(), grasp_(false),
+//ToDo: Handle Creation of smart default goal, and object poses
+		: start_pose_(Eigen::MatrixXd::Identity(6, 1)),
+		  goal_pose_(Eigen::VectorXd::Ones(6)), object_pose_(0.5* Eigen::VectorXd::Ones(6)), grasp_(false),
 		  spring_stiffness_(Eigen::MatrixXd::Identity(6, 6)),  // Arbitrary 6x6 identity matrix
 		  damping_(Eigen::MatrixXd::Identity(6, 6)),  // Arbitrary 6x6 identity matrix
 		  inertia_(Eigen::MatrixXd::Identity(6, 6)),  // Arbitrary 6x6 identity matrix
 		  repulsion_stiffness_(Eigen::MatrixXd::Identity(6, 6)),  // Arbitrary 6x6 identity matrix
 		  repulsion_damping_(Eigen::MatrixXd::Identity(6, 6)) {  // Arbitrary 6x6 identity matrix
 	// Initialize other members if needed
+	//create some useful values
+	goal_pose_ << 0.5, 0.0, 0.45, 3.14156, 0.0, 0.0;
+	object_pose_ << 0.3, 0.5, 0.15, 3.14156, 0, 0;
 }
 
 // Setters
