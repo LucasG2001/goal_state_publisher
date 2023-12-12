@@ -69,6 +69,7 @@
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>message_runtime</build_export_depend>
+  <build_export_depend>custom_msgs</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>moveit_core</exec_depend>
   <exec_depend>moveit_msgs</exec_depend>
@@ -80,6 +81,7 @@
   <exec_depend>franka_gripper</exec_depend>
   <exec_depend>actionlib</exec_depend>
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>custom_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

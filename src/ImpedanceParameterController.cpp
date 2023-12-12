@@ -31,9 +31,10 @@ void ImpedanceParameterController::FextCallback(const geometry_msgs::Pose::Const
 }
 
 // Assume the callback function receives an int message
-void ImpedanceParameterController::TaskCallback(const std_msgs::Int32::ConstPtr& int_msg) {
+void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg) {
 	// Extract the integer value from the message
-	int task_type = int_msg->data;
+	ROS_INFO("Received Action Primitive Message");
+	int task_type = msg->task_type;
 
 	// Switch the active task pointer based on the task_type
 	switch (task_type) {

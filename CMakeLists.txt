@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib
         message_generation
         franka_control
+        custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -237,6 +238,9 @@ target_link_libraries(demo ${catkin_LIBRARIES})
 # task primitives for research paper
 add_executable(impedance_param_controller src/impedance_setter_node.cpp src/ImpedanceParameterController.cpp src/ActionPrimitive.cpp src/AtomicTasks.cpp src/TaskPlanner.cpp)
 target_link_libraries(impedance_param_controller ${catkin_LIBRARIES} utility)
+
+add_executable(action_primitive_tester test/action_primitive_tester.cpp)
+target_link_libraries(action_primitive_tester ${catkin_LIBRARIES} utility)
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})

@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 #include <TaskPlanner.h>
 #include <std_msgs/Int32.h>
+#include <custom_msgs/action_primitive_message.h>
 
 class ImpedanceParameterController {
 public:
@@ -19,7 +20,7 @@ public:
 	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
-	void TaskCallback(const std_msgs::Int32::ConstPtr& int_msg);
+	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);
 
 	// Setters for active task
 	void setActiveTask(ActionPrimitive& desired_task);

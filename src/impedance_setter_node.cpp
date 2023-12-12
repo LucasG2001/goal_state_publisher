@@ -19,9 +19,12 @@ int main(int argc, char** argv) {
 
 	ImpedanceParameterController controller;
 	TaskPlanner task_planner;
+	//subscribers
 	ros::Subscriber rightHandSub = nh.subscribe("/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
 	ros::Subscriber leftHandSub = nh.subscribe("/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
 	ros::Subscriber FextSub = nh.subscribe("/F_ext", 1, &ImpedanceParameterController::FextCallback, &controller);
+	ros::Subscriber task_sub = nh.subscribe("/action_primitive", 1, &ImpedanceParameterController::TaskCallback, &controller);
+	//publishers
 	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 10);
 
 	ros::AsyncSpinner spinner(4);
@@ -32,6 +35,7 @@ int main(int argc, char** argv) {
 
 	while (ros::ok()) {
 		// Get input from user
+		/**
 		std::cout << "Enter a task (1, 2, 3, 4, or 5): ";
 		std::cin >> task_type;
 		// Switch-case statement
@@ -60,6 +64,7 @@ int main(int argc, char** argv) {
 				std::cout << "Invalid task\n";
 				break;
 		}
+		**/
 
 		controller.activeTask->performAction(task_planner, equilibrium_pose_pub);
 		loop_rate.sleep();
