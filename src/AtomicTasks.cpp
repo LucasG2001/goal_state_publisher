@@ -73,12 +73,9 @@ void FollowMe::performAction(TaskPlanner& task_planner, ros::Publisher &publishe
 	// Custom logic for FollowMe
 	//ToDo: goal_pose should be updated as hand pose -> in callbacks?
 	//go to hand
-	ros::Rate hand_rate(50);
 	//ToDo: Implement the loops in switch case of node -> Active Task will be switched by callback
-	while (true){
-		task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.03);
-		hand_rate.sleep();
-	}
+	task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.03);
+	//execute first action, then we will just update the goal position and publish it in the right_hand callback
 
 }
 
@@ -113,11 +110,8 @@ void HoldThis::performAction(TaskPlanner& task_planner, ros::Publisher &publishe
 	task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.03);
 	task_planner.open_gripper();
 	task_planner.grasp_object();
-	//wait while active task is not changed
-	//ToDo: Implement the loops in switch case of node
-	while(true){
-		waiting_time.sleep();
-	}
+	//stopping here will effectually do nothing until the next callback comes in
+
 }
 
 // Default constructor for TakeThis

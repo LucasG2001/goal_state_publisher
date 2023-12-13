@@ -150,7 +150,7 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 		Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
 		reference_pos = reference_pos.cwiseMax(lower_bound).cwiseMin(upper_bound);
 		std::vector<double> reference_for_msg = {reference_pos(0,0), reference_pos(1,0), reference_pos(2,0)};
-		ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
+		//ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
 		//generate a trajectory with waypoints
 		target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
 		goal_pose_publisher->publish(target_pose);
@@ -159,8 +159,9 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 		while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time){
 			double current_time = ros::Time::now().toSec();
 			elapsed_time = current_time - start_time;
-			ros::Duration(0.1).sleep();
+			ros::Duration(0.05).sleep();
 		}
+		ROS_INFO("Reached waypoint");
 	}//for loop
 
 }

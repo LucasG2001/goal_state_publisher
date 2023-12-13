@@ -11,11 +11,11 @@
 #include <TaskPlanner.h>
 #include <std_msgs/Int32.h>
 #include <custom_msgs/action_primitive_message.h>
+#include <TaskPlanner.h>
 
 class ImpedanceParameterController {
 public:
-	ImpedanceParameterController();
-
+	explicit ImpedanceParameterController(ros::Publisher* pub);
 	// Callback functions
 	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
@@ -39,6 +39,10 @@ public:
 	HoldThis hold_this_task;
 	TakeThis take_this_task;
 	AvoidMe avoid_me_task;
+
+	//fields to execute and publish action primitive trajectories
+	TaskPlanner task_planner;
+	ros::Publisher* reference_pose_publisher_;  // Pointer to ROS publisher
 
 private:
 

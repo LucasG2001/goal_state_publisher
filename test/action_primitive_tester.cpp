@@ -4,14 +4,13 @@
 #include <ros/node_handle.h>
 #include <ros/spinner.h>
 #include <iostream>
-#include <TaskPlanner.h>
 #include <custom_msgs/action_primitive_message.h>
 #include "utility.h"
 
 int main(int argc, char** argv) {
 	//ROS Specific Initializations
 	std::cout << "starting node ";
-	ros::init(argc, argv, "impedance_controller_node");
+	ros::init(argc, argv, "action_primitive_test_node");
 	ros::NodeHandle nh;
 	std::cout << "started node";
 
@@ -33,6 +32,7 @@ int main(int argc, char** argv) {
 	while (ros::ok()) {
 		std::cout << "Enter a task (1, 2, 3, 4, or 5): ";
 		std::cin >> task_type;
+		action_message.task_type = task_type;
 		// Switch-case statement
 		switch (task_type) {
 			case 1:
@@ -40,15 +40,14 @@ int main(int argc, char** argv) {
 				action_message.goal_pose = createGoalPose({0.7, 0.0, 0.35}, {3.14156, 0.0, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = true;
-				action_message.task_type = task_type;
+
 				task_publisher.publish(action_message);
 				break;
 			case 2:
 				std::cout << "FollowMe selected\n";
-				action_message.goal_pose = createGoalPose({0.5, 0.0, 0.5}, {3.14156, 0.0, 0.0});
+				action_message.goal_pose = createGoalPose({0.3, 0.5, 0.5}, {3.14156, 0.0, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = false;
-				action_message.task_type = task_type;
 				task_publisher.publish(action_message);
 				break;
 			case 3:
@@ -56,15 +55,13 @@ int main(int argc, char** argv) {
 				action_message.goal_pose = createGoalPose({0.5, 0.0, 0.5}, {3.14156, 0.0, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = true;
-				action_message.task_type = task_type;
 				task_publisher.publish(action_message);
 				break;
 			case 4:
 				std::cout << "TakeThis selected\n";
-				action_message.goal_pose = createGoalPose({0.5, 0.0, 0.5}, {3.14156, 0.0, 0.0});
+				action_message.goal_pose = createGoalPose({0.65, -0.1, 0.4}, {3.14156, 0.0, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = true;
-				action_message.task_type = task_type;
 				task_publisher.publish(action_message);
 				break;
 			case 5:
@@ -72,7 +69,6 @@ int main(int argc, char** argv) {
 				action_message.goal_pose = createGoalPose({0.5, -0.3, 0.3}, {3.14156, -0.7875, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = false;
-				action_message.task_type = task_type;
 				task_publisher.publish(action_message);
 				break;
 			default:

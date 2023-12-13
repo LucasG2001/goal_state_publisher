@@ -223,11 +223,11 @@ catkin_install_python(PROGRAMS
 # catkin_add_nosetests(test)
 
 add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cpp)
-
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
 
 add_library(utility src/utility.cpp)
+target_link_libraries(utility ${catkin_LIBRARIES})
 
 add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})

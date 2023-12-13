@@ -6,6 +6,18 @@
 #include <franka_gripper/franka_gripper.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include "utility.h"
+#include "Eigen/Dense"
+
+Eigen::Matrix<double, 6, 1> convert_pose_to_eigen(const geometry_msgs::Pose& msg){
+	Eigen::Matrix<double, 6, 1> pose;
+	pose.head(3) << msg.position.x, msg.position.y, msg.position.z;
+	Eigen::Quaterniond orientation;
+	orientation.coeffs() << msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w;
+	pose.tail(3) = orientation.toRotationMatrix().eulerAngles(0, 1, 2);
+	return pose;
+}
+
+
 
 geometry_msgs::Pose createGoalPose(std::vector<double> position, std::vector<double> orientation){
     geometry_msgs::Pose target_pose;
@@ -31,6 +43,7 @@ franka_gripper::GraspGoal createGraspGoal(double width, double force, double eps
     return grasp_goal;
 }
 
+
 void setPlanningParameters(moveit::planning_interface::MoveGroupInterface& move_group, double plan_time, int attempts, double max_v, double max_a){
     move_group.setPlanningTime(plan_time);
     move_group.setNumPlanningAttempts(attempts);
@@ -38,6 +51,7 @@ void setPlanningParameters(moveit::planning_interface::MoveGroupInterface& move_
     move_group.setMaxAccelerationScalingFactor(max_a);
 
 }
+
 
 void move(ros::Publisher& commander, std::vector<double> position, std::vector<double> orientation){
     geometry_msgs::Pose target_pose;
