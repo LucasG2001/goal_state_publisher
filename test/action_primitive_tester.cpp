@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	action_message.task_type = 1;
 
 	while (ros::ok()) {
-		std::cout << "Enter a task (1, 2, 3, 4, or 5): ";
+		std::cout << "Enter a task. 1 (GetMe), 2 (FollowMe), 3 (HoldThis), 4 (TakeThis), or 5 (AvoidMe): ";
 		std::cin >> task_type;
 		action_message.task_type = task_type;
 		// Switch-case statement
