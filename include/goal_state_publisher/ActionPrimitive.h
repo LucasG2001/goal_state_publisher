@@ -33,8 +33,9 @@ public:
     Eigen::Matrix<double, 6, 6> getSpringStiffness() const;
     Eigen::Matrix<double, 6, 6> getDamping() const;
     Eigen::Matrix<double, 6, 6> getInertia() const;
-    Eigen::Matrix<double, 6, 6> getRepulsionStiffness() const;
-    Eigen::Matrix<double, 6, 6> getRepulsionDamping() const;
+	//ToDo: make matrix sizes of IMpedance parameters consistent over all nodes
+    Eigen::Matrix<double, 3, 3> getRepulsionStiffness() const;
+    Eigen::Matrix<double, 3, 3> getRepulsionDamping() const;
 
 protected:
     Eigen::Matrix<double, 6, 1> start_pose_;

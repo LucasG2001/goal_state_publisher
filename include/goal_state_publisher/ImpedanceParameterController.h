@@ -11,11 +11,12 @@
 #include <TaskPlanner.h>
 #include <std_msgs/Int32.h>
 #include <custom_msgs/action_primitive_message.h>
+#include <custom_msgs/ImpedanceParameterMsg.h>
 #include <TaskPlanner.h>
 
 class ImpedanceParameterController {
 public:
-	explicit ImpedanceParameterController(ros::Publisher* pub);
+	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub);
 	// Callback functions
 	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
@@ -27,7 +28,7 @@ public:
 	// setter to execute a task
 
 	// Call this method to update the impedance parameters based on the active task
-	void updateImpedanceParameters();
+	void updateImpedanceParameters() const;
 
 	//dummy function
 	//ToDo: implement fully
@@ -43,12 +44,11 @@ public:
 	//fields to execute and publish action primitive trajectories
 	TaskPlanner task_planner;
 	ros::Publisher* reference_pose_publisher_;  // Pointer to ROS publisher
+	ros::Publisher* impedance_param_pub;  // Pointer to ROS publisher
 
 private:
 
 	/* Add other actions here */
-
-
 	Eigen::Matrix<double, 6, 1> rightHandPose;
 	Eigen::Matrix<double, 6, 1> leftHandPose;
 	Eigen::Matrix<double, 6, 1> externalForce;

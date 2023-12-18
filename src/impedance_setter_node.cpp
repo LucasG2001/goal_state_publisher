@@ -7,6 +7,7 @@
 #include <goal_state_publisher/ImpedanceParameterController.h>
 #include <iostream>
 #include <TaskPlanner.h>
+#include <custom_msgs/ImpedanceParameterMsg.h>
 
 
 
@@ -17,10 +18,14 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nh;
 	std::cout << "started node";
 
+	ros::AsyncSpinner spinner(4);
+	spinner.start();
+
 	//publishers
-	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 10);
+	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 1);
+	ros::Publisher impedance_parameter_pub = nh.advertise<custom_msgs::ImpedanceParameterMsg>("/cartesian_impedance_controller/impedance_param_reconfig", 1);
 	//ImpedanceParamController Object
-	ImpedanceParameterController controller(&equilibrium_pose_pub);
+	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub);
 	//subscribers
 	ros::Subscriber rightHandSub = nh.subscribe("/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
 	ros::Subscriber leftHandSub = nh.subscribe("/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
@@ -29,8 +34,7 @@ int main(int argc, char** argv) {
 	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &controller.task_planner);
 
 
-	ros::AsyncSpinner spinner(4);
-	spinner.start();
+
 
 	ros::Rate loop_rate(1); // 1
 	//int task_type;

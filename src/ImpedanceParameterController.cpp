@@ -5,20 +5,23 @@
 #include <std_msgs/Int32.h>
 #include <utility.h>
 
-ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* pub)
-		: reference_pose_publisher_(pub), get_me_task(), follow_me_task(), hold_this_task(), take_this_task(), avoid_me_task(),
+ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub)
+		: reference_pose_publisher_(ref_pub), impedance_param_pub(impedance_pub), get_me_task(), follow_me_task(), hold_this_task(), take_this_task(), avoid_me_task(),
 		  activeTask(&hold_this_task), task_planner(), rightHandPose(), leftHandPose(), externalForce() {
 	// Initialize other members if needed
 }
 void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
 	// Extract relevant information from the message and set the right hand pose
+	geometry_msgs::PoseStamped goal;
 	Eigen::Vector3d right_hand_position(msg->position.x, msg->position.y, msg->position.z);
 	Eigen::Vector3d right_hand_orientation(msg->orientation.x, msg->orientation.y, msg->orientation.z);
 	rightHandPose << right_hand_position, right_hand_orientation;
 	//if task is FOLLOW ME update the goal pose
 	if(activeTask == &follow_me_task){
 		activeTask->setGoalPose(rightHandPose);
-		reference_pose_publisher_->publish(msg);
+		goal.pose.position = msg->position;
+		goal.pose.orientation = msg->orientation;
+		reference_pose_publisher_->publish(goal);
 	}
 }
 
@@ -36,7 +39,6 @@ void ImpedanceParameterController::FextCallback(const geometry_msgs::Pose::Const
 	externalForce << F_ext_position, F_ext_orientation;
 }
 
-// Assume the callback function receives an int message
 void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg) {
 	// Extract the integer value from the message
 	ROS_INFO("Received Action Primitive Message");
@@ -77,6 +79,9 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	activeTask->setObjectPose(object_pose);
 	activeTask->setGrasp(msg->grasp);
 	ROS_INFO("executing task");
+	updateImpedanceParameters();
+	ros::Duration(0.05).sleep();
+	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_);
 
 }
@@ -90,6 +95,63 @@ Eigen::Matrix<double, 6, 6> ImpedanceParameterController::getStiffness() {
 	return this->activeTask->getSpringStiffness();
 }
 
-void ImpedanceParameterController::updateImpedanceParameters() {
+//This version of the method generated a stack smashing error, thus it has been reimplemented again further below
+/*
+void ImpedanceParameterController::updateImpedanceParameters() const {
 	//ToDo: Implement if useful here
+	custom_msgs::ImpedanceParameterMsg compliance_update;
+	ROS_INFO("Updating Impedance parameters");
+	std::copy(activeTask->getSpringStiffness().data(), activeTask->getSpringStiffness().data() + 36, compliance_update.stiffness.begin());
+	std::cout << compliance_update.stiffness.size() << "\n" << std::endl;
+	ROS_INFO("Updated Stiffness");
+	std::copy(activeTask->getDamping().data(), activeTask->getDamping().data() + 36, compliance_update.damping.begin());
+	std::cout << compliance_update.damping.size() << "\n" << std::endl;
+	ROS_INFO("Updated Damping");
+	std::copy(activeTask->getInertia().data(), activeTask->getInertia().data() + 36, compliance_update.inertia_factors.begin());
+	std::cout << compliance_update.inertia_factors.size() << "\n" << std::endl;
+	ROS_INFO("Updated Inertia");
+	std::copy(activeTask->getRepulsionStiffness().data(), activeTask->getRepulsionStiffness().data() + 9, compliance_update.safety_bubble_stiffness.begin());
+	std::cout << compliance_update.safety_bubble_stiffness.size() << "\n" << std::endl;
+	ROS_INFO("Updated Safety bubble Stiffness");
+	std::copy(activeTask->getRepulsionDamping().data(), activeTask->getRepulsionDamping().data() + 9, compliance_update.safety_bubble_damping.begin());
+	for (int i = 0; i < 9; i++){
+		std::cout << "msg: "  << compliance_update.safety_bubble_damping[i] << " " << activeTask->getRepulsionDamping()(i) << "\n";
+	}
+	std::cout << compliance_update.safety_bubble_damping.size() << "\n" << std::endl;
+	ROS_INFO("Updated safety bubble damping");
+
+	impedance_param_pub->publish(compliance_update);
+	ROS_INFO("published message");
+}
+*/
+
+
+void ImpedanceParameterController::updateImpedanceParameters() const {
+	//ToDo: Implement if useful here
+	custom_msgs::ImpedanceParameterMsg compliance_update;
+	Eigen::Matrix<double, 6, 6> stiffness, damping, inertia;
+	Eigen::Matrix<double, 3, 3> bubble_stiffness, bubble_damping;
+	stiffness << activeTask->getSpringStiffness();
+	damping << activeTask->getDamping();
+	inertia << activeTask->getInertia();
+	bubble_stiffness << activeTask->getRepulsionStiffness();
+	bubble_damping << activeTask->getRepulsionDamping();
+
+	ROS_INFO("Updating Impedance parameters");
+	std::copy(stiffness.data(), stiffness.data() + 36, compliance_update.stiffness.begin());
+	ROS_INFO("Updated Stiffness");
+	std::copy(damping.data(), damping.data() + 36, compliance_update.damping.begin());
+	ROS_INFO("Updated Damping");
+	std::copy(inertia.data(), inertia.data() + 36, compliance_update.inertia_factors.begin());
+	ROS_INFO("Updated Inertia");
+	std::copy(bubble_stiffness.data(), bubble_stiffness.data() + 9, compliance_update.safety_bubble_stiffness.begin());
+	ROS_INFO("Updated Safety bubble Stiffness");
+	std::copy(bubble_damping.data(), bubble_damping.data() + 9, compliance_update.safety_bubble_damping.begin());
+	for (int i = 0; i < 9; i++){
+		std::cout << "msg: "  << compliance_update.safety_bubble_damping[i] << " " << activeTask->getRepulsionDamping()(i) << "\n";
+	}
+	ROS_INFO("Updated safety bubble damping");
+
+	impedance_param_pub->publish(compliance_update);
+	ROS_INFO("published message");
 }

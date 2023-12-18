@@ -79,10 +79,12 @@ Eigen::Matrix<double, 6, 6> ActionPrimitive::getInertia() const {
 	return inertia_;
 }
 
-Eigen::Matrix<double, 6, 6> ActionPrimitive::getRepulsionStiffness() const {
-	return repulsion_stiffness_;
+Eigen::Matrix<double, 3, 3> ActionPrimitive::getRepulsionStiffness() const {
+	//ToDo: make matrix sizes of impedance parameters consistent over all nodes
+	return repulsion_stiffness_.topLeftCorner(3,3);
 }
 
-Eigen::Matrix<double, 6, 6> ActionPrimitive::getRepulsionDamping() const {
-	return repulsion_damping_;
+Eigen::Matrix<double, 3, 3> ActionPrimitive::getRepulsionDamping() const {
+	//ToDo: make matrix sizes of impedance parameters consistent over all nodes
+	return repulsion_damping_.topLeftCorner(3,3);
 }
