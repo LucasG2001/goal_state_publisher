@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/sktistakis/ros_ws/src/goal_state_publisher/build/devel/setup.sh
