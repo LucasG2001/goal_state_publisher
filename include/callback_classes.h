@@ -4,15 +4,16 @@
 
 #ifndef GOAL_STATE_PUBLISHER_CALLBACK_CLASSES_H
 #define GOAL_STATE_PUBLISHER_CALLBACK_CLASSES_H
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/GraspMsg.h"
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/MoveGripperMsg.h"
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/StopGripperMsg.h"
+
 #include <actionlib/client/simple_action_client.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <franka_gripper/franka_gripper.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
+#include <goal_state_publisher/GraspMsg.h>
+#include <goal_state_publisher/MoveGripperMsg.h>
+#include <goal_state_publisher/StopGripperMsg.h>
 
 
 void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg);

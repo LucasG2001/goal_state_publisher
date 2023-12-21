@@ -132,7 +132,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-        ${HOME}/catkin_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher} # Add this line
+        ${HOME}/ros_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher} # Add this line
         ${MSG_LIB_GOAL_PUB}
 )
 
