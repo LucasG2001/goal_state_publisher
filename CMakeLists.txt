@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(goal_state_publisher)
+set(CMAKE_BUILD_TYPE Release)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -9,6 +10,7 @@ project(goal_state_publisher)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  message_generation
   moveit_core
   moveit_msgs
   moveit_ros_planning
@@ -49,7 +51,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
+
 ##   * uncomment the add_*_files sections below as needed
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
@@ -61,6 +63,7 @@ add_message_files(DIRECTORY msg
         GraspMsg.msg
         MoveGripperMsg.msg
         StopGripperMsg.msg
+        testMsg.msg
 #   Message1.msg
 #   Message2.msg
 )
@@ -221,16 +224,18 @@ catkin_install_python(PROGRAMS
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+
 add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cpp)
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
 add_library(utility src/utility.cpp)
 
+
 add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
-target_link_libraries(demo ${catkin_LIBRARIES})
+add_executable(demo1 src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
+target_link_libraries(demo1 ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})

@@ -269,7 +269,7 @@ void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedCons
 
 int main(int argc, char **argv) {
     double stiffness = 4;  // Default value
-    double Q = 0.03;         // Default value
+    double Q = 0.05;         // Default value
     double publishing_frequency = 20;
     double exponent = 0.6;
     if (argc >= 4) {

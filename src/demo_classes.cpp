@@ -9,6 +9,9 @@
 #include "utility.h"
 #include <Eigen/Dense>
 #include <std_msgs/Int16.h>
+#include <std_msgs/Bool.h>
+#include <limits>
+
 
 
 void task1(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher){
@@ -133,6 +136,71 @@ void task3(TaskPlanner& task_planner, double downward_force, ros::Publisher* cle
     task_planner.move({0.4, 0.0, 0.5}, {-3.14156, 0.0, 0.0}, &task_planner.equilibrium_pose_pub); ros::Duration(0.5).sleep(); // go back to default position
     }
 
+    void task4(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher){
+
+
+        std::vector<double> object_location = {0.5, 0.0, 0.06};
+        std::vector<double> place_location = {0.4, 0.45, 0.06};
+        std::vector<double> mid_location = {0.45, 0.2, 0.2};
+        std::vector<double> neutral_orientation = {-3.14156, 0.0, -1.571}; //moveit has it at -0.785 while for ee direct it's 0 ?????
+        std::vector<double> place_orientation = {-3.14156, 0.0, -0.125}; //moveit has 0 orientation at -0.785 while for ee direct it's 0 ?????
+        std::vector<double> object_heights = {0.045, 0.0906, 0.0906, 0.3345}; //bowl spice, spice, bottle
+
+        task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        ROS_INFO("achieved neutral position");
+        ros::Duration(0.2).sleep();
+        task_planner.move({0.4, -0.35, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.35, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        ROS_INFO("achieved neutral position, y done");
+        task_planner.move({0.4, 0.0, 0.2}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.0, 0.6}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        ROS_INFO("achieved neutral position, z done");
+        task_planner.move({0.6, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.2, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        ROS_INFO("achieved neutral position, x done");
+        task_planner.move({0.6, -0.35, 0.2}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.2, 0.35, 0.6}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        task_planner.move({0.4, 0.0, 0.5}, neutral_orientation, goal_pose_publisher); ros::Duration(5).sleep();
+        ROS_INFO("achieved neutral position, combined done");
+
+
+    }
+
+    void test_mode(TaskPlanner &task_planner){
+
+        goal_state_publisher::testMsg usr_input;
+        usr_input.test = true;
+
+        std::cout << "What joint do you want to test? (0-7)";
+        std::cin >> usr_input.joint;
+        
+        task_planner.pub_test.publish(usr_input);
+        
+    }
+
+    void friction_selection(TaskPlanner &task_planner, std_msgs::Bool &friction_usr){
+
+        bool userInput;
+        std::cout << "Do you want to use friction compensation? (0/1) \n";
+        std::cin >> userInput;
+    
+        if(std::cin.fail()){
+            std::cout << "Invalid input \n";
+        }
+
+        friction_usr.data = userInput;
+
+        if(friction_usr.data){
+            std::cout << "I read true \n";
+        }
+        else{
+            std::cout << "I read false \n";
+        }
+        task_planner.friction_pub.publish(friction_usr);
+    }
 
 int main(int argc, char **argv) {
     //ToDo: Use argv to set robot (panda/fr3)
@@ -151,6 +219,8 @@ int main(int argc, char **argv) {
     //subscribe to ee_pos
     task_planner.equilibrium_pose_pub = n.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 1);
     task_planner.control_mode_pub = n.advertise<std_msgs::Int16>("/cartesian_impedance_controller/control_mode", 1);
+    task_planner.pub_test = n.advertise<goal_state_publisher::testMsg>("test_topic", 1); 
+    task_planner.friction_pub = n.advertise<std_msgs::Bool>("friction_topic", 1);
     ros::Publisher cleaning_task_pub = n.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/panda_force_action", 1);
     ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &task_planner);
 
@@ -163,29 +233,50 @@ int main(int argc, char **argv) {
     franka_gripper::StopAction stop;
     franka_gripper::StopGoalConstPtr stop_goal;
     std_msgs::Int16 control_mode_msg;
+    std_msgs::Bool friction_usr;
     while (ros::ok()) {
 
         // Prompt user to input three values
         std::cout
-                << "Enter 0 (go home) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float) | 6 (reactivate stiffness) ";
+                << "Enter 0 (go home) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float) | 6 (reactivate stiffness) | 7 (test mode) | 8 (test mode 2)";
         std::cin >> grip_action;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if(grip_action != 7){
+            goal_state_publisher::testMsg usr_input;
+            usr_input.test = false;
+            task_planner.pub_test.publish(usr_input);
+        }
+
         switch (grip_action) {
             case 0:
                 task_planner.move({0.4, 0.05, 0.3}, {-3.14156, 0, -0.785}, &task_planner.equilibrium_pose_pub);
                 break;
             case 1:
+                friction_selection(task_planner, friction_usr);
                 task1(task_planner,  &task_planner.equilibrium_pose_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
                 break;
             case 2:
+                friction_selection(task_planner, friction_usr);
                 task2(task_planner, &task_planner.equilibrium_pose_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
                 break;
             case 3:
+                friction_selection(task_planner, friction_usr);
                 task3(task_planner, 5.0, &cleaning_task_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
                 break;
             case 4:
+                friction_selection(task_planner, friction_usr);
                 task1(task_planner,  &task_planner.equilibrium_pose_pub);
                 task2(task_planner, &task_planner.equilibrium_pose_pub);
                 task3(task_planner, 5.0, &cleaning_task_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
                 break;
             case 5:
                 control_mode_msg.data = 1; // 1 for free float!
@@ -195,6 +286,14 @@ int main(int argc, char **argv) {
                 control_mode_msg.data = 0;
                 task_planner.control_mode_pub.publish(control_mode_msg);
                 break;
+            case 7:
+                test_mode(task_planner);
+                break;
+            case 8:
+                friction_selection(task_planner, friction_usr);
+                task4(task_planner, &task_planner.equilibrium_pose_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
         } //switch case
         std::cout << "current end-effector position is at " << task_planner.global_ee_position.transpose() << std::endl;
         loop_rate.sleep();

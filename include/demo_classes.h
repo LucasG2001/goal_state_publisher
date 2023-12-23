@@ -12,6 +12,8 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <franka_msgs/FrankaState.h>
+#include <goal_state_publisher/testMsg.h>
+#include <std_msgs/Bool.h>
 
 #ifndef GOAL_STATE_PUBLISHER_DEMO_CLASSES_H
 #define GOAL_STATE_PUBLISHER_DEMO_CLASSES_H
@@ -26,6 +28,10 @@ public:
     ros::Publisher control_mode_pub; // controls control mode on high level (0/1 = normal/free float)
     ros::Publisher equilibrium_pose_pub;
     ros::Publisher grasp_pose_publisher;
+    ros::Publisher pub_test;
+    ros::Publisher friction_pub; //controls friction mode (0/1 = no friction/friction model)
+    bool test_ = false;
+    int joint_ = 0;
 
     //methods
     void move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol = 0.04, std::string header_info = "none"); // equilibrium pose movement
@@ -34,6 +40,7 @@ public:
     void open_gripper(double speed=0.1, double width=0.08);
     void grasp_object(double speed=0.1, double width=0.0, double force=40, double tol=0.08);
     void ee_callback(const franka_msgs::FrankaStateConstPtr & msg);
+    void friction_selection(TaskPlanner &task_planner, std_msgs::Bool &friction_usr);
 
 private:
     ros::NodeHandlePtr nh_;
@@ -41,6 +48,7 @@ private:
     actionlib::SimpleActionClient<franka_gripper::GraspAction> gripper_grasp_client;
     actionlib::SimpleActionClient<franka_gripper::MoveAction> gripper_move_client;
     actionlib::SimpleActionClient<franka_gripper::StopAction> gripper_stop_client;
+    
 
 };
 
