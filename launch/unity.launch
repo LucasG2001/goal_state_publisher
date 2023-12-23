@@ -1,0 +1,4 @@
+<include file="$(find ros_tcp_endpoint)/launch/endpoint.launch">
+<include file="$(find force_control)/launch/cartesian_impedance_controller.launch">
+<include file="$(find fr3_moveit_config)/launch/move_group.launch">
+

@@ -317,20 +317,50 @@ int main(int argc, char **argv) {
     Eigen::Vector3d ee_pos;
     Eigen::Vector3d projected_point;
     Eigen::Vector3d F_res;
+    Eigen::Vector3d left_diff;
+    Eigen::Vector3d right_diff;
+    left_diff << 0, 0.7, 0.08; right_diff <<0, -0.7, 0.08;
+    Eigen::Vector3d x_diff_h;
+    Eigen::Vector3d x_diff_v;
+    left_diff << 0.13, 0.0, 0.8; right_diff << -0.13, 0.0, 0.8;
     F_res << 0, 0, 0;
+    std::vector<Eigen::Vector3d> vectors;
     while (ros::ok()){
         size_t size = aligned_geometry.getSize();
         //std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
         F_res = aligned_geometry.compute_force(global_EE_position, exponent);
-        //ROS_INFO_STREAM("Resultant Force is " << F_res.transpose() << " N");
-        resulting_force_msg.x = F_res.x();
-        resulting_force_msg.y = F_res.y();
-        resulting_force_msg.z = F_res.z();
+        ROS_INFO_STREAM("Resultant Force  1 is " << F_res.transpose() << " N");
+        //add more control points
+        Eigen::Vector3d F_left = aligned_geometry.compute_force(global_EE_position + left_diff, exponent);
+        ROS_INFO_STREAM("Resultant Force 2 is " << F_left.transpose() << " N");
+        Eigen::Vector3d F_right = aligned_geometry.compute_force(global_EE_position + right_diff, exponent);
+        ROS_INFO_STREAM("Resultant Force 3 is " << F_right.transpose() << " N");
+        Eigen::Vector3d F_h = aligned_geometry.compute_force(global_EE_position + x_diff_h, exponent);
+        ROS_INFO_STREAM("Resultant Force 4 is " << F_h.transpose() << " N");
+        Eigen::Vector3d F_v = aligned_geometry.compute_force(global_EE_position + x_diff_v, exponent);
+        ROS_INFO_STREAM("Resultant Force 5 is " << F_v.transpose() << " N");
+        ROS_INFO("----------------------------------------------------------------");
+
+        //TODO: why does it say that resulting forces are the same at every point?
+
+
+        // Add the vectors to the vector
+        vectors.push_back(F_res); vectors.push_back(F_left); vectors.push_back(F_right); vectors.push_back(F_h); vectors.push_back(F_v);
+        // Find the vector with the largest L2 norm using std::max_element and a lambda function
+        auto maxVector = *std::max_element(vectors.begin(), vectors.end(),
+                                           [](const Eigen::Vector3d& a, const Eigen::Vector3d& b) {
+                                               return a.norm() < b.norm();
+                                           });
+
+        resulting_force_msg.x = maxVector.x();
+        resulting_force_msg.y = maxVector.y();
+        resulting_force_msg.z = maxVector.z();
 
         force_publisher.publish(resulting_force_msg);
-
+        vectors.clear(); //avoid accumulation of force vectors
+        ROS_INFO_STREAM("resulting Force is " << maxVector.transpose());
         auto stop = std::chrono::high_resolution_clock::now();
         auto time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         //std::cout << "Time taken by update (whole loop): " << time.count() << " microseconds" << std::endl;

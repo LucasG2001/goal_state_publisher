@@ -21,6 +21,8 @@ franka_gripper::GraspGoal createGraspGoal(double width = 0.02, double force = 40
 
 void setPlanningParameters(moveit::planning_interface::MoveGroupInterface& move_group, double plan_time= 25.0, int attempts = 10, double max_v = 0.5, double max_a = 0.5);
 
+Eigen::Matrix<double, 6, 1> convert_pose_to_eigen(const geometry_msgs::Pose& msg);
+
 class GripperTask
 {
 public:

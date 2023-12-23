@@ -10,11 +10,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <franka_msgs/SetLoad.h>
 
-//watch out with these h-files. Only building with catkin build in the workspace will build everything correctly, even when not including these files
-//these are for the IDE. If you can't find them in the referenced location, the cMake dependencies should make sure catkin can build and auto-generate the headers
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/GraspMsg.h"
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/MoveGripperMsg.h"
-#include "../../../devel/.private/goal_state_publisher/include/goal_state_publisher/StopGripperMsg.h"
+#include <goal_state_publisher/GraspMsg.h>
+#include <goal_state_publisher/MoveGripperMsg.h>
+#include <goal_state_publisher/StopGripperMsg.h>
+
 #include <cmath>
 #include <visualization_msgs/InteractiveMarkerFeedback.h>
 

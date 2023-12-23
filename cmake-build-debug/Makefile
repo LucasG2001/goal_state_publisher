@@ -1875,6 +1875,19 @@ demo/fast:
 .PHONY : demo/fast
 
 #=============================================================================
+# Target rules for targets named impedance_param_controller
+
+# Build rule for target.
+impedance_param_controller: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 impedance_param_controller
+.PHONY : impedance_param_controller
+
+# fast build rule for target.
+impedance_param_controller/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/build
+.PHONY : impedance_param_controller/fast
+
+#=============================================================================
 # Target rules for targets named subscriber
 
 # Build rule for target.
@@ -1965,12 +1978,85 @@ gtest_main/fast:
 	$(MAKE) $(MAKESILENT) -f gtest/googletest/CMakeFiles/gtest_main.dir/build.make gtest/googletest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
+src/ActionPrimitive.o: src/ActionPrimitive.cpp.o
+.PHONY : src/ActionPrimitive.o
+
+# target to build an object file
+src/ActionPrimitive.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ActionPrimitive.cpp.o
+.PHONY : src/ActionPrimitive.cpp.o
+
+src/ActionPrimitive.i: src/ActionPrimitive.cpp.i
+.PHONY : src/ActionPrimitive.i
+
+# target to preprocess a source file
+src/ActionPrimitive.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ActionPrimitive.cpp.i
+.PHONY : src/ActionPrimitive.cpp.i
+
+src/ActionPrimitive.s: src/ActionPrimitive.cpp.s
+.PHONY : src/ActionPrimitive.s
+
+# target to generate assembly for a file
+src/ActionPrimitive.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ActionPrimitive.cpp.s
+.PHONY : src/ActionPrimitive.cpp.s
+
+src/AtomicTasks.o: src/AtomicTasks.cpp.o
+.PHONY : src/AtomicTasks.o
+
+# target to build an object file
+src/AtomicTasks.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.o
+.PHONY : src/AtomicTasks.cpp.o
+
+src/AtomicTasks.i: src/AtomicTasks.cpp.i
+.PHONY : src/AtomicTasks.i
+
+# target to preprocess a source file
+src/AtomicTasks.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.i
+.PHONY : src/AtomicTasks.cpp.i
+
+src/AtomicTasks.s: src/AtomicTasks.cpp.s
+.PHONY : src/AtomicTasks.s
+
+# target to generate assembly for a file
+src/AtomicTasks.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/AtomicTasks.cpp.s
+.PHONY : src/AtomicTasks.cpp.s
+
+src/ImpedanceParameterController.o: src/ImpedanceParameterController.cpp.o
+.PHONY : src/ImpedanceParameterController.o
+
+# target to build an object file
+src/ImpedanceParameterController.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ImpedanceParameterController.cpp.o
+.PHONY : src/ImpedanceParameterController.cpp.o
+
+src/ImpedanceParameterController.i: src/ImpedanceParameterController.cpp.i
+.PHONY : src/ImpedanceParameterController.i
+
+# target to preprocess a source file
+src/ImpedanceParameterController.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ImpedanceParameterController.cpp.i
+.PHONY : src/ImpedanceParameterController.cpp.i
+
+src/ImpedanceParameterController.s: src/ImpedanceParameterController.cpp.s
+.PHONY : src/ImpedanceParameterController.s
+
+# target to generate assembly for a file
+src/ImpedanceParameterController.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/ImpedanceParameterController.cpp.s
+.PHONY : src/ImpedanceParameterController.cpp.s
+
 src/TaskPlanner.o: src/TaskPlanner.cpp.o
 .PHONY : src/TaskPlanner.o
 
 # target to build an object file
 src/TaskPlanner.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.o
 .PHONY : src/TaskPlanner.cpp.o
 
 src/TaskPlanner.i: src/TaskPlanner.cpp.i
@@ -1979,6 +2065,7 @@ src/TaskPlanner.i: src/TaskPlanner.cpp.i
 # target to preprocess a source file
 src/TaskPlanner.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.i
 .PHONY : src/TaskPlanner.cpp.i
 
 src/TaskPlanner.s: src/TaskPlanner.cpp.s
@@ -1987,6 +2074,7 @@ src/TaskPlanner.s: src/TaskPlanner.cpp.s
 # target to generate assembly for a file
 src/TaskPlanner.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/TaskPlanner.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/TaskPlanner.cpp.s
 .PHONY : src/TaskPlanner.cpp.s
 
 src/callback_classes.o: src/callback_classes.cpp.o
@@ -2040,29 +2128,29 @@ src/command_publisher.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/command_publisher.dir/build.make CMakeFiles/command_publisher.dir/src/command_publisher.cpp.s
 .PHONY : src/command_publisher.cpp.s
 
-src/demo_classes.o: src/demo_classes.cpp.o
-.PHONY : src/demo_classes.o
+src/demo.o: src/demo.cpp.o
+.PHONY : src/demo.o
 
 # target to build an object file
-src/demo_classes.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.o
-.PHONY : src/demo_classes.cpp.o
+src/demo.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.o
+.PHONY : src/demo.cpp.o
 
-src/demo_classes.i: src/demo_classes.cpp.i
-.PHONY : src/demo_classes.i
+src/demo.i: src/demo.cpp.i
+.PHONY : src/demo.i
 
 # target to preprocess a source file
-src/demo_classes.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.i
-.PHONY : src/demo_classes.cpp.i
+src/demo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.i
+.PHONY : src/demo.cpp.i
 
-src/demo_classes.s: src/demo_classes.cpp.s
-.PHONY : src/demo_classes.s
+src/demo.s: src/demo.cpp.s
+.PHONY : src/demo.s
 
 # target to generate assembly for a file
-src/demo_classes.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo_classes.cpp.s
-.PHONY : src/demo_classes.cpp.s
+src/demo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/demo.cpp.s
+.PHONY : src/demo.cpp.s
 
 src/force_field.o: src/force_field.cpp.o
 .PHONY : src/force_field.o
@@ -2114,6 +2202,30 @@ src/gripper_functions.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gripper_functions.dir/build.make CMakeFiles/gripper_functions.dir/src/gripper_functions.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/src/gripper_functions.cpp.s
 .PHONY : src/gripper_functions.cpp.s
+
+src/impedance_setter_node.o: src/impedance_setter_node.cpp.o
+.PHONY : src/impedance_setter_node.o
+
+# target to build an object file
+src/impedance_setter_node.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.o
+.PHONY : src/impedance_setter_node.cpp.o
+
+src/impedance_setter_node.i: src/impedance_setter_node.cpp.i
+.PHONY : src/impedance_setter_node.i
+
+# target to preprocess a source file
+src/impedance_setter_node.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.i
+.PHONY : src/impedance_setter_node.cpp.i
+
+src/impedance_setter_node.s: src/impedance_setter_node.cpp.s
+.PHONY : src/impedance_setter_node.s
+
+# target to generate assembly for a file
+src/impedance_setter_node.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.s
+.PHONY : src/impedance_setter_node.cpp.s
 
 src/subscriber_node.o: src/subscriber_node.cpp.o
 .PHONY : src/subscriber_node.o
@@ -2344,9 +2456,19 @@ help:
 	@echo "... gripper_functions"
 	@echo "... gtest"
 	@echo "... gtest_main"
+	@echo "... impedance_param_controller"
 	@echo "... subscriber"
 	@echo "... unity"
 	@echo "... utility"
+	@echo "... src/ActionPrimitive.o"
+	@echo "... src/ActionPrimitive.i"
+	@echo "... src/ActionPrimitive.s"
+	@echo "... src/AtomicTasks.o"
+	@echo "... src/AtomicTasks.i"
+	@echo "... src/AtomicTasks.s"
+	@echo "... src/ImpedanceParameterController.o"
+	@echo "... src/ImpedanceParameterController.i"
+	@echo "... src/ImpedanceParameterController.s"
 	@echo "... src/TaskPlanner.o"
 	@echo "... src/TaskPlanner.i"
 	@echo "... src/TaskPlanner.s"
@@ -2356,15 +2478,18 @@ help:
 	@echo "... src/command_publisher.o"
 	@echo "... src/command_publisher.i"
 	@echo "... src/command_publisher.s"
-	@echo "... src/demo_classes.o"
-	@echo "... src/demo_classes.i"
-	@echo "... src/demo_classes.s"
+	@echo "... src/demo.o"
+	@echo "... src/demo.i"
+	@echo "... src/demo.s"
 	@echo "... src/force_field.o"
 	@echo "... src/force_field.i"
 	@echo "... src/force_field.s"
 	@echo "... src/gripper_functions.o"
 	@echo "... src/gripper_functions.i"
 	@echo "... src/gripper_functions.s"
+	@echo "... src/impedance_setter_node.o"
+	@echo "... src/impedance_setter_node.i"
+	@echo "... src/impedance_setter_node.s"
 	@echo "... src/subscriber_node.o"
 	@echo "... src/subscriber_node.i"
 	@echo "... src/subscriber_node.s"

@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib
         message_generation
         franka_control
+        custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -134,7 +135,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-        ${HOME}/catkin_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher} # Add this line
+        ${HOME}/ros_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher} # Add this line
         ${MSG_LIB_GOAL_PUB}
 )
 
@@ -228,14 +229,14 @@ catkin_install_python(PROGRAMS
 add_library(gripper_functions src/gripper_functions.cpp src/command_publisher.cpp)
 target_link_libraries(gripper_functions ${catkin_LIBRARIES})
 
-add_library(utility src/utility.cpp)
 
+add_library(utility src/utility.cpp)
 
 add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo1 src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
-target_link_libraries(demo1 ${catkin_LIBRARIES})
+add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
+target_link_libraries(demo ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})
