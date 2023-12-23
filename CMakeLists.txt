@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(goal_state_publisher)
 set(CMAKE_BUILD_TYPE Release)
 
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -22,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
         actionlib
         message_generation
         franka_control
-        custom_msgs
+        #custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -235,8 +236,8 @@ add_library(utility src/utility.cpp)
 add_executable(force_field src/force_field.cpp)
 target_link_libraries(force_field ${catkin_LIBRARIES})
 
-add_executable(demo src/demo_classes.cpp src/utility.cpp src/TaskPlanner.cpp include/demo_classes.h)
-target_link_libraries(demo ${catkin_LIBRARIES})
+add_executable(demo1 src/demo.cpp src/utility.cpp src/TaskPlanner.cpp include/TaskPlanner.h)
+target_link_libraries(demo1 ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})
