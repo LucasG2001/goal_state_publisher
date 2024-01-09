@@ -4,78 +4,18 @@
 // Default constructor
 #include <TaskPlanner.h>
 
-bool plan_until_successful(moveit::planning_interface::MoveGroupInterface* move_group_ptr, int tries){
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    bool success = false;
-    int attempt = 0;
-    while(!success && attempt <= tries){
-        success = (move_group_ptr->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-        ROS_INFO("Plan was computed");
-        if (success){
-            move_group_ptr->execute(plan); //this call should be blocking
-            ROS_INFO("Plan found");
-            ROS_INFO("Executing!");
-            return success;
-        }
-        else { ROS_WARN("Could not Plan Motion successfully");
-            ROS_INFO_STREAM("proceeding to attempt nr " << (attempt +1));
-        }
-        attempt += 1;
-    }
-    ROS_WARN("Even after multiple attempts no plan was found");
-    return false;
-}
-
-TaskPlanner::TaskPlanner( moveit::planning_interface::MoveGroupInterface* move_group,  moveit::planning_interface::MoveGroupInterface* gripper_group) :
-        gripper_grasp_client("franka_gripper/grasp", true),
-        gripper_move_client("franka_gripper/move", true),
-        gripper_stop_client("franka_gripper/stop", true)
-{
-    // Initialize ROS node handle
-    nh_.reset(new ros::NodeHandle("~"));
-    // Set default callback queue sizes
-    move_group_ptr = move_group;
-
-    // Wait for the action servers to start up
-    gripper_grasp_client.waitForServer();
-    gripper_move_client.waitForServer();
-    gripper_stop_client.waitForServer();
-} // end constructor
-
+//Default Constructor
 TaskPlanner::TaskPlanner() :
 		gripper_grasp_client("franka_gripper/grasp", true),
 		gripper_move_client("franka_gripper/move", true),
 		gripper_stop_client("franka_gripper/stop", true)
 {
-
 	// Wait for the action servers to start up
 	gripper_grasp_client.waitForServer();
 	gripper_move_client.waitForServer();
 	gripper_stop_client.waitForServer();
 } // end constructor
 
-
-void TaskPlanner::multiplan_move(std::vector<double> position, std::vector<double> orientation){
-    geometry_msgs::Pose target_pose;
-    target_pose = createGoalPose(position, orientation);
-    move_group_ptr->setPoseTarget(target_pose);
-    move_group_ptr->setStartStateToCurrentState();
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    bool success = (this->move_group_ptr->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-    ROS_INFO("Plan was computed");
-    if (success){
-        this->move_group_ptr->execute(plan); //this call should be blocking
-        ROS_INFO("Plan found");
-        ROS_INFO("Executing!");
-    }
-    else { ROS_WARN("Could not Plan Motion successfully");}
-}
-
-void TaskPlanner::moveit_move(std::vector<double> position, std::vector<double> orientation){
-    geometry_msgs::Pose target_pose;
-    target_pose = createGoalPose(position, orientation);
-    bool success = plan_until_successful(this->move_group_ptr, 3);
-}
 
 void TaskPlanner::move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info){
     double trajectory_intervals = 0.15;
@@ -123,7 +63,10 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 
 }
 
+
+
 void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
+	ros::Rate loop_rate(25);
 	double trajectory_intervals = 0.15;
 	geometry_msgs::PoseStamped target_pose;
 	Eigen::Matrix<double, 6, 1> waypoint_number;
@@ -134,7 +77,7 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	//END of EXCEPTION
 	//at the moment only use position
 	Eigen::Vector3d step_size = (goal_position - global_ee_position).array() / waypoint_number.head(3).array();
-	ROS_INFO_STREAM("step sizes are " << step_size);
+	//ROS_INFO_STREAM("step sizes are " << step_size);
 	Eigen::Vector3d start_position = global_ee_position;
 	Eigen::Vector3d lower_bound = start_position.cwiseMin(goal_position);
 	Eigen::Vector3d upper_bound = start_position.cwiseMax(goal_position);
@@ -159,7 +102,7 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 		while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time){
 			double current_time = ros::Time::now().toSec();
 			elapsed_time = current_time - start_time;
-			ros::Duration(0.05).sleep();
+			loop_rate.sleep();
 		}
 		ROS_INFO("Reached waypoint");
 	}//for loop

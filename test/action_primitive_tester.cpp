@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nh;
 	std::cout << "started node";
 
-	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 10);
 	ros::Publisher task_publisher = nh.advertise<custom_msgs::action_primitive_message>("/action_primitive", 10);
 	//test follow me mode
 	ros::Publisher hand_publisher = nh.advertise<geometry_msgs::Pose>("/right_hand", 10);

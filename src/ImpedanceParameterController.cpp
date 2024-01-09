@@ -79,10 +79,10 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	activeTask->setObjectPose(object_pose);
 	activeTask->setGrasp(msg->grasp);
 	ROS_INFO("executing task");
-	updateImpedanceParameters();
+	updateImpedanceParameters(); // somewhat redundant, impedance is changes in "perform action"
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
-	activeTask->performAction(task_planner, *reference_pose_publisher_);
+	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
 
 }
 
@@ -94,37 +94,6 @@ void ImpedanceParameterController::setActiveTask(ActionPrimitive& desired_task) 
 Eigen::Matrix<double, 6, 6> ImpedanceParameterController::getStiffness() {
 	return this->activeTask->getSpringStiffness();
 }
-
-//This version of the method generated a stack smashing error, thus it has been reimplemented again further below
-/*
-void ImpedanceParameterController::updateImpedanceParameters() const {
-	//ToDo: Implement if useful here
-	custom_msgs::ImpedanceParameterMsg compliance_update;
-	ROS_INFO("Updating Impedance parameters");
-	std::copy(activeTask->getSpringStiffness().data(), activeTask->getSpringStiffness().data() + 36, compliance_update.stiffness.begin());
-	std::cout << compliance_update.stiffness.size() << "\n" << std::endl;
-	ROS_INFO("Updated Stiffness");
-	std::copy(activeTask->getDamping().data(), activeTask->getDamping().data() + 36, compliance_update.damping.begin());
-	std::cout << compliance_update.damping.size() << "\n" << std::endl;
-	ROS_INFO("Updated Damping");
-	std::copy(activeTask->getInertia().data(), activeTask->getInertia().data() + 36, compliance_update.inertia_factors.begin());
-	std::cout << compliance_update.inertia_factors.size() << "\n" << std::endl;
-	ROS_INFO("Updated Inertia");
-	std::copy(activeTask->getRepulsionStiffness().data(), activeTask->getRepulsionStiffness().data() + 9, compliance_update.safety_bubble_stiffness.begin());
-	std::cout << compliance_update.safety_bubble_stiffness.size() << "\n" << std::endl;
-	ROS_INFO("Updated Safety bubble Stiffness");
-	std::copy(activeTask->getRepulsionDamping().data(), activeTask->getRepulsionDamping().data() + 9, compliance_update.safety_bubble_damping.begin());
-	for (int i = 0; i < 9; i++){
-		std::cout << "msg: "  << compliance_update.safety_bubble_damping[i] << " " << activeTask->getRepulsionDamping()(i) << "\n";
-	}
-	std::cout << compliance_update.safety_bubble_damping.size() << "\n" << std::endl;
-	ROS_INFO("Updated safety bubble damping");
-
-	impedance_param_pub->publish(compliance_update);
-	ROS_INFO("published message");
-}
-*/
-
 
 void ImpedanceParameterController::updateImpedanceParameters() const {
 	//ToDo: Implement if useful here

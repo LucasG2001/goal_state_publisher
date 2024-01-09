@@ -164,10 +164,7 @@ int main(int argc, char **argv) {
 
     ros::Rate loop_rate(0.5);
 
-    //create move group_connection
-    moveit::planning_interface::MoveGroupInterface move_group("panda_arm"); //or panda_arm
-    moveit::planning_interface::MoveGroupInterface gripper_group("panda_hand");
-    TaskPlanner task_planner(&move_group, &gripper_group);
+    TaskPlanner task_planner;
     //subscribe to ee_pos
     task_planner.equilibrium_pose_pub = n.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 1);
     task_planner.control_mode_pub = n.advertise<std_msgs::Int16>("/cartesian_impedance_controller/control_mode", 1);
@@ -175,11 +172,7 @@ int main(int argc, char **argv) {
     ros::Subscriber ee_pose = n.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &task_planner);
 
 
-    setPlanningParameters(move_group, 7, 20, 0.3, 0.3);
     int grip_action;    //input for flow control
-    actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> force_client(
-            "cartesian_impedance_controller/follow_joint_trajectory", true);
-
     franka_gripper::StopAction stop;
     franka_gripper::StopGoalConstPtr stop_goal;
     std_msgs::Int16 control_mode_msg;
