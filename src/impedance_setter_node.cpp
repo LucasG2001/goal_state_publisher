@@ -27,8 +27,8 @@ int main(int argc, char** argv) {
 	//ImpedanceParamController Object
 	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub);
 	//subscribers
-	ros::Subscriber rightHandSub = nh.subscribe("/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
-	ros::Subscriber leftHandSub = nh.subscribe("/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
+	ros::Subscriber rightHandSub = nh.subscribe("cartesian_impedance_controller/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
+	ros::Subscriber leftHandSub = nh.subscribe("cartesian_impedance_controller/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
 	ros::Subscriber FextSub = nh.subscribe("/F_ext", 1, &ImpedanceParameterController::FextCallback, &controller);
 	ros::Subscriber task_sub = nh.subscribe("/action_primitive", 1, &ImpedanceParameterController::TaskCallback, &controller);
 	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &controller.task_planner);

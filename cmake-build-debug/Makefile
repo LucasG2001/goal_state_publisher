@@ -1641,6 +1641,71 @@ franka_msgs_generate_messages_py/fast:
 .PHONY : franka_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_cpp
+
+# Build rule for target.
+custom_msgs_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_cpp
+.PHONY : custom_msgs_generate_messages_cpp
+
+# fast build rule for target.
+custom_msgs_generate_messages_cpp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_cpp.dir/build.make CMakeFiles/custom_msgs_generate_messages_cpp.dir/build
+.PHONY : custom_msgs_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_eus
+
+# Build rule for target.
+custom_msgs_generate_messages_eus: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_eus
+.PHONY : custom_msgs_generate_messages_eus
+
+# fast build rule for target.
+custom_msgs_generate_messages_eus/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_eus.dir/build.make CMakeFiles/custom_msgs_generate_messages_eus.dir/build
+.PHONY : custom_msgs_generate_messages_eus/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_lisp
+
+# Build rule for target.
+custom_msgs_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_lisp
+.PHONY : custom_msgs_generate_messages_lisp
+
+# fast build rule for target.
+custom_msgs_generate_messages_lisp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_lisp.dir/build.make CMakeFiles/custom_msgs_generate_messages_lisp.dir/build
+.PHONY : custom_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_nodejs
+
+# Build rule for target.
+custom_msgs_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_nodejs
+.PHONY : custom_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+custom_msgs_generate_messages_nodejs/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_nodejs.dir/build.make CMakeFiles/custom_msgs_generate_messages_nodejs.dir/build
+.PHONY : custom_msgs_generate_messages_nodejs/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_py
+
+# Build rule for target.
+custom_msgs_generate_messages_py: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_py
+.PHONY : custom_msgs_generate_messages_py
+
+# fast build rule for target.
+custom_msgs_generate_messages_py/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_py.dir/build.make CMakeFiles/custom_msgs_generate_messages_py.dir/build
+.PHONY : custom_msgs_generate_messages_py/fast
+
+#=============================================================================
 # Target rules for targets named goal_state_publisher_generate_messages
 
 # Build rule for target.
@@ -1886,6 +1951,19 @@ impedance_param_controller: cmake_check_build_system
 impedance_param_controller/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/build
 .PHONY : impedance_param_controller/fast
+
+#=============================================================================
+# Target rules for targets named action_primitive_tester
+
+# Build rule for target.
+action_primitive_tester: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 action_primitive_tester
+.PHONY : action_primitive_tester
+
+# fast build rule for target.
+action_primitive_tester/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/build
+.PHONY : action_primitive_tester/fast
 
 #=============================================================================
 # Target rules for targets named subscriber
@@ -2308,6 +2386,30 @@ src/utility.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/command_publisher.dir/build.make CMakeFiles/command_publisher.dir/src/utility.cpp.s
 .PHONY : src/utility.cpp.s
 
+test/action_primitive_tester.o: test/action_primitive_tester.cpp.o
+.PHONY : test/action_primitive_tester.o
+
+# target to build an object file
+test/action_primitive_tester.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.o
+.PHONY : test/action_primitive_tester.cpp.o
+
+test/action_primitive_tester.i: test/action_primitive_tester.cpp.i
+.PHONY : test/action_primitive_tester.i
+
+# target to preprocess a source file
+test/action_primitive_tester.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.i
+.PHONY : test/action_primitive_tester.cpp.i
+
+test/action_primitive_tester.s: test/action_primitive_tester.cpp.s
+.PHONY : test/action_primitive_tester.s
+
+# target to generate assembly for a file
+test/action_primitive_tester.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.s
+.PHONY : test/action_primitive_tester.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2340,6 +2442,11 @@ help:
 	@echo "... control_msgs_generate_messages_lisp"
 	@echo "... control_msgs_generate_messages_nodejs"
 	@echo "... control_msgs_generate_messages_py"
+	@echo "... custom_msgs_generate_messages_cpp"
+	@echo "... custom_msgs_generate_messages_eus"
+	@echo "... custom_msgs_generate_messages_lisp"
+	@echo "... custom_msgs_generate_messages_nodejs"
+	@echo "... custom_msgs_generate_messages_py"
 	@echo "... download_extra_data"
 	@echo "... doxygen"
 	@echo "... dynamic_reconfigure_gencfg"
@@ -2448,6 +2555,7 @@ help:
 	@echo "... visualization_msgs_generate_messages_lisp"
 	@echo "... visualization_msgs_generate_messages_nodejs"
 	@echo "... visualization_msgs_generate_messages_py"
+	@echo "... action_primitive_tester"
 	@echo "... command_publisher"
 	@echo "... demo"
 	@echo "... force_field"
@@ -2499,6 +2607,9 @@ help:
 	@echo "... src/utility.o"
 	@echo "... src/utility.i"
 	@echo "... src/utility.s"
+	@echo "... test/action_primitive_tester.o"
+	@echo "... test/action_primitive_tester.i"
+	@echo "... test/action_primitive_tester.s"
 .PHONY : help
 
 

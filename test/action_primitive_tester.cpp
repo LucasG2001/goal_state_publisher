@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
 
 	ros::Publisher task_publisher = nh.advertise<custom_msgs::action_primitive_message>("/action_primitive", 10);
 	//test follow me mode
-	ros::Publisher hand_publisher = nh.advertise<geometry_msgs::Pose>("/right_hand", 10);
-	geometry_msgs::Pose hand_pose;
+	ros::Publisher hand_publisher = nh.advertise<geometry_msgs::Point>("cartesian_impedance_controller/right_hand", 10);
+	geometry_msgs::Point hand_pose;
 
 	ros::AsyncSpinner spinner(4);
 	spinner.start();
@@ -49,11 +49,13 @@ int main(int argc, char** argv) {
 				std::cout << "FollowMe selected\n";
 				action_message.goal_pose = createGoalPose({0.3, 0.5, 0.5}, {3.14156, 0.0, 0.0});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
-				hand_pose = action_message.goal_pose;
+				hand_pose.x = action_message.goal_pose.position.x;
+				hand_pose.y = action_message.goal_pose.position.y;
+				hand_pose.z = action_message.goal_pose.position.z;
 				action_message.grasp = false;
 				task_publisher.publish(action_message);
 				for (int i = 0; i < 10; i++){
-					hand_pose.position.y = action_message.goal_pose.position.y - 0.1 * i;
+					hand_pose.y = action_message.goal_pose.position.y - 0.1 * i;
 					hand_publisher.publish(hand_pose);
 					ros::Duration(0.5).sleep();
 				}

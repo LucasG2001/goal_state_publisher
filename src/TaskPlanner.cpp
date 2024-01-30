@@ -25,6 +25,10 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
     Eigen::Map<Eigen::Vector3d> goal_orientation(position.data());
     Eigen::Matrix<double, 6, 1> waypoint_number;
     waypoint_number.head(3) = ((goal_position-global_ee_position)/trajectory_intervals).array().abs().ceil(); //position with 0.1 spaced waypoints
+	//EXCEPTION HANDLING Waypoint number = 0 (is at goal):
+	waypoint_number.head(3) = waypoint_number.head(3).cwiseMax(Eigen::Vector3d::Ones());
+	waypoint_number.tail(3).setZero();
+	//END of EXCEPTION
     ROS_INFO_STREAM(" waypoints are distributed as " << waypoint_number);
     waypoint_number.tail(3).setZero();
     //at the moment only use position
@@ -66,6 +70,7 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 
 
 void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
+	//ToDo: Make the first part of the code as callback , that sets the local goal according to the new one. Watch out for threading and waypoints
 	ros::Rate loop_rate(25);
 	double trajectory_intervals = 0.15;
 	geometry_msgs::PoseStamped target_pose;

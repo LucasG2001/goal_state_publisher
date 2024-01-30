@@ -84,8 +84,8 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	bubble_stiffness.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-	bubble_damping.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	bubble_damping.topLeftCorner(3, 3) << 1, 0, 0, 0, 1.0, 0, 0, 0, 1.0;
+	bubble_damping.bottomRightCorner(3, 3) << 1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 
@@ -100,7 +100,7 @@ void FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	impedance_publisher.publish(this->compliance_update);
 	//go to hand
 	//ToDo: Implement the loops in switch case of node -> Active Task will be switched by callback
-	task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
+    // task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
 	//execute first action, then we will just update the goal position and publish it in the right_hand callback
 
 }

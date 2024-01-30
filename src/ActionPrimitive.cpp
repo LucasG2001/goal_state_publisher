@@ -27,8 +27,8 @@ void ActionPrimitive::construct_impedance_message(const ImpedanceMatrices &imped
 	std::copy(impedance_matrices.spring_stiffness.data(), impedance_matrices.spring_stiffness.data() + 36, compliance_update.stiffness.begin());
 	std::copy(impedance_matrices.damping.data(), impedance_matrices.damping.data() + 36, compliance_update.damping.begin());
 	std::copy(impedance_matrices.inertia.data(), impedance_matrices.inertia.data() + 36, compliance_update.inertia_factors.begin());
-	std::copy(impedance_matrices.repulsion_stiffness.data(), impedance_matrices.repulsion_stiffness.data() + 9, compliance_update.safety_bubble_stiffness.begin());
-	std::copy(impedance_matrices.repulsion_damping.data(), impedance_matrices.repulsion_damping.data() + 9, compliance_update.safety_bubble_damping.begin());
+	std::copy(impedance_matrices.repulsion_stiffness.data(), impedance_matrices.repulsion_stiffness.data() + 36, compliance_update.safety_bubble_stiffness.begin());
+	std::copy(impedance_matrices.repulsion_damping.data(), impedance_matrices.repulsion_damping.data() + 36, compliance_update.safety_bubble_damping.begin());
 
 }
 // Setters
@@ -90,12 +90,12 @@ Eigen::Matrix<double, 6, 6> ActionPrimitive::getInertia() const {
 	return impedance_params.inertia;
 }
 
-Eigen::Matrix<double, 3, 3> ActionPrimitive::getRepulsionStiffness() const {
+Eigen::Matrix<double, 6, 6> ActionPrimitive::getRepulsionStiffness() const {
 	//ToDo: make matrix sizes of impedance parameters consistent over all nodes
 	return impedance_params.repulsion_stiffness.topLeftCorner(3,3);
 }
 
-Eigen::Matrix<double, 3, 3> ActionPrimitive::getRepulsionDamping() const {
+Eigen::Matrix<double, 6, 6> ActionPrimitive::getRepulsionDamping() const {
 	//ToDo: make matrix sizes of impedance parameters consistent over all nodes
 	return impedance_params.repulsion_damping.topLeftCorner(3,3);
 }

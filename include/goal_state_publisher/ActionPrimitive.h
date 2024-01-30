@@ -43,8 +43,8 @@ public:
     Eigen::Matrix<double, 6, 6> getDamping() const;
     Eigen::Matrix<double, 6, 6> getInertia() const;
 	//ToDo: make matrix sizes of IMpedance parameters consistent over all nodes
-    Eigen::Matrix<double, 3, 3> getRepulsionStiffness() const;
-    Eigen::Matrix<double, 3, 3> getRepulsionDamping() const;
+	Eigen::Matrix<double, 6, 6> getRepulsionStiffness() const;
+    Eigen::Matrix<double, 6, 6> getRepulsionDamping() const;
 	void construct_impedance_message(const ImpedanceMatrices &impedance_matrices);
 
 	custom_msgs::ImpedanceParameterMsg compliance_update;

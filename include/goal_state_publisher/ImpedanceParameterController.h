@@ -12,12 +12,13 @@
 #include <std_msgs/Int32.h>
 #include <custom_msgs/action_primitive_message.h>
 #include <custom_msgs/ImpedanceParameterMsg.h>
+#include <geometry_msgs/Point.h>
 
 class ImpedanceParameterController {
 public:
 	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub);
 	// Callback functions
-	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void rightHandCallback(const geometry_msgs::PointConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);

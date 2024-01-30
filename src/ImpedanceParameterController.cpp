@@ -10,19 +10,40 @@ ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_p
 		  activeTask(&hold_this_task), task_planner(), rightHandPose(), leftHandPose(), externalForce() {
 	// Initialize other members if needed
 }
-void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
+void ImpedanceParameterController::rightHandCallback(const geometry_msgs::PointConstPtr& msg) {
 	// Extract relevant information from the message and set the right hand pose
+	ROS_INFO("Got Hand Position");
 	geometry_msgs::PoseStamped goal;
-	Eigen::Vector3d right_hand_position(msg->position.x, msg->position.y, msg->position.z);
-	Eigen::Vector3d right_hand_orientation(msg->orientation.x, msg->orientation.y, msg->orientation.z);
-	rightHandPose << right_hand_position, right_hand_orientation;
+	rightHandPose << msg->x, msg->y, msg->z, 3.14156, 0.0, 0.0;
 	//if task is FOLLOW ME update the goal pose
 	if(activeTask == &follow_me_task){
+		ROS_INFO(" following hand ");
+		activeTask->setGoalPose(rightHandPose);
+		goal.pose.position.x = msg->x;
+		goal.pose.position.y = msg->y;
+		goal.pose.position.z = msg->z;
+		goal.pose.orientation.x = 1.0;
+		goal.pose.orientation.y = 0.0;
+		goal.pose.orientation.z = 0.0;
+		goal.pose.orientation.w = 0.0;
+		reference_pose_publisher_->publish(goal);
+	}
+	/*
+	else if(activeTask == &take_this_task){
+		ROS_INFO(" following hand ");
+		activeTask->setObjectPose(rightHandPose);
+		goal.pose.position = msg->position;
+		goal.pose.orientation = msg->orientation;
+		reference_pose_publisher_->publish(goal);
+	}
+	else if(activeTask == &get_me_task){
+		ROS_INFO(" following hand ");
 		activeTask->setGoalPose(rightHandPose);
 		goal.pose.position = msg->position;
 		goal.pose.orientation = msg->orientation;
 		reference_pose_publisher_->publish(goal);
 	}
+	*/
 }
 
 void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
@@ -79,7 +100,7 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	activeTask->setObjectPose(object_pose);
 	activeTask->setGrasp(msg->grasp);
 	ROS_INFO("executing task");
-	updateImpedanceParameters(); // somewhat redundant, impedance is changes in "perform action"
+	// updateImpedanceParameters(); // somewhat redundant, impedance is changes in "perform action"
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
@@ -99,7 +120,7 @@ void ImpedanceParameterController::updateImpedanceParameters() const {
 	//ToDo: Implement if useful here
 	custom_msgs::ImpedanceParameterMsg compliance_update;
 	Eigen::Matrix<double, 6, 6> stiffness, damping, inertia;
-	Eigen::Matrix<double, 3, 3> bubble_stiffness, bubble_damping;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness, bubble_damping;
 	stiffness << activeTask->getSpringStiffness();
 	damping << activeTask->getDamping();
 	inertia << activeTask->getInertia();
@@ -113,12 +134,9 @@ void ImpedanceParameterController::updateImpedanceParameters() const {
 	ROS_INFO("Updated Damping");
 	std::copy(inertia.data(), inertia.data() + 36, compliance_update.inertia_factors.begin());
 	ROS_INFO("Updated Inertia");
-	std::copy(bubble_stiffness.data(), bubble_stiffness.data() + 9, compliance_update.safety_bubble_stiffness.begin());
+	std::copy(bubble_stiffness.data(), bubble_stiffness.data() + 36, compliance_update.safety_bubble_stiffness.begin());
 	ROS_INFO("Updated Safety bubble Stiffness");
-	std::copy(bubble_damping.data(), bubble_damping.data() + 9, compliance_update.safety_bubble_damping.begin());
-	for (int i = 0; i < 9; i++){
-		std::cout << "msg: "  << compliance_update.safety_bubble_damping[i] << " " << activeTask->getRepulsionDamping()(i) << "\n";
-	}
+	std::copy(bubble_damping.data(), bubble_damping.data() + 36, compliance_update.safety_bubble_damping.begin());
 	ROS_INFO("Updated safety bubble damping");
 
 	impedance_param_pub->publish(compliance_update);
