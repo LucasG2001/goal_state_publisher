@@ -10,28 +10,28 @@
 // Default constructor for GetMe
 GetMe::GetMe() : ActionPrimitive() {
 	// Custom values for GetMe
-	Eigen::Matrix<double, 6, 6> stiffness;  // customize this matrix
+	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
-	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
 	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 12;
 
-	Eigen::Matrix<double, 6, 6> damping;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
-	damping.topLeftCorner(3, 3) << 60, 0, 0, 0, 60, 0, 0, 0, 60;
+	damping.topLeftCorner(3, 3) << 40, 0, 0, 0, 40, 0, 0, 0, 40;
 	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 3;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 
-	Eigen::Matrix<double, 6, 6> inertia;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia =  Eigen::MatrixXd::Identity(6,6);
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  // customize this matrix
-	bubble_stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	bubble_stiffness.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 150;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	bubble_damping.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+	Eigen::Matrix<double, 6, 6> bubble_damping;   
+	bubble_damping.topLeftCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 25;
+	bubble_damping.bottomRightCorner(3, 3) << 5, 0, 0, 0, 5, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 
@@ -70,22 +70,22 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 // Default constructor for FollowMe
 FollowMe::FollowMe() : ActionPrimitive() {
 	// Custom values for FollowMe
-	Eigen::Matrix<double, 6, 6> stiffness;  // customize this matrix
-	stiffness.topLeftCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 100;
+	Eigen::Matrix<double, 6, 6> stiffness;  
+	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	stiffness.bottomRightCorner(3, 3) << 10, 0, 0, 0, 10, 0, 0, 0, 5;
-	Eigen::Matrix<double, 6, 6> damping;           // customize this matrix
-	damping.topLeftCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 20;
+	Eigen::Matrix<double, 6, 6> damping;           
+	damping.topLeftCorner(3, 3) << 28, 0, 0, 0, 28, 0, 0, 0, 28;
 	damping.bottomRightCorner(3, 3) << 3, 0, 0, 0, 3, 0, 0, 0, 3;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
-	Eigen::Matrix<double, 6, 6> inertia;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  // customize this matrix
-	bubble_stiffness.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	bubble_stiffness.topLeftCorner(3, 3) << 10, 0, 0, 0, 10, 0, 0, 0, 10;
 	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-	bubble_damping.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	Eigen::Matrix<double, 6, 6> bubble_damping;   
+	bubble_damping.topLeftCorner(3, 3) << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+	bubble_damping.bottomRightCorner(3, 3) << 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 
@@ -108,22 +108,22 @@ void FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 // Default constructor for HoldThis
 HoldThis::HoldThis() : ActionPrimitive() {
 	// Custom values for HoldThis
-	Eigen::Matrix<double, 6, 6> stiffness;  // customize this matrix
-	stiffness.topLeftCorner(3, 3) << 400, 0, 0, 0, 400, 0, 0, 0, 400;
-	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 20;
-	Eigen::Matrix<double, 6, 6> damping;           // customize this matrix
-	damping.topLeftCorner(3, 3) << 60, 0, 0, 0, 60, 0, 0, 0, 60;
-	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 5;
+	Eigen::Matrix<double, 6, 6> stiffness;  
+	stiffness.topLeftCorner(3, 3) << 650, 0, 0, 0, 650, 0, 0, 0, 650;
+	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 20;
+	Eigen::Matrix<double, 6, 6> damping;           
+	damping.topLeftCorner(3, 3) << 52, 0, 0, 0, 52, 0, 0, 0, 52;
+	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 9;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
-	Eigen::Matrix<double, 6, 6> inertia;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  // customize this matrix
-	bubble_stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	bubble_damping.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	bubble_stiffness.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	Eigen::Matrix<double, 6, 6> bubble_damping;   
+	bubble_damping.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	bubble_damping.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 
@@ -148,24 +148,24 @@ void HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 TakeThis::TakeThis() : ActionPrimitive() {
 	// Custom values for TakeThis
 	//Stiffness
-	Eigen::Matrix<double, 6, 6> stiffness;  // customize this matrix
+	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
-	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
 	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 12;
 	//Damping
-	Eigen::Matrix<double, 6, 6> damping;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
-	damping.topLeftCorner(3, 3) << 60, 0, 0, 0, 60, 0, 0, 0, 60;
+	damping.topLeftCorner(3, 3) << 40, 0, 0, 0, 40, 0, 0, 0, 40;
 	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 3;
-	Eigen::Matrix<double, 6, 6> inertia;           // customize this matrix
+	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  // customize this matrix
-	bubble_stiffness.topLeftCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 20;
-	bubble_stiffness.bottomRightCorner(3, 3) << 5, 0, 0, 0, 5, 0, 0, 0, 5;
-	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	bubble_stiffness.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+	Eigen::Matrix<double, 6, 6> bubble_damping;   
+	bubble_damping.topLeftCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 20;
 	bubble_damping.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
@@ -204,23 +204,23 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 // Default constructor for AvoidMe
 AvoidMe::AvoidMe() : ActionPrimitive() {
 	// Custom values for AvoidMe
-	Eigen::Matrix<double, 6, 6> stiffness;  // customize this matrix
+	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 450, 0, 0, 0, 450, 0, 0, 0, 450;
-	stiffness.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 10;
-	Eigen::Matrix<double, 6, 6> damping;           // customize this matrix
-	damping.topLeftCorner(3, 3) << 65, 0, 0, 0, 65, 0, 0, 0, 65;
-	damping.bottomRightCorner(3, 3) << 8, 0, 0, 0, 8, 0, 0, 0, 3;
-	Eigen::Matrix<double, 6, 6> inertia;           // customize this matrix
+	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 10;
+	Eigen::Matrix<double, 6, 6> damping;           
+	damping.topLeftCorner(3, 3) << 45, 0, 0, 0, 45, 0, 0, 0, 45;
+	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 4;
+	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	//
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  // customize this matrix
-	bubble_stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	bubble_stiffness.topLeftCorner(3, 3) << 350, 0, 0, 0, 350, 0, 0, 0, 350;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	Eigen::Matrix<double, 6, 6> bubble_damping;   // customize this matrix
-	bubble_damping.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	bubble_damping.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+	Eigen::Matrix<double, 6, 6> bubble_damping;   
+	bubble_damping.topLeftCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 15;
+	bubble_damping.bottomRightCorner(3, 3) << 3, 0, 0, 0, 3, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 	
