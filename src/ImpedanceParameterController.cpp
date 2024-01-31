@@ -22,10 +22,10 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::PointC
 		goal.pose.position.x = msg->x;
 		goal.pose.position.y = msg->y;
 		goal.pose.position.z = msg->z;
-		goal.pose.orientation.x = 1.0;
+		goal.pose.orientation.x = 0.0;
 		goal.pose.orientation.y = 0.0;
 		goal.pose.orientation.z = 0.0;
-		goal.pose.orientation.w = 0.0;
+		goal.pose.orientation.w = 1.0;
 		reference_pose_publisher_->publish(goal);
 	}
 	/*

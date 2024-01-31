@@ -53,14 +53,11 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	task_planner.grasp_object();
 	//ToDo: goal_pose should be updated as hand pose -> in callbacks?
 	//go back to hand
-	//now construct more careful impedances to be safe in handover
-	ImpedanceMatrices safety_impedance;
-	safety_impedance.spring_stiffness = impedance_params.spring_stiffness/2;
-	safety_impedance.damping = impedance_params.damping;
-	safety_impedance.inertia = impedance_params.inertia;
-	safety_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/4;
-	safety_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.5;
-	construct_impedance_message(safety_impedance);
+	//now construct more different impedances to be safe in handover
+	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
+	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/100;
+	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.8;
+	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("bringing you object ");
 	task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.03);
@@ -72,10 +69,10 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	// Custom values for FollowMe
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	stiffness.bottomRightCorner(3, 3) << 10, 0, 0, 0, 10, 0, 0, 0, 5;
+	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 10;
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping.topLeftCorner(3, 3) << 28, 0, 0, 0, 28, 0, 0, 0, 28;
-	damping.bottomRightCorner(3, 3) << 3, 0, 0, 0, 3, 0, 0, 0, 3;
+	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 4;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -84,7 +81,7 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	bubble_stiffness.topLeftCorner(3, 3) << 10, 0, 0, 0, 10, 0, 0, 0, 10;
 	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
-	bubble_damping.topLeftCorner(3, 3) << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+	bubble_damping.topLeftCorner(3, 3) << 10, 0, 0, 0, 10, 0, 0, 0, 10;
 	bubble_damping.bottomRightCorner(3, 3) << 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
@@ -109,12 +106,12 @@ void FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 HoldThis::HoldThis() : ActionPrimitive() {
 	// Custom values for HoldThis
 	Eigen::Matrix<double, 6, 6> stiffness;  
-	stiffness.topLeftCorner(3, 3) << 650, 0, 0, 0, 650, 0, 0, 0, 650;
+	stiffness.topLeftCorner(3, 3) << 1500, 0, 0, 0, 1500, 0, 0, 0, 1500;
 	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 20;
 	Eigen::Matrix<double, 6, 6> damping;           
-	damping.topLeftCorner(3, 3) << 52, 0, 0, 0, 52, 0, 0, 0, 52;
+	damping.topLeftCorner(3, 3) << 80, 0, 0, 0, 80, 0, 0, 0, 80;
 	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 9;
-	//ToDo: Inerta matrix should be specified as multiple of physical inertia
+	//ToDo: Inertia matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
@@ -165,7 +162,7 @@ TakeThis::TakeThis() : ActionPrimitive() {
 	bubble_stiffness.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
-	bubble_damping.topLeftCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 20;
+	bubble_damping.topLeftCorner(3, 3) << 30, 0, 0, 0, 30, 0, 0, 0, 30;
 	bubble_damping.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
@@ -179,22 +176,20 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	// Custom logic for TakeThis
 	task_planner.open_gripper();
 	//go to object/hand
-	//now construct more careful impedances to be safe in handover
-	ImpedanceMatrices safety_impedance;
-	safety_impedance.spring_stiffness = impedance_params.spring_stiffness/2;
-	safety_impedance.damping = impedance_params.damping;
-	safety_impedance.inertia = impedance_params.inertia;
-	safety_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/4;
-	safety_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.5;
-	construct_impedance_message(safety_impedance);
+	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
 	// execute handover
 	task_planner.execute_action(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.03);
 	task_planner.grasp_object();
+	// now that object is grasped increase safety bubble stiffness
+	ros::Duration(1.0).sleep();
+	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
+	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 250;
+	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping / 3.0;
 	//ToDo: goal_pose should be fixed at the start of action
 	//go back to delivery pose
 	// reset to default impedance
-	construct_impedance_message(this->impedance_params);
+	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
 	task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
 	task_planner.open_gripper();
