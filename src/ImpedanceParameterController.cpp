@@ -61,7 +61,8 @@ void ImpedanceParameterController::placePoseCallback(const geometry_msgs::Pose::
 		new_goal_pose.head(3) << msg->position.x, msg->position.y, msg->position.z;
 		Eigen::Quaterniond new_goal_orientation;
 		new_goal_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
-		new_goal_pose.tail(3) = new_goal_orientation.toRotationMatrix().eulerAngles(2, 1, 0);
+		new_goal_pose.tail(3) = new_goal_orientation.toRotationMatrix().eulerAngles(0, 1, 2);
+		ROS_INFO_STREAM("goal pose orientation" << new_goal_pose.tail(3));
 		activeTask->setGoalPose(new_goal_pose);
 		activeTask->hasGrasped = true;
 	}
