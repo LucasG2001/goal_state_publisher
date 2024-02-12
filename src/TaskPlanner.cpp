@@ -93,10 +93,14 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
 		if (i == waypoint_number.maxCoeff()){
 			tol *= 0.25;//get back tolerance for last waypoint
-			goal_time = 10;
+			goal_time = 7;
 		}
 		Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
 		reference_pos = reference_pos.cwiseMax(lower_bound).cwiseMin(upper_bound);
+		//grasping
+		if (i == waypoint_number.maxCoeff()-1){
+			reference_pos.z() += 0.08;
+		}
 		std::vector<double> reference_for_msg = {reference_pos(0,0), reference_pos(1,0), reference_pos(2,0)};
 		//ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
 		//generate a trajectory with waypoints
