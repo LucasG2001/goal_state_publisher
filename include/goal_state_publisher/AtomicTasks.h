@@ -12,6 +12,7 @@ public:
 	// Additional methods or overrides specific to GetMeTask
 	void performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
 	                   ros::Publisher &impedance_publisher) override;
+
 };
 
 class FollowMe : public ActionPrimitive {

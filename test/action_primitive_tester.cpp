@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	ros::AsyncSpinner spinner(4);
 	spinner.start();
 
-	ros::Rate loop_rate(20); // 20Hz
+	ros::Rate loop_rate(50); // 20Hz
 
 	int task_type;
 	custom_msgs::action_primitive_message action_message;

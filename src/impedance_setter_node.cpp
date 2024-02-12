@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
 	//subscribers
 	ros::Subscriber rightHandSub = nh.subscribe("cartesian_impedance_controller/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
 	ros::Subscriber leftHandSub = nh.subscribe("cartesian_impedance_controller/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
+	ros::Subscriber placePoseSub = nh.subscribe("/place_pose", 1, &ImpedanceParameterController::placePoseCallback, &controller);
 	ros::Subscriber FextSub = nh.subscribe("/F_ext", 1, &ImpedanceParameterController::FextCallback, &controller);
 	ros::Subscriber task_sub = nh.subscribe("/action_primitive", 1, &ImpedanceParameterController::TaskCallback, &controller);
 	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &controller.task_planner);
@@ -36,7 +37,7 @@ int main(int argc, char** argv) {
 
 
 
-	ros::Rate loop_rate(1); // 1
+	ros::Rate loop_rate(500); // 1
 	//int task_type;
 
 	while (ros::ok()) {

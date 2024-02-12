@@ -12,7 +12,7 @@ ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_p
 }
 void ImpedanceParameterController::rightHandCallback(const geometry_msgs::PointConstPtr& msg) {
 	// Extract relevant information from the message and set the right hand pose
-	ROS_INFO("Got Hand Position");
+	// ROS_INFO("Got Hand Position");
 	geometry_msgs::PoseStamped goal;
 	rightHandPose << msg->x, msg->y, msg->z, 3.14156, 0.0, 0.0;
 	//if task is FOLLOW ME update the goal pose
@@ -51,6 +51,20 @@ void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::C
 	Eigen::Vector3d left_hand_position(msg->position.x, msg->position.y, msg->position.z);
 	Eigen::Vector3d left_hand_orientation(msg->orientation.x, msg->orientation.y, msg->orientation.z);
 	leftHandPose << left_hand_position, left_hand_orientation;
+}
+
+void ImpedanceParameterController::placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg) {
+	// Extract relevant information from the message and set the left hand pose
+	ROS_INFO("got place pose");
+	if (activeTask == &get_me_task || activeTask == &take_this_task){
+		Eigen::Matrix<double, 6, 1> new_goal_pose;
+		new_goal_pose.head(3) << msg->position.x, msg->position.y, msg->position.z;
+		Eigen::Quaterniond new_goal_orientation;
+		new_goal_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+		new_goal_pose.tail(3) = new_goal_orientation.toRotationMatrix().eulerAngles(2, 1, 0);
+		activeTask->setGoalPose(new_goal_pose);
+		activeTask->hasGrasped = true;
+	}
 }
 
 void ImpedanceParameterController::FextCallback(const geometry_msgs::Pose::ConstPtr& msg) {

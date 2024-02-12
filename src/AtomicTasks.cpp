@@ -51,7 +51,11 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	task_planner.execute_action(this->getObjectPose().head(3), this->getObjectPose().tail(3), &publisher, 0.03);
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
-	//ToDo: goal_pose should be updated as hand pose -> in callbacks?
+	//wait for goal pose
+	while(!this->hasGrasped){
+		ros::Duration(0.1).sleep();
+	}
+	this->hasGrasped = false;
 	//go back to hand
 	//now construct more different impedances to be safe in handover
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
@@ -181,7 +185,11 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	// execute handover
 	task_planner.execute_action(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.03);
 	task_planner.grasp_object();
-	// now that object is grasped increase safety bubble stiffness
+	while(!this->hasGrasped){
+		ros::Duration(0.1).sleep();
+	}
+	this->hasGrasped = false;
+	// now that object is grasped increase safety bubble stiffness after a transistory period
 	ros::Duration(1.0).sleep();
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 250;

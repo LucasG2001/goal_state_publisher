@@ -39,6 +39,7 @@ public:
     Eigen::Matrix<double, 6, 1> getGoalPose() const;
     Eigen::Matrix<double, 6, 1> getObjectPose() const;
     bool getGrasp() const;
+	bool hasGrasped = false;
     Eigen::Matrix<double, 6, 6> getSpringStiffness() const;
     Eigen::Matrix<double, 6, 6> getDamping() const;
     Eigen::Matrix<double, 6, 6> getInertia() const;

@@ -20,6 +20,7 @@ public:
 	// Callback functions
 	void rightHandCallback(const geometry_msgs::PointConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);
 
