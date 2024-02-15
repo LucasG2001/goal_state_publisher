@@ -5,6 +5,8 @@
 #include <std_msgs/Int32.h>
 #include <utility.h>
 
+#define POSE_NEUTRAL 0.45, 0.0, 0.45, 3.14156, 0.0, 0.0
+
 ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub)
 		: reference_pose_publisher_(ref_pub), impedance_param_pub(impedance_pub), get_me_task(), follow_me_task(), hold_this_task(), take_this_task(), avoid_me_task(),
 		  activeTask(&hold_this_task), task_planner(), rightHandPose(), leftHandPose(), externalForce() {
@@ -22,28 +24,12 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::PointC
 		goal.pose.position.x = msg->x;
 		goal.pose.position.y = msg->y;
 		goal.pose.position.z = msg->z;
-		goal.pose.orientation.x = 0.0;
+		goal.pose.orientation.x = 1.0;
 		goal.pose.orientation.y = 0.0;
 		goal.pose.orientation.z = 0.0;
-		goal.pose.orientation.w = 1.0;
+		goal.pose.orientation.w = 0.0;
 		reference_pose_publisher_->publish(goal);
 	}
-	/*
-	else if(activeTask == &take_this_task){
-		ROS_INFO(" following hand ");
-		activeTask->setObjectPose(rightHandPose);
-		goal.pose.position = msg->position;
-		goal.pose.orientation = msg->orientation;
-		reference_pose_publisher_->publish(goal);
-	}
-	else if(activeTask == &get_me_task){
-		ROS_INFO(" following hand ");
-		activeTask->setGoalPose(rightHandPose);
-		goal.pose.position = msg->position;
-		goal.pose.orientation = msg->orientation;
-		reference_pose_publisher_->publish(goal);
-	}
-	*/
 }
 
 void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
@@ -81,6 +67,8 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	int task_type = msg->task_type;
 	Eigen::Matrix<double, 6, 1> goal_pose = convert_pose_to_eigen(msg->goal_pose);
 	Eigen::Matrix<double, 6, 1> object_pose = convert_pose_to_eigen(msg->object_pose);
+	Eigen::Matrix<double, 6, 1> neutral_pose;
+	neutral_pose << POSE_NEUTRAL;
 
 	// Switch the active task pointer based on the task_type
 	switch (task_type) {
@@ -115,9 +103,16 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	activeTask->setObjectPose(object_pose);
 	activeTask->setGrasp(msg->grasp);
 	ROS_INFO("executing task");
-	// updateImpedanceParameters(); // somewhat redundant, impedance is changes in "perform action"
+	//impedance is updated in action execution
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
+	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
+	//go back to neutral
+	activeTask = &avoid_me_task;
+	activeTask->setGoalPose(neutral_pose);
+	activeTask->setObjectPose(neutral_pose);
+	activeTask->setGrasp(false);
+	ROS_INFO("going back to neutral");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
 
 }

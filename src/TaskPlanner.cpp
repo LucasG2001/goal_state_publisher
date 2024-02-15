@@ -72,7 +72,7 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
 	//ToDo: Make the first part of the code as callback , that sets the local goal according to the new one. Watch out for threading and waypoints
 	ros::Rate loop_rate(25);
-	double trajectory_intervals = 0.15;
+	double trajectory_intervals = 0.1;
 	geometry_msgs::PoseStamped target_pose;
 	Eigen::Matrix<double, 6, 1> waypoint_number;
 	waypoint_number.head(3) = ((goal_position-global_ee_position)/trajectory_intervals).array().abs().ceil(); //position with 0.1 spaced waypoints
@@ -93,17 +93,15 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
 		if (i == waypoint_number.maxCoeff()){
 			tol *= 0.25;//get back tolerance for last waypoint
-			goal_time = 7;
+			goal_time = 5;
 		}
 		Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
 		reference_pos = reference_pos.cwiseMax(lower_bound).cwiseMin(upper_bound);
 		//grasping
-		if (i == waypoint_number.maxCoeff()-1){
+		if (i < waypoint_number.maxCoeff()){
 			reference_pos.z() += 0.08;
 		}
 		std::vector<double> reference_for_msg = {reference_pos(0,0), reference_pos(1,0), reference_pos(2,0)};
-		//ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
-		//generate a trajectory with waypoints
 		target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
 		goal_pose_publisher->publish(target_pose);
 		double elapsed_time = 0.0;

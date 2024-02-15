@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 	ros::Subscriber placePoseSub = nh.subscribe("/place_pose", 1, &ImpedanceParameterController::placePoseCallback, &controller);
 	ros::Subscriber FextSub = nh.subscribe("/F_ext", 1, &ImpedanceParameterController::FextCallback, &controller);
 	ros::Subscriber task_sub = nh.subscribe("/action_primitive", 1, &ImpedanceParameterController::TaskCallback, &controller);
-	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &controller.task_planner);
+	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 5, &TaskPlanner::ee_callback, &controller.task_planner);
 
 
 
