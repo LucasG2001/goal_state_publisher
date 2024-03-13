@@ -13,6 +13,16 @@ struct ImpedanceMatrices {
 	Eigen::Matrix<double, 6, 6> inertia;
 	Eigen::Matrix<double, 6, 6> repulsion_stiffness;
 	Eigen::Matrix<double, 6, 6> repulsion_damping;
+
+	ImpedanceMatrices operator*(double scalar) const {
+		ImpedanceMatrices result;
+		result.spring_stiffness = spring_stiffness * scalar;
+		result.damping = damping * scalar;
+		result.inertia = inertia * scalar;
+		result.repulsion_stiffness = repulsion_stiffness * scalar;
+		result.repulsion_damping = repulsion_damping * scalar;
+		return result;
+	}
 };
 
 class ActionPrimitive {
@@ -38,7 +48,6 @@ public:
     Eigen::Matrix<double, 6, 1> getStartPose() const;
     Eigen::Matrix<double, 6, 1> getGoalPose() const;
     Eigen::Matrix<double, 6, 1> getObjectPose() const;
-    bool getGrasp() const;
 	bool hasGrasped = false;
     Eigen::Matrix<double, 6, 6> getSpringStiffness() const;
     Eigen::Matrix<double, 6, 6> getDamping() const;

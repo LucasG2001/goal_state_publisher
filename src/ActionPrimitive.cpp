@@ -74,10 +74,6 @@ Eigen::Matrix<double, 6, 1> ActionPrimitive::getObjectPose() const {
 	return object_pose_;
 }
 
-bool ActionPrimitive::getGrasp() const {
-	return grasp_;
-}
-
 Eigen::Matrix<double, 6, 6> ActionPrimitive::getSpringStiffness() const {
 	return impedance_params.spring_stiffness;
 }

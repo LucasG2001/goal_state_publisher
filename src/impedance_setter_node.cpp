@@ -8,6 +8,7 @@
 #include <iostream>
 #include <TaskPlanner.h>
 #include <custom_msgs/ImpedanceParameterMsg.h>
+#include <std_msgs/Bool.h>
 
 
 
@@ -23,9 +24,10 @@ int main(int argc, char** argv) {
 
 	//publishers
 	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 1);
+	ros::Publisher task_finish_pub = nh.advertise<std_msgs::Bool>("/is_task_finished", 1);
 	ros::Publisher impedance_parameter_pub = nh.advertise<custom_msgs::ImpedanceParameterMsg>("/cartesian_impedance_controller/impedance_param_reconfig", 1);
 	//ImpedanceParamController Object
-	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub);
+	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub, &task_finish_pub);
 	//subscribers
 	ros::Subscriber rightHandSub = nh.subscribe("cartesian_impedance_controller/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
 	ros::Subscriber leftHandSub = nh.subscribe("cartesian_impedance_controller/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);

@@ -223,6 +223,7 @@ int main(int argc, char **argv) {
                 break;
         } //switch case
         std::cout << "current end-effector position is at " << task_planner.global_ee_position.transpose() << std::endl;
+	    std::cout << "current end-effector orientation is " << task_planner.global_ee_orientation.coeffs().transpose() << std::endl;
         loop_rate.sleep();
     } //while ros node
     return 0;

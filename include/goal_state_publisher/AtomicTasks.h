@@ -22,6 +22,9 @@ public:
 	// Additional methods or overrides specific to FollowMeTask
 	void performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
 	                   ros::Publisher &impedance_publisher) override;
+	//offset for the "leash"
+	Eigen::Matrix<double, 6, 1> fixed_offset;
+	Eigen::Matrix<double, 6, 1> hand_pose;
 };
 
 class HoldThis : public ActionPrimitive {
@@ -31,6 +34,8 @@ public:
 	// Additional methods or overrides specific to HoldThisTask
 	void performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
 	                   ros::Publisher &impedance_publisher) override;
+
+	bool free_float;
 };
 
 class TakeThis : public ActionPrimitive {

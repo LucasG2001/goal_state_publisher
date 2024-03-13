@@ -7,27 +7,29 @@
 
 #define POSE_NEUTRAL 0.45, 0.0, 0.45, 3.14156, 0.0, 0.0
 
-ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub)
-		: reference_pose_publisher_(ref_pub), impedance_param_pub(impedance_pub), get_me_task(), follow_me_task(), hold_this_task(), take_this_task(), avoid_me_task(),
+ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub)
+		: reference_pose_publisher_(ref_pub), impedance_param_pub(impedance_pub), task_finished_publisher(task_finish_pub), get_me_task(), follow_me_task(), hold_this_task(), take_this_task(), avoid_me_task(),
 		  activeTask(&hold_this_task), task_planner(), rightHandPose(), leftHandPose(), externalForce() {
+	is_task_finished.data = false;
 	// Initialize other members if needed
 }
-void ImpedanceParameterController::rightHandCallback(const geometry_msgs::PointConstPtr& msg) {
+void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
 	// Extract relevant information from the message and set the right hand pose
 	// ROS_INFO("Got Hand Position");
 	geometry_msgs::PoseStamped goal;
-	rightHandPose << msg->x, msg->y, msg->z, 3.14156, 0.0, 0.0;
+	goal.header.frame_id = "none";
+	rightHandPose << msg->position.x, msg->position.y, msg->position.z, 3.14156, 0.0, 0.0;
 	//if task is FOLLOW ME update the goal pose
 	if(activeTask == &follow_me_task){
-		ROS_INFO(" following hand ");
+		//ROS_INFO(" following hand ");
 		activeTask->setGoalPose(rightHandPose);
-		goal.pose.position.x = msg->x;
-		goal.pose.position.y = msg->y;
-		goal.pose.position.z = msg->z;
-		goal.pose.orientation.x = 1.0;
-		goal.pose.orientation.y = 0.0;
-		goal.pose.orientation.z = 0.0;
-		goal.pose.orientation.w = 0.0;
+		goal.pose.position.x = msg->position.x + follow_me_task.fixed_offset.x();
+		goal.pose.position.y = msg->position.y + follow_me_task.fixed_offset.y();
+		goal.pose.position.z = msg->position.z + follow_me_task.fixed_offset.z();
+		goal.pose.orientation.x = msg->orientation.x;
+		goal.pose.orientation.y = msg->orientation.y;
+		goal.pose.orientation.z = msg->orientation.z;
+		goal.pose.orientation.w = msg->orientation.w;
 		reference_pose_publisher_->publish(goal);
 	}
 }
@@ -64,6 +66,9 @@ void ImpedanceParameterController::FextCallback(const geometry_msgs::Pose::Const
 void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg) {
 	// Extract the integer value from the message
 	ROS_INFO("Received Action Primitive Message");
+	is_task_finished.data = false;
+	activeTask->hasGrasped = false; //do not wait for place pose
+	task_finished_publisher->publish(is_task_finished);
 	int task_type = msg->task_type;
 	Eigen::Matrix<double, 6, 1> goal_pose = convert_pose_to_eigen(msg->goal_pose);
 	Eigen::Matrix<double, 6, 1> object_pose = convert_pose_to_eigen(msg->object_pose);
@@ -78,10 +83,12 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 			break;
 		case 2:
 			activeTask = &follow_me_task;
+			follow_me_task.hand_pose = this->rightHandPose; //initial hand pose for leash creation
 			ROS_INFO("active task is now FOLLOW ME");
 			break;
 		case 3:
 			activeTask = &hold_this_task;
+			hold_this_task.free_float = msg->isFreeFloat;
 			ROS_INFO("active task is now  HOLD THIS");
 			break;
 		case 4:
@@ -107,13 +114,17 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
-	//go back to neutral
-	activeTask = &avoid_me_task;
-	activeTask->setGoalPose(neutral_pose);
-	activeTask->setObjectPose(neutral_pose);
-	activeTask->setGrasp(false);
-	ROS_INFO("going back to neutral");
-	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
+	is_task_finished.data = true;
+	task_finished_publisher->publish(is_task_finished);
+	if (activeTask == &get_me_task || activeTask == &take_this_task){
+		//go back to neutral
+		activeTask = &avoid_me_task;
+		activeTask->setGoalPose(neutral_pose);
+		activeTask->setObjectPose(neutral_pose);
+		activeTask->setGrasp(false);
+		ROS_INFO("going back to neutral");
+		activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
+	}
 
 }
 
