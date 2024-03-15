@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 				break;
 			case 5:
 				std::cout << "AvoidMe selected\n";
-				action_message.goal_pose = createGoalPose({0.5, -0.3, 0.3}, {-1.5, -0.7875, -1.5});
+				action_message.goal_pose = createGoalPose({0.5, -0.2, 0.3}, {-1.3125, -0.7875, -1.1});
 				action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 				action_message.grasp = false;
 				task_publisher.publish(action_message);

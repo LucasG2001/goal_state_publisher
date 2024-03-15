@@ -16,11 +16,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   moveit_visual_tools
-        franka_gripper
-        actionlib
-        message_generation
-        franka_control
-        custom_msgs
+  franka_gripper
+  actionlib
+  message_generation
+  franka_control
+  custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -241,6 +241,9 @@ target_link_libraries(impedance_param_controller ${catkin_LIBRARIES} utility)
 
 add_executable(action_primitive_tester test/action_primitive_tester.cpp)
 target_link_libraries(action_primitive_tester ${catkin_LIBRARIES} utility)
+
+add_executable(moveit_collision_checker test/moveit_collision_check.cpp)
+target_link_libraries(moveit_collision_checker ${catkin_LIBRARIES})
 
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})

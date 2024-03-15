@@ -13,12 +13,12 @@ GetMe::GetMe() : ActionPrimitive() {
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
 	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
-	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 15;
+	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 12;
 
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
 	damping.topLeftCorner(3, 3) << 65, 0, 0, 0, 65, 0, 0, 0, 65;
-	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 4;
+	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 
 	Eigen::Matrix<double, 6, 6> inertia;           
@@ -54,12 +54,14 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//wait for goal pose
+	ROS_INFO("waiting for goal ");
 	while(!this->hasGrasped){
 		ros::Duration(0.1).sleep();
 		ros::spinOnce();
 	}
 	this->hasGrasped = false;
 	//go back to hand
+	ROS_INFO("finished waiting ");
 	//now construct more different impedances to be safe in handover
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/2.0;
@@ -86,10 +88,10 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	// Custom values for FollowMe
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 20;
+	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 12;
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping.topLeftCorner(3, 3) << 28, 0, 0, 0, 28, 0, 0, 0, 28;
-	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 5;
+	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 7;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -130,10 +132,10 @@ HoldThis::HoldThis() : ActionPrimitive() {
 	// Custom values for HoldThis
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 4000, 0, 0, 0, 4000, 0, 0, 0, 4000;
-	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 20;
+	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 15;
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping.topLeftCorner(3, 3) << 85, 0, 0, 0, 85, 0, 0, 0, 85;
-	damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 6;
+	damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 8;
 	//ToDo: Inertia matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -190,7 +192,7 @@ TakeThis::TakeThis() : ActionPrimitive() {
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
 	damping.topLeftCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 3;
+	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7;
 	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertias
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -229,18 +231,21 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	impedance_publisher.publish(this->compliance_update);
 	//grasp object out of hand
 	task_planner.grasp_object();
+	ROS_INFO("Starting wait time");
 	while(!this->hasGrasped){
 		ros::Duration(0.1).sleep();
 		ros::spinOnce();
 	}
+	ROS_INFO("ended wait time");
 	this->hasGrasped = false;
-	// now that object is grasped increase safety bubble stiffness after a transistory period
+	// now that object is grasped increase safety bubble stiffness after a transitory period
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 2;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.414; //sqrt of 2
 	construct_impedance_message(post_grasp_impedance);
 	ros::Duration(1.5).sleep();
 	//go back to delivery pose
 	impedance_publisher.publish(this->compliance_update);
+	ROS_INFO("published impedance message");
 	//no grasp offset needed
 	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
 	task_planner.open_gripper();
@@ -252,10 +257,10 @@ AvoidMe::AvoidMe() : ActionPrimitive() {
 	// Custom values for AvoidMe
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 450, 0, 0, 0, 450, 0, 0, 0, 450;
-	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 10;
+	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 12;
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping.topLeftCorner(3, 3) << 45, 0, 0, 0, 45, 0, 0, 0, 45;
-	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 4;
+	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 7;
 	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
