@@ -6,11 +6,14 @@
 
 void planningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene_msg, planning_scene::PlanningScenePtr& planning_scene) {
 	// Set the received planning scene message to the planning scene pointer
-	moveit_msgs::AllowedCollisionMatrix allowed_collision_matrix;
-	moveit_msgs::PlanningScene temp = *scene_msg;
-	planning_scene->getAllowedCollisionMatrix().getMessage(allowed_collision_matrix);
-	temp.allowed_collision_matrix = allowed_collision_matrix;
-	planning_scene->setPlanningSceneMsg(*scene_msg);
+
+	//moveit_msgs::AllowedCollisionMatrix allowed_collision_matrix;
+	//moveit_msgs::PlanningScene temp = *scene_msg;
+	//planning_scene->getAllowedCollisionMatrix().getMessage(allowed_collision_matrix);
+	//temp.allowed_collision_matrix = allowed_collision_matrix;
+	//planning_scene->setPlanningSceneMsg(*scene_msg);
+	planning_scene->processPlanningSceneWorldMsg(scene_msg->world);
+
 
 	// Additional collision checking logic...
 }

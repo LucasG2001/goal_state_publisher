@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
 
 
-	ros::Rate loop_rate(500); // 1
+	ros::Rate loop_rate(250); // 1
 	//int task_type;
 
 	while (ros::ok()) {

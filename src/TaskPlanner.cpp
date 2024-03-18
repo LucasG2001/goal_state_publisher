@@ -197,8 +197,9 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
     target_pose.pose.orientation.y = global_ee_orientation.y();
     target_pose.pose.orientation.z = global_ee_orientation.z();
     target_pose.pose.orientation.w = global_ee_orientation.w();
+	ROS_INFO(" publishing intermediate pose after grasp ");
     equilibrium_pose_pub.publish(target_pose);
-    ros::Duration(2.0).sleep();
+    ros::Duration(1.0).sleep();
 
 }
 
