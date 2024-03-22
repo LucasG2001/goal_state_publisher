@@ -1966,6 +1966,19 @@ action_primitive_tester/fast:
 .PHONY : action_primitive_tester/fast
 
 #=============================================================================
+# Target rules for targets named moveit_collision_checker
+
+# Build rule for target.
+moveit_collision_checker: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 moveit_collision_checker
+.PHONY : moveit_collision_checker
+
+# fast build rule for target.
+moveit_collision_checker/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/build
+.PHONY : moveit_collision_checker/fast
+
+#=============================================================================
 # Target rules for targets named subscriber
 
 # Build rule for target.
@@ -2410,6 +2423,30 @@ test/action_primitive_tester.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.s
 .PHONY : test/action_primitive_tester.cpp.s
 
+test/moveit_collision_check.o: test/moveit_collision_check.cpp.o
+.PHONY : test/moveit_collision_check.o
+
+# target to build an object file
+test/moveit_collision_check.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.o
+.PHONY : test/moveit_collision_check.cpp.o
+
+test/moveit_collision_check.i: test/moveit_collision_check.cpp.i
+.PHONY : test/moveit_collision_check.i
+
+# target to preprocess a source file
+test/moveit_collision_check.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.i
+.PHONY : test/moveit_collision_check.cpp.i
+
+test/moveit_collision_check.s: test/moveit_collision_check.cpp.s
+.PHONY : test/moveit_collision_check.s
+
+# target to generate assembly for a file
+test/moveit_collision_check.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.s
+.PHONY : test/moveit_collision_check.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2565,6 +2602,7 @@ help:
 	@echo "... gtest"
 	@echo "... gtest_main"
 	@echo "... impedance_param_controller"
+	@echo "... moveit_collision_checker"
 	@echo "... subscriber"
 	@echo "... unity"
 	@echo "... utility"
@@ -2610,6 +2648,9 @@ help:
 	@echo "... test/action_primitive_tester.o"
 	@echo "... test/action_primitive_tester.i"
 	@echo "... test/action_primitive_tester.s"
+	@echo "... test/moveit_collision_check.o"
+	@echo "... test/moveit_collision_check.i"
+	@echo "... test/moveit_collision_check.s"
 .PHONY : help
 
 

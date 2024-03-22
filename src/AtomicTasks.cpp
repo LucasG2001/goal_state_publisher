@@ -49,8 +49,8 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &publisher, 0.06);
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &publisher, 0.03);
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &publisher, 0.04, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &publisher, 0.02, "grasp");
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//wait for goal pose
@@ -59,6 +59,7 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 		ros::Duration(0.1).sleep();
 		ros::spinOnce();
 	}
+	//TODO: add publihing of goal pose reached here
 	this->hasGrasped = false;
 	//go back to hand
 	ROS_INFO("finished waiting ");
@@ -70,9 +71,10 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("bringing you object ");
 	//intermediate waypoint
+	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &publisher, 0.06);
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.08); //higher tolerance for handover
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &publisher, 0.04, "grasp");
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.04, "grasp"); //higher tolerance for handover
 	//do not move
 	task_planner.stop(&publisher);
 	//SHUT OFF repulsion during opening
@@ -220,8 +222,8 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
 	// execute handover ( go to hand)
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.06);
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.08); //higher tolerance in handover
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance in handover
 	//do not move
 	task_planner.stop(&goal_publisher);
 	//lower repulsive stiffness during handover

@@ -70,6 +70,7 @@ all: CMakeFiles/force_field.dir/all
 all: CMakeFiles/demo.dir/all
 all: CMakeFiles/impedance_param_controller.dir/all
 all: CMakeFiles/action_primitive_tester.dir/all
+all: CMakeFiles/moveit_collision_checker.dir/all
 all: CMakeFiles/subscriber.dir/all
 all: CMakeFiles/command_publisher.dir/all
 all: CMakeFiles/unity.dir/all
@@ -219,6 +220,7 @@ clean: CMakeFiles/force_field.dir/clean
 clean: CMakeFiles/demo.dir/clean
 clean: CMakeFiles/impedance_param_controller.dir/clean
 clean: CMakeFiles/action_primitive_tester.dir/clean
+clean: CMakeFiles/moveit_collision_checker.dir/clean
 clean: CMakeFiles/subscriber.dir/clean
 clean: CMakeFiles/command_publisher.dir/clean
 clean: CMakeFiles/unity.dir/clean
@@ -3757,7 +3759,7 @@ CMakeFiles/gripper_functions.dir/clean:
 CMakeFiles/utility.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/utility.dir/build.make CMakeFiles/utility.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/utility.dir/build.make CMakeFiles/utility.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=53,54 "Built target utility"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=55,56 "Built target utility"
 .PHONY : CMakeFiles/utility.dir/all
 
 # Build rule for subdir invocation for target.
@@ -3881,13 +3883,39 @@ CMakeFiles/action_primitive_tester.dir/clean:
 .PHONY : CMakeFiles/action_primitive_tester.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/moveit_collision_checker.dir
+
+# All Build rule for target.
+CMakeFiles/moveit_collision_checker.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=46,47 "Built target moveit_collision_checker"
+.PHONY : CMakeFiles/moveit_collision_checker.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/moveit_collision_checker.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/moveit_collision_checker.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/moveit_collision_checker.dir/rule
+
+# Convenience name for target.
+moveit_collision_checker: CMakeFiles/moveit_collision_checker.dir/rule
+.PHONY : moveit_collision_checker
+
+# clean rule for target.
+CMakeFiles/moveit_collision_checker.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/clean
+.PHONY : CMakeFiles/moveit_collision_checker.dir/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/subscriber.dir
 
 # All Build rule for target.
 CMakeFiles/subscriber.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/subscriber.dir/build.make CMakeFiles/subscriber.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=46,47,48,49,50 "Built target subscriber"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=48,49,50,51,52 "Built target subscriber"
 .PHONY : CMakeFiles/subscriber.dir/all
 
 # Build rule for subdir invocation for target.
@@ -4056,7 +4084,7 @@ CMakeFiles/command_publisher.dir/clean:
 CMakeFiles/unity.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unity.dir/build.make CMakeFiles/unity.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=51,52 "Built target unity"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/CMakeFiles --progress-num=53,54 "Built target unity"
 .PHONY : CMakeFiles/unity.dir/all
 
 # Build rule for subdir invocation for target.

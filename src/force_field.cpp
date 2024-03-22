@@ -88,8 +88,8 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
         //ee_transform = Eigen::Translation3d(R_matrix.transpose() * translation) * R_matrix.transpose();
         ee_transform = Eigen::Translation3d(-1 * R_matrix.transpose() * translation) * R_matrix.transpose();
         this->transforms_[k] = ee_transform;
-        std::cout << "resulting translation is " << ee_transform.translation().array() << std::endl;
-        std::cout << "resulting translation is " << ee_transform.rotation().array() << std::endl;
+        //std::cout << "resulting translation is " << ee_transform.translation().array() << std::endl;
+        //std::cout << "resulting translation is " << ee_transform.rotation().array() << std::endl;
         /*
          * Check if we don't need to transform the bounding boxes coming in from this message
          * UPDATE: We don't need to I think. They are assumed at 0 0 0 with their dimension only.
@@ -319,10 +319,12 @@ int main(int argc, char **argv) {
     Eigen::Vector3d F_res;
     Eigen::Vector3d left_diff;
     Eigen::Vector3d right_diff;
-    left_diff << 0, 0.7, 0.08; right_diff <<0, -0.7, 0.08;
+    //left_diff << 0, 0.7, 0.08; right_diff <<0, -0.7, 0.08;
+	left_diff << 0, 0.0, 0.0; right_diff <<0, -0.0, 0.0;
     Eigen::Vector3d x_diff_h;
     Eigen::Vector3d x_diff_v;
-    left_diff << 0.13, 0.0, 0.8; right_diff << -0.13, 0.0, 0.8;
+	//x_diff_h << 0.13, 0.0, 0.8; x_diff_v << -0.13, 0.0, 0.8;
+	x_diff_h << 0.0, 0.0, 0.0; x_diff_v << -0.0, 0.0, 0.0;
     F_res << 0, 0, 0;
     std::vector<Eigen::Vector3d> vectors;
     while (ros::ok()){
@@ -331,20 +333,11 @@ int main(int argc, char **argv) {
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
         F_res = aligned_geometry.compute_force(global_EE_position, exponent);
-        ROS_INFO_STREAM("Resultant Force  1 is " << F_res.transpose() << " N");
         //add more control points
         Eigen::Vector3d F_left = aligned_geometry.compute_force(global_EE_position + left_diff, exponent);
-        ROS_INFO_STREAM("Resultant Force 2 is " << F_left.transpose() << " N");
         Eigen::Vector3d F_right = aligned_geometry.compute_force(global_EE_position + right_diff, exponent);
-        ROS_INFO_STREAM("Resultant Force 3 is " << F_right.transpose() << " N");
         Eigen::Vector3d F_h = aligned_geometry.compute_force(global_EE_position + x_diff_h, exponent);
-        ROS_INFO_STREAM("Resultant Force 4 is " << F_h.transpose() << " N");
         Eigen::Vector3d F_v = aligned_geometry.compute_force(global_EE_position + x_diff_v, exponent);
-        ROS_INFO_STREAM("Resultant Force 5 is " << F_v.transpose() << " N");
-        ROS_INFO("----------------------------------------------------------------");
-
-        //TODO: why does it say that resulting forces are the same at every point?
-
 
         // Add the vectors to the vector
         vectors.push_back(F_res); vectors.push_back(F_left); vectors.push_back(F_right); vectors.push_back(F_h); vectors.push_back(F_v);

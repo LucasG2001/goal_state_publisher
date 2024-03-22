@@ -96,6 +96,7 @@ void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 
 	std::vector<double> reference_for_msg = {goal_position(0,0), goal_position(1,0), goal_position(2,0)};
 	target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
+	target_pose.header.frame_id = header_info;
 	goal_pose_publisher->publish(target_pose);
 
 	double elapsed_time = 0.0;

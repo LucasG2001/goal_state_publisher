@@ -68,7 +68,7 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	ROS_INFO("Received Action Primitive Message");
 	is_task_finished.data = false;
 	activeTask->hasGrasped = false; //do not wait for place pose
-	task_finished_publisher->publish(is_task_finished);
+	//task_finished_publisher->publish(is_task_finished);
 	int task_type = msg->task_type;
 	Eigen::Matrix<double, 6, 1> goal_pose = convert_pose_to_eigen(msg->goal_pose);
 	Eigen::Matrix<double, 6, 1> object_pose = convert_pose_to_eigen(msg->object_pose);
@@ -114,9 +114,10 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
-	is_task_finished.data = true;
-	task_finished_publisher->publish(is_task_finished);
+
 	if (activeTask == &get_me_task || activeTask == &take_this_task){
+		is_task_finished.data = true;
+		task_finished_publisher->publish(is_task_finished);
 		//go back to neutral
 		activeTask = &avoid_me_task;
 		activeTask->setGoalPose(neutral_pose);
