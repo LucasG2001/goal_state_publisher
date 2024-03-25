@@ -47,9 +47,10 @@ public:
     ros::Publisher planning_scene_publisher;
     ros::Subscriber goal_pose_subscriber;
     bool has_grasped = false;
+	Eigen::Vector3d target_position;
 
 	//methods
-	void check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos);
+	void check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos); //TODO: update with goal pose not with gripper end effector
 
     //callbacks
     void planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg);

@@ -19,9 +19,8 @@ void planningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene_msg, 
 	collision_request.max_contacts = 100;
 	collision_detection::CollisionResult collision_result;
 	planning_scene->checkCollision(collision_request, collision_result);
-	std::cout << "total collisions detected " <<  collision_result.contact_count << "\n";
 	if (collision_result.collision) {
-		ROS_WARN("Collision detected in the received scene");
+		//ROS_WARN("Collision detected in the received scene");
 
 		// Get the names of the colliding objects
 		std::vector<std::string> objects_to_remove;
@@ -44,7 +43,7 @@ void planningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene_msg, 
 		moveit_msgs::CollisionObject remove_object;
 		remove_object.operation = moveit_msgs::CollisionObject::REMOVE;
 		for (const auto& object : objects_to_remove) {
-			ROS_INFO_STREAM("loop iteration removing");
+			//ROS_INFO_STREAM("loop iteration removing");
 			remove_object.id = object;
 			planning_scene->processCollisionObjectMsg(remove_object);
 		}

@@ -206,7 +206,6 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
 
 void TaskPlanner::ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
     // for the time being we only need ee positions without orientations
-    //ROS_INFO("got new end effector position");
     global_ee_position.x() = msg->O_T_EE[12]; // O_T_EE is a float[16] array in COLUMN MAJOR format!
     global_ee_position.y() = msg->O_T_EE[13];
     global_ee_position.z() = msg->O_T_EE[14];
@@ -218,6 +217,7 @@ void TaskPlanner::ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
 void TaskPlanner::stop(ros::Publisher *goal_pose_publisher) const {
 	//send actual pose as goal pose and clear integrator such that we dont move
 	geometry_msgs::PoseStamped stop_goal;
+	ROS_INFO("stopping");
 	stop_goal.pose.position.x = global_ee_position.x();
 	stop_goal.pose.position.y = global_ee_position.y();
 	stop_goal.pose.position.z = global_ee_position.z();

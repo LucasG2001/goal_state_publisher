@@ -61,7 +61,6 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
     double z_bound;
     for (int k = 0; k < size; k++){
         this->boundingBoxes_[k].collision_object = msg->world.collision_objects[k];
-        ROS_INFO_STREAM("size of collsiion object in boundnig box is " << this->boundingBoxes_[k].collision_object.primitives.size());
         x_bound = msg->world.collision_objects[k].primitives[0].dimensions[0] * 0.5;
         y_bound = msg->world.collision_objects[k].primitives[0].dimensions[1] * 0.5;
         z_bound = msg->world.collision_objects[k].primitives[0].dimensions[2] * 0.5;
@@ -238,9 +237,9 @@ void SceneGeometry::check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos){
 	BoundingBox* nearestBox = &this->boundingBoxes_[0];
 	int box_index = 0;
 	for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
-		grasp_diff[0] = box.x_center - ee_pos.x();
-		grasp_diff[1] = box.y_center - ee_pos.y();
-		grasp_diff[2] = box.z_center - ee_pos.z();
+		grasp_diff[0] = box.x_center - target_position.x();
+		grasp_diff[1] = box.y_center - target_position.y();
+		grasp_diff[2] = box.z_center - target_position.z();
 		double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
 		if (distanceSquared < minDistanceSquared) {
 			minDistanceSquared = distanceSquared;
@@ -261,6 +260,9 @@ void SceneGeometry::check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos){
 	picked_object = nearestBox; //sets object to be picked at nearest box
 }
 void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedConstPtr & target_pose){
+	target_position.x() = target_pose->pose.position.x;
+	target_position.y() = target_pose->pose.position.y;
+	target_position.z() = target_pose->pose.position.z;
     if(target_pose->header.frame_id == "grasp") {
 	    ROS_INFO("started pick & place action");
 	    //grasping logic

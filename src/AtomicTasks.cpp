@@ -80,17 +80,20 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	grasp_offset << -0.05, 0, 0.08;
 	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
 	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance for handover
-	//do not move
-	task_planner.stop(&goal_publisher);
-	ros::Duration(0.1).sleep(),
+
 	//SHUT OFF repulsion during opening
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 0.25;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
+	//do not move
+	task_planner.stop(&goal_publisher);
+	ros::Duration(0.1).sleep();
 	//wait for human input, i.e. forcing to open gripper
-	while(task_planner.F_ext.norm() < 6.5){
+	ROS_INFO("Waiting for forcing");
+	while(task_planner.F_ext.norm() < 15.5){
 		ros::Duration(0.05).sleep();
+		std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
 		ros::spinOnce();
 	}
 	task_planner.open_gripper();
@@ -230,18 +233,20 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp");
 	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance in handover
 	//do not move
-	task_planner.stop(&goal_publisher);
-	ros::Duration(0.1).sleep();
-	//now is ready -> open gripper
-	task_planner.open_gripper();
 	//lower repulsive stiffness during handover
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/1000.0;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 0.25;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
+	task_planner.stop(&goal_publisher);
+	ros::Duration(0.1).sleep();
+	//now is ready -> open gripper
+	task_planner.open_gripper();
 	//wait for human input, i.e. forcing to close gripper
-	while(task_planner.F_ext.norm() < 6.5){
+	ROS_INFO("Waiting for forcing");
+	while(task_planner.F_ext.norm() < 15.5){
 		ros::Duration(0.05).sleep();
+		std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
 		ros::spinOnce();
 	}
 	//grasp object out of hand
