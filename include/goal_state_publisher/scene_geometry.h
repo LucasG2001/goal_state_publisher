@@ -20,6 +20,7 @@
 
 class SceneGeometry {
 public:
+	bool is_grasping = false;
     // Constructor
     SceneGeometry(int size, double stiffness = 1.0, double Q=0.02) : size_(size), stiffness_(stiffness), Q_(Q){
         // Initialize the bounding boxes vector with 'size' default-constructed bounding boxes
@@ -47,6 +48,8 @@ public:
     ros::Subscriber goal_pose_subscriber;
     bool has_grasped = false;
 
+	//methods
+	void check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos);
 
     //callbacks
     void planning_scene_callback(const moveit_msgs::PlanningSceneConstPtr & msg);

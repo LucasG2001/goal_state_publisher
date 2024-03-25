@@ -230,37 +230,66 @@ void SceneGeometry::moveFeedbackCallback(const franka_gripper::MoveActionResultC
     }
 }
 
+void SceneGeometry::check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos){
+	ROS_INFO("started pick & place action");
+	//grasping logic
+	//find nearest box of target pose
+	double minDistanceSquared = 100.0;
+	BoundingBox* nearestBox = &this->boundingBoxes_[0];
+	int box_index = 0;
+	for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
+		grasp_diff[0] = box.x_center - ee_pos.x();
+		grasp_diff[1] = box.y_center - ee_pos.y();
+		grasp_diff[2] = box.z_center - ee_pos.z();
+		double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
+		if (distanceSquared < minDistanceSquared) {
+			minDistanceSquared = distanceSquared;
+			nearestBox = &box;
+			grasped_index = box_index;
+		}
+		box_index++;
+	} //for loop
+	ROS_INFO_STREAM("Grasping box at " << nearestBox->collision_object.pose.position);
+	grasp_diff[0] = nearestBox->x_center - ee_pos.x();
+	grasp_diff[1] = nearestBox->y_center - ee_pos.y();
+	grasp_diff[2] = nearestBox->z_center - ee_pos.z();
+	nearestBox->force_mode = 0; //disable repulsion for grasping -> no need to change transform yet since contribution is 0 anyway
+	this->boundingBoxes_[grasped_index].force_mode = 0;
+	ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[grasped_index].force_mode);
+	ROS_INFO_STREAM("grasped box is at index " << grasped_index);
+	ROS_INFO("----------------------------------");
+	picked_object = nearestBox; //sets object to be picked at nearest box
+}
 void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedConstPtr & target_pose){
     if(target_pose->header.frame_id == "grasp") {
-        ROS_INFO("started pick & place action");
-        //grasping logic
-        //find nearest box of target pose
-        double minDistanceSquared = 100.0;
-        BoundingBox* nearestBox = &this->boundingBoxes_[0];
-        int box_index = 0;
-        for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
-            grasp_diff[0] = box.x_center - target_pose->pose.position.x;
-            grasp_diff[1] = box.y_center - target_pose->pose.position.y;
-            grasp_diff[2] = box.z_center - target_pose->pose.position.z;
-            double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
-            if (distanceSquared < minDistanceSquared) {
-                minDistanceSquared = distanceSquared;
-                nearestBox = &box;
-                grasped_index = box_index;
-            }
-            box_index++;
-        } //for loop
-        ROS_INFO_STREAM("Grasping box at " << nearestBox->collision_object.pose.position);
-        grasp_diff[0] = nearestBox->x_center - target_pose->pose.position.x;
-        grasp_diff[1] = nearestBox->y_center - target_pose->pose.position.y;
-        grasp_diff[2] = nearestBox->z_center - target_pose->pose.position.z;
-        nearestBox->force_mode = 0; //disable repulsion for grasping -> no need to change transform yet since contribution is 0 anyway
-        this->boundingBoxes_[grasped_index].force_mode = 0;
-        ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[grasped_index].force_mode);
-        ROS_INFO_STREAM("grasped box is at index " << grasped_index);
-        ROS_INFO("----------------------------------");
-        picked_object = nearestBox; //sets object to be picked at nearest box
-
+	    ROS_INFO("started pick & place action");
+	    //grasping logic
+	    //find nearest box of target pose
+	    double minDistanceSquared = 100.0;
+	    BoundingBox* nearestBox = &this->boundingBoxes_[0];
+	    int box_index = 0;
+	    for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
+		    grasp_diff[0] = box.x_center - target_pose->pose.position.x;
+		    grasp_diff[1] = box.y_center - target_pose->pose.position.y;
+		    grasp_diff[2] = box.z_center - target_pose->pose.position.z;
+		    double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
+		    if (distanceSquared < minDistanceSquared) {
+			    minDistanceSquared = distanceSquared;
+			    nearestBox = &box;
+			    grasped_index = box_index;
+		    }
+		    box_index++;
+	    } //for loop
+	    ROS_INFO_STREAM("Grasping box at " << nearestBox->collision_object.pose.position);
+	    grasp_diff[0] = nearestBox->x_center - target_pose->pose.position.x;
+	    grasp_diff[1] = nearestBox->y_center - target_pose->pose.position.y;
+	    grasp_diff[2] = nearestBox->z_center - target_pose->pose.position.z;
+	    nearestBox->force_mode = 0; //disable repulsion for grasping -> no need to change transform yet since contribution is 0 anyway
+	    this->boundingBoxes_[grasped_index].force_mode = 0;
+	    ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[grasped_index].force_mode);
+	    ROS_INFO_STREAM("grasped box is at index " << grasped_index);
+	    ROS_INFO("----------------------------------");
+	    picked_object = nearestBox; //sets object to be picked at nearest box
     }
     else if (target_pose->header.frame_id == "place"){
         //do placement logic
@@ -301,9 +330,9 @@ int main(int argc, char **argv) {
     ros::Subscriber grasp_feedback_sub = n.subscribe("franka_gripper/grasp/result", 1, &SceneGeometry::graspFeedbackCallback, &aligned_geometry);
     ros::Subscriber move_feedback_sub = n.subscribe("franka_gripper/move/result", 1, &SceneGeometry::moveFeedbackCallback, &aligned_geometry);
     //2) and transforms and bbox_subscriber
-    ros::Subscriber bbox_subscriber = n.subscribe("/force_bboxes", 10, &SceneGeometry::bbox_callback, &aligned_geometry);
+    ros::Subscriber bbox_subscriber = n.subscribe("/force_bboxes", 1, &SceneGeometry::bbox_callback, &aligned_geometry);
     ros::Subscriber planning_scene_subscriber = n.subscribe("/move_group/monitored_planning_scene", 1, &SceneGeometry::planning_scene_callback, &aligned_geometry);
-    ros::Subscriber transforms = n.subscribe("/ee_transforms", 10, &SceneGeometry::transform_callback, &aligned_geometry);
+    ros::Subscriber transforms = n.subscribe("/ee_transforms", 1, &SceneGeometry::transform_callback, &aligned_geometry);
     //subscriber for goal commands
     aligned_geometry.goal_pose_subscriber = n.subscribe("/cartesian_impedance_controller/reference_pose", 1, &SceneGeometry::pick_and_place_callback, &aligned_geometry);
     // force field publisher (3)
@@ -327,11 +356,12 @@ int main(int argc, char **argv) {
 	x_diff_h << 0.0, 0.0, 0.0; x_diff_v << -0.0, 0.0, 0.0;
     F_res << 0, 0, 0;
     std::vector<Eigen::Vector3d> vectors;
+
     while (ros::ok()){
-        size_t size = aligned_geometry.getSize();
         //std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
+		aligned_geometry.check_for_grasp_in_force_field(global_EE_position); //remove force fields from objects to be grasped
         F_res = aligned_geometry.compute_force(global_EE_position, exponent);
         //add more control points
         Eigen::Vector3d F_left = aligned_geometry.compute_force(global_EE_position + left_diff, exponent);

@@ -6,6 +6,7 @@
 #include <goal_state_publisher/AtomicTasks.h>
 #include <TaskPlanner.h>
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 
 // Default constructor for GetMe
 GetMe::GetMe() : ActionPrimitive() {
@@ -38,7 +39,8 @@ GetMe::GetMe() : ActionPrimitive() {
 	// Additional custom initialization for GetMe if needed
 }
 
-void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, ros::Publisher &impedance_publisher) {
+void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                          ros::Publisher &is_task_finished_publisher) {
 	Eigen::Vector3d grasp_offset; grasp_offset << -0.00, 0, 0.08;
 	ROS_INFO("starting get me action");
 	construct_impedance_message(this->impedance_params);
@@ -49,12 +51,15 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &publisher, 0.04, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &publisher, 0.02, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.02, "grasp");
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
+	//publish that it finished grasping
+	std_msgs::Bool done_msg; done_msg.data = true;
+	is_task_finished_publisher.publish(done_msg);
 	//wait for goal pose
-	ROS_INFO("waiting for goal ");
+	ROS_INFO("Finished grasping, waiting for goal ");
 	while(!this->hasGrasped){
 		ros::Duration(0.1).sleep();
 		ros::spinOnce();
@@ -73,15 +78,21 @@ void GetMe::performAction(TaskPlanner& task_planner, ros::Publisher &publisher, 
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &publisher, 0.04, "grasp");
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &publisher, 0.04, "grasp"); //higher tolerance for handover
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance for handover
 	//do not move
-	task_planner.stop(&publisher);
+	task_planner.stop(&goal_publisher);
+	ros::Duration(0.1).sleep(),
 	//SHUT OFF repulsion during opening
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 0.25;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
+	//wait for human input, i.e. forcing to open gripper
+	while(task_planner.F_ext.norm() < 6.5){
+		ros::Duration(0.05).sleep();
+		ros::spinOnce();
+	}
 	task_planner.open_gripper();
 }
 
@@ -113,8 +124,9 @@ FollowMe::FollowMe() : ActionPrimitive() {
 
 }
 
-void FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
-                             ros::Publisher &impedance_publisher) {
+void
+FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                        ros::Publisher &is_task_finished_publisher) {
 	// Implementation of performAction for FollowMe
 	// Custom logic for FollowMe
 	ROS_INFO("performing follow me");
@@ -155,8 +167,9 @@ HoldThis::HoldThis() : ActionPrimitive() {
 
 }
 
-void HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
-                             ros::Publisher &impedance_publisher) {
+void
+HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                        ros::Publisher &is_task_finished_publisher) {
 	// Implementation of performAction for HoldThis
 	if (this->free_float){
 		construct_impedance_message(this->impedance_params * 0.0);
@@ -171,15 +184,6 @@ void HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 
 
 	this->free_float = false;
-
-	// Custom logic for HoldThis
-	//go back to hand/object
-	// ros::Rate waiting_time(0.1);
-	//TODO: Wit for goal pose (like bring me)
-	// task_planner.execute_action(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.01);
-	// task_planner.open_gripper();
-	// task_planner.grasp_object();
-	//stopping here will effectually do nothing until the next callback comes in
 }
 
 // Default constructor for TakeThis
@@ -211,13 +215,14 @@ TakeThis::TakeThis() : ActionPrimitive() {
 	// Additional custom initialization for GetMe if needed
 }
 
-void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher,
-                             ros::Publisher &impedance_publisher) {
+void
+TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                        ros::Publisher &is_task_finished_publisher) {
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	Eigen::Vector3d grasp_offset; grasp_offset << -0.04, 0, 0.08;
 	// Implementation of performAction for TakeThis
 	// Custom logic for TakeThis
-	task_planner.open_gripper();
+	task_planner.grasp_object(0.1, 0.02); //approach with not fully closed gripper
 	//go to object/hand
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
@@ -226,19 +231,32 @@ void TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_pub
 	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance in handover
 	//do not move
 	task_planner.stop(&goal_publisher);
+	ros::Duration(0.1).sleep();
+	//now is ready -> open gripper
+	task_planner.open_gripper();
 	//lower repulsive stiffness during handover
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/1000.0;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 0.25;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
+	//wait for human input, i.e. forcing to close gripper
+	while(task_planner.F_ext.norm() < 6.5){
+		ros::Duration(0.05).sleep();
+		ros::spinOnce();
+	}
 	//grasp object out of hand
 	task_planner.grasp_object();
-	ROS_INFO("Starting wait time");
+	//publish that it finished grasping
+	std_msgs::Bool done_msg; done_msg.data = true;
+	is_task_finished_publisher.publish(done_msg);
+	//now wait for goal posiiton
+	ROS_INFO("Waiting for goal position");
 	while(!this->hasGrasped){
 		ros::Duration(0.1).sleep();
 		ros::spinOnce();
 	}
 	ROS_INFO("ended wait time");
+	//TODO:: publish "goal reached"
 	this->hasGrasped = false;
 	// now that object is grasped increase safety bubble stiffness after a transitory period
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 2;
@@ -280,7 +298,8 @@ AvoidMe::AvoidMe() : ActionPrimitive() {
 }
 
 void
-AvoidMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher) {
+AvoidMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                       ros::Publisher &is_task_finished_publisher) {
 	// Implementation of performAction for AvoidMe
 	// Custom logic for AvoidMe
 	construct_impedance_message(this->impedance_params);

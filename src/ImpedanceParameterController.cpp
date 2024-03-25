@@ -113,9 +113,10 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	//impedance is updated in action execution
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
-	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
+	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub, *task_finished_publisher);
 
 	if (activeTask == &get_me_task || activeTask == &take_this_task){
+		ROS_INFO("publishing info over goal state reached");
 		is_task_finished.data = true;
 		task_finished_publisher->publish(is_task_finished);
 		//go back to neutral
@@ -124,7 +125,7 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 		activeTask->setObjectPose(neutral_pose);
 		activeTask->setGrasp(false);
 		ROS_INFO("going back to neutral");
-		activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub);
+		activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub, *task_finished_publisher);
 	}
 
 }

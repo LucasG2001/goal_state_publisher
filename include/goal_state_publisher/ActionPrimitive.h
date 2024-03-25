@@ -31,7 +31,9 @@ public:
     ActionPrimitive();
 
     // Pure virtual function - to be implemented by derived classes
-    virtual void performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher) = 0;
+    virtual void
+    performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
+                  ros::Publisher &is_task_finished_publisher) = 0;
 
     // Setters
     void setStartPose(const Eigen::Matrix<double, 6, 1>& start_pose);
