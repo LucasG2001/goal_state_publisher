@@ -1979,6 +1979,19 @@ moveit_collision_checker/fast:
 .PHONY : moveit_collision_checker/fast
 
 #=============================================================================
+# Target rules for targets named datalogger
+
+# Build rule for target.
+datalogger: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 datalogger
+.PHONY : datalogger
+
+# fast build rule for target.
+datalogger/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/build
+.PHONY : datalogger/fast
+
+#=============================================================================
 # Target rules for targets named subscriber
 
 # Build rule for target.
@@ -2318,6 +2331,30 @@ src/impedance_setter_node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.s
 .PHONY : src/impedance_setter_node.cpp.s
 
+src/logging/DataLogger.o: src/logging/DataLogger.cpp.o
+.PHONY : src/logging/DataLogger.o
+
+# target to build an object file
+src/logging/DataLogger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.o
+.PHONY : src/logging/DataLogger.cpp.o
+
+src/logging/DataLogger.i: src/logging/DataLogger.cpp.i
+.PHONY : src/logging/DataLogger.i
+
+# target to preprocess a source file
+src/logging/DataLogger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.i
+.PHONY : src/logging/DataLogger.cpp.i
+
+src/logging/DataLogger.s: src/logging/DataLogger.cpp.s
+.PHONY : src/logging/DataLogger.s
+
+# target to generate assembly for a file
+src/logging/DataLogger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.s
+.PHONY : src/logging/DataLogger.cpp.s
+
 src/subscriber_node.o: src/subscriber_node.cpp.o
 .PHONY : src/subscriber_node.o
 
@@ -2594,6 +2631,7 @@ help:
 	@echo "... visualization_msgs_generate_messages_py"
 	@echo "... action_primitive_tester"
 	@echo "... command_publisher"
+	@echo "... datalogger"
 	@echo "... demo"
 	@echo "... force_field"
 	@echo "... gmock"
@@ -2636,6 +2674,9 @@ help:
 	@echo "... src/impedance_setter_node.o"
 	@echo "... src/impedance_setter_node.i"
 	@echo "... src/impedance_setter_node.s"
+	@echo "... src/logging/DataLogger.o"
+	@echo "... src/logging/DataLogger.i"
+	@echo "... src/logging/DataLogger.s"
 	@echo "... src/subscriber_node.o"
 	@echo "... src/subscriber_node.i"
 	@echo "... src/subscriber_node.s"

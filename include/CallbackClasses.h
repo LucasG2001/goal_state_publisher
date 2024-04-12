@@ -2,8 +2,8 @@
 // Created by lucas on 01.04.23.
 //
 
-#ifndef GOAL_STATE_PUBLISHER_CALLBACK_CLASSES_H
-#define GOAL_STATE_PUBLISHER_CALLBACK_CLASSES_H
+#ifndef GOAL_STATE_PUBLISHER_CALLBACKCLASSES_H
+#define GOAL_STATE_PUBLISHER_CALLBACKCLASSES_H
 
 #include <actionlib/client/simple_action_client.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -41,4 +41,4 @@ public:
     void openCallback(const goal_state_publisher::MoveGripperMsg::ConstPtr& msg);
     void stopCallback(const goal_state_publisher::StopGripperMsg::ConstPtr& msg);
 };
-#endif //GOAL_STATE_PUBLISHER_CALLBACK_CLASSES_H
+#endif //GOAL_STATE_PUBLISHER_CALLBACKCLASSES_H

@@ -2,8 +2,8 @@
 // Created by lucas on 21.03.23.
 //
 
-#ifndef GOAL_STATE_PUBLISHER_GRIPPER_FUNCTIONS_H
-#define GOAL_STATE_PUBLISHER_GRIPPER_FUNCTIONS_H
+#ifndef GOAL_STATE_PUBLISHER_GRIPPERFUNCTIONS_H
+#define GOAL_STATE_PUBLISHER_GRIPPERFUNCTIONS_H
 
 #include <ros/ros.h>
 // MoveIt
@@ -25,4 +25,4 @@ void pick(moveit::planning_interface::MoveGroupInterface& move_group);
 void place(moveit::planning_interface::MoveGroupInterface& group);
 
 std::vector<std::string> addCollisionObjects(moveit::planning_interface::PlanningSceneInterface& planning_scene_interface);
-#endif //GOAL_STATE_PUBLISHER_GRIPPER_FUNCTIONS_H
+#endif //GOAL_STATE_PUBLISHER_GRIPPERFUNCTIONS_H

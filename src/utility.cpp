@@ -5,7 +5,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <franka_gripper/franka_gripper.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include "utility.h"
+#include "Utility.h"
 #include "Eigen/Dense"
 
 Eigen::Matrix<double, 6, 1> convert_pose_to_eigen(const geometry_msgs::Pose& msg){

@@ -5,7 +5,7 @@
 #include <ros/spinner.h>
 #include <iostream>
 #include <custom_msgs/action_primitive_message.h>
-#include "utility.h"
+#include "Utility.h"
 
 int main(int argc, char** argv) {
 	//ROS Specific Initializations

@@ -92,7 +92,6 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info) const{
 	double goal_time = 2.8;
     geometry_msgs::PoseStamped target_pose;
-    Eigen::Vector3d start_position = global_ee_position;
 
 	std::vector<double> reference_for_msg = {goal_position(0,0), goal_position(1,0), goal_position(2,0)};
 	target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
@@ -101,7 +100,7 @@ void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 
 	double elapsed_time = 0.0;
 	double start_time = ros::Time::now().toSec();
-	while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time){
+	while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time && (goal_orientation-global_ee_euler_angles).norm() > 0.075 ){
 		double current_time = ros::Time::now().toSec();
 		elapsed_time = current_time - start_time;
 		ros::Duration(0.1).sleep();
@@ -212,6 +211,7 @@ void TaskPlanner::ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
     F_ext = Eigen::Map<const Eigen::Matrix<double, 6, 1>>((msg->O_F_ext_hat_K).data());
 	Eigen::Affine3d transform(Eigen::Map<const Eigen::Matrix<double, 4, 4, Eigen::ColMajor>>(msg->O_T_EE.data()));
 	global_ee_orientation = transform.rotation();
+	global_ee_euler_angles = global_ee_orientation.toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
 void TaskPlanner::stop(ros::Publisher *goal_pose_publisher) const {

@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "devel/lib/goal_state_publisher/subscriber"
+			"path" : "devel/lib/goal_state_publisher/datalogger"
 		}
 	],
 	"backtrace" : 1,
@@ -264,14 +264,11 @@
 			"language" : "CXX",
 			"sourceIndexes" : 
 			[
-				0,
-				1,
-				2,
-				3
+				0
 			]
 		}
 	],
-	"id" : "subscriber::@6890427a1f51a3e7e1df",
+	"id" : "datalogger::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -832,8 +829,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "subscriber",
-	"nameOnDisk" : "subscriber",
+	"name" : "datalogger",
+	"nameOnDisk" : "datalogger",
 	"paths" : 
 	{
 		"build" : ".",
@@ -845,10 +842,7 @@
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
-				0,
-				1,
-				2,
-				3
+				0
 			]
 		}
 	],
@@ -857,25 +851,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/subscriber_node.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/utility.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/callback_classes.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/gripper_functions.cpp",
+			"path" : "src/logging/DataLogger.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

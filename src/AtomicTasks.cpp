@@ -14,12 +14,12 @@ GetMe::GetMe() : ActionPrimitive() {
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
 	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
-	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 12;
+	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 15;
 
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
 	damping.topLeftCorner(3, 3) << 65, 0, 0, 0, 65, 0, 0, 0, 65;
-	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7;
+	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7.5;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 
 	Eigen::Matrix<double, 6, 6> inertia;           

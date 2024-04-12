@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
-#include <goal_state_publisher/bounding_box.h>
+#include <goal_state_publisher/BoundingBox.h>
 #include <tf2_msgs/TFMessage.h>
 #include <moveit_msgs/PlanningScene.h>
 #include <franka_gripper/GraspActionResult.h>
@@ -48,6 +48,7 @@ public:
     ros::Subscriber goal_pose_subscriber;
     bool has_grasped = false;
 	Eigen::Vector3d target_position;
+	double nearest_distance; //for logging purposes
 
 	//methods
 	void check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos); //TODO: update with goal pose not with gripper end effector

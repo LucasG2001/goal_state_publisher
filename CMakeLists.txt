@@ -245,6 +245,9 @@ target_link_libraries(action_primitive_tester ${catkin_LIBRARIES} utility)
 add_executable(moveit_collision_checker test/moveit_collision_check.cpp)
 target_link_libraries(moveit_collision_checker ${catkin_LIBRARIES})
 
+add_executable(datalogger src/logging/DataLogger.cpp)
+target_link_libraries(datalogger ${catkin_LIBRARIES})
+
 add_executable(subscriber src/subscriber_node.cpp src/utility.cpp src/callback_classes.cpp src/gripper_functions.cpp)
 target_link_libraries(subscriber ${catkin_LIBRARIES})
 

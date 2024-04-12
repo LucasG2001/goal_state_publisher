@@ -3,7 +3,7 @@
 //
 #include <goal_state_publisher/ImpedanceParameterController.h>
 #include <std_msgs/Int32.h>
-#include <utility.h>
+#include <Utility.h>
 
 #define POSE_NEUTRAL 0.45, 0.0, 0.45, 3.14156, 0.0, 0.0
 
@@ -78,6 +78,9 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	// Switch the active task pointer based on the task_type
 	switch (task_type) {
 		case 1:
+			object_pose.tail(3).x() = 3.14156; // EE orientation for grasp should be -PI (neutral) + x rotation of BBOX
+			object_pose.tail(3).y() = 0.0;
+			object_pose.tail(3).z() += msg->grasp * M_PI/2; // EE orientation in z direction is turned about 90 degrees if x extent is smaller than y
 			activeTask = &get_me_task;
 			ROS_INFO("active task is now GET ME");
 			break;

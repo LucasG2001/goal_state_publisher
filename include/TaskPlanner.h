@@ -6,7 +6,7 @@
 #include <franka_gripper/GraspAction.h>
 #include <franka_gripper/StopAction.h>
 #include "ros/ros.h"
-#include "utility.h"
+#include "Utility.h"
 #include <iostream>
 #include <vector>
 #include <control_msgs/FollowJointTrajectoryAction.h>
@@ -22,6 +22,7 @@ public:
     // Default constructor
 	TaskPlanner();
     Eigen::Vector3d global_ee_position;
+	Eigen::Vector3d global_ee_euler_angles;
     Eigen::Quaterniond global_ee_orientation;
     Eigen::Matrix<double, 6, 1> F_ext;
     ros::Publisher control_mode_pub; // controls control mode on high level (0/1 = normal/free float)
