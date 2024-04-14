@@ -23,7 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   message_generation
   franka_control
-  custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions

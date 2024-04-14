@@ -6,7 +6,6 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <TaskPlanner.h>
-#include "utility.h"
 #include <Eigen/Dense>//
 // Created by lucas on 21.09.23.
 //
@@ -15,7 +14,6 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <TaskPlanner.h>
-#include "utility.h"
 #include <std_msgs/Int16.h>
 #include <std_msgs/Bool.h>
 #include <limits>
