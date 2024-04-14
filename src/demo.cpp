@@ -16,7 +16,6 @@
 #include <actionlib/client/simple_action_client.h>
 #include <TaskPlanner.h>
 #include "utility.h"
-#include <Eigen/Dense>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Bool.h>
 #include <limits>
@@ -178,6 +177,46 @@ void task3(TaskPlanner& task_planner, double downward_force, ros::Publisher* cle
 
     }
 
+    void task5(TaskPlanner &task_planner, ros::Publisher* goal_pose_publisher)
+    {
+        std::vector<double> neutral_orientation = {-3.14156, 0.0, 0.0}; //moveit has it at -0.785 while for ee direct it's 0 ?????
+        std::vector<std::vector<double>> object_location{
+                            {0.588175,	0.333778,	0.03828},
+                            {0.609549,	0.33479,	0.03788},
+                            {0.62802,	0.33697,	0.0374},
+                            {0.64805,	0.33472,	0.0381}
+        };
+
+        std::vector<std::vector<double>> place_location{
+                            {0.5275382,	0.078622,	0.055105},
+                            {0.528564,	0.14105,	0.056055},
+                            {0.557536,	0.077595,	0.05707},
+                            {0.55752,	0.14045,	0.05722}
+        };
+        double offset = 0.025;
+        
+
+        for(int i = 0; i < 4; ++i){
+            task_planner.open_gripper();
+            ROS_INFO("going to next object");
+            object_location[i][2] += offset;
+            task_planner.move(object_location[i], neutral_orientation, goal_pose_publisher, 0.002, "continue");ros::Duration(0.2).sleep();
+            object_location[i][2] -= offset;
+            task_planner.move(object_location[i], neutral_orientation, goal_pose_publisher, 0.002, "grasp");ros::Duration(0.2).sleep();
+            task_planner.grasp_object();ros::Duration(0.2).sleep();
+            ROS_INFO("going to place objct");
+
+            place_location[i][2] += offset;
+            task_planner.move(place_location[i], neutral_orientation, goal_pose_publisher, 0.002, "continue");ros::Duration(0.2).sleep();
+            place_location[i][2] -= offset;
+            task_planner.move(place_location[i], neutral_orientation, goal_pose_publisher, 0.002, "continue");ros::Duration(0.2).sleep();
+            task_planner.open_gripper(); ros::Duration(0.2).sleep();        
+            place_location[i][2] += offset;
+            task_planner.move(place_location[i], neutral_orientation, goal_pose_publisher, 0.002, "continue");ros::Duration(0.2).sleep();
+            ROS_INFO("placed object");
+        }
+    }
+
     void test_mode(TaskPlanner &task_planner){
 
         goal_state_publisher::testMsg usr_input;
@@ -247,7 +286,7 @@ int main(int argc, char **argv) {
 
         // Prompt user to input three values
         std::cout
-                << "Enter 0 (go home) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float) | 6 (reactivate stiffness) | 7 (test mode) | 8 (test mode 2)";
+                << "Enter 0 (go home) | 1 (task1) | 2 (task2) | 3 (task3) | 4 (try task 1-3 in succession)| 5 (free-float) | 6 (reactivate stiffness) | 7 (test mode) | 8 (test mode 2) | 9 (demo PCB)";
         std::cin >> grip_action;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
@@ -259,7 +298,7 @@ int main(int argc, char **argv) {
 
         switch (grip_action) {
             case 0:
-                task_planner.move({0.4, 0.05, 0.3}, {-3.14156, 0, -0.785}, &task_planner.equilibrium_pose_pub);
+                task_planner.move({0.4, 0.05, 0.3}, {-3.14156, 0, 0}, &task_planner.equilibrium_pose_pub);
                 break;
             case 1:
                 friction_selection(task_planner, friction_usr);
@@ -303,6 +342,13 @@ int main(int argc, char **argv) {
                 task4(task_planner, &task_planner.equilibrium_pose_pub);
                 friction_usr.data = 0;
                 task_planner.friction_pub.publish(friction_usr);
+                break;
+            case 9:
+                friction_selection(task_planner, friction_usr);
+                task5(task_planner, &task_planner.equilibrium_pose_pub);
+                friction_usr.data = 0;
+                task_planner.friction_pub.publish(friction_usr);
+                break;
         } //switch case
         std::cout << "current end-effector position is at " << task_planner.global_ee_position.transpose() << std::endl;
         loop_rate.sleep();
