@@ -1,0 +1,15 @@
+<launch>
+    <!-- Launch file for launching force_field and moveit_collision_checker nodes -->
+
+    <!-- Launch force_field node -->
+    <node name="force_field_node" pkg="goal_state_publisher" type="force_field" output="log">
+        <!-- Add any necessary arguments or parameters for the force_field node -->
+        <!-- Example: <param name="some_parameter" type="double" value="0.5"/> -->
+    </node>
+
+    <!-- Launch moveit_collision_checker node -->
+    <node name="moveit_collision_checker_node" pkg="goal_state_publisher" type="moveit_collision_checker" output="log">
+        <!-- Add any necessary arguments or parameters for the moveit_collision_checker node -->
+        <!-- Example: <param name="some_parameter" type="string" value="example"/> -->
+    </node>
+</launch>

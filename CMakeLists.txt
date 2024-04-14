@@ -19,11 +19,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   moveit_visual_tools
-        franka_gripper
-        actionlib
-        message_generation
-        franka_control
-        #custom_msgs
+  franka_gripper
+  actionlib
+  message_generation
+  franka_control
+  custom_msgs
 )
 
 ## System dependencies are found with CMake's conventions

@@ -5,9 +5,9 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <actionlib/client/simple_action_client.h>
-#include "callback_classes.h"
-#include "utility.h"
-#include "gripper_functions.h"
+#include "CallbackClasses.h"
+#include "Utility.h"
+#include "GripperFunctions.h"
 
 int main(int argc, char **argv)
 {

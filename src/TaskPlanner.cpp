@@ -4,87 +4,31 @@
 // Default constructor
 #include <TaskPlanner.h>
 
-bool plan_until_successful(moveit::planning_interface::MoveGroupInterface* move_group_ptr, int tries){
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    bool success = false;
-    int attempt = 0;
-    while(!success && attempt <= tries){
-        success = (move_group_ptr->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-        ROS_INFO("Plan was computed");
-        if (success){
-            move_group_ptr->execute(plan); //this call should be blocking
-            ROS_INFO("Plan found");
-            ROS_INFO("Executing!");
-            return success;
-        }
-        else { ROS_WARN("Could not Plan Motion successfully");
-            ROS_INFO_STREAM("proceeding to attempt nr " << (attempt +1));
-        }
-        attempt += 1;
-    }
-    ROS_WARN("Even after multiple attempts no plan was found");
-    return false;
-}
-
-TaskPlanner::TaskPlanner( moveit::planning_interface::MoveGroupInterface* move_group,  moveit::planning_interface::MoveGroupInterface* gripper_group) :
-        gripper_grasp_client("franka_gripper/grasp", true),
-        gripper_move_client("franka_gripper/move", true),
-        gripper_stop_client("franka_gripper/stop", true)
-{
-    // Initialize ROS node handle
-    nh_.reset(new ros::NodeHandle("~"));
-    // Set default callback queue sizes
-    move_group_ptr = move_group;
-
-    // Wait for the action servers to start up
-    gripper_grasp_client.waitForServer();
-    gripper_move_client.waitForServer();
-    gripper_stop_client.waitForServer();
-} // end constructor
-
+//Default Constructor
 TaskPlanner::TaskPlanner() :
 		gripper_grasp_client("franka_gripper/grasp", true),
 		gripper_move_client("franka_gripper/move", true),
 		gripper_stop_client("franka_gripper/stop", true)
 {
-
 	// Wait for the action servers to start up
-	gripper_grasp_client.waitForServer();
-	gripper_move_client.waitForServer();
-	gripper_stop_client.waitForServer();
+	//gripper_grasp_client.waitForServer();
+	//gripper_move_client.waitForServer();
+	//gripper_stop_client.waitForServer();
 } // end constructor
 
-
-void TaskPlanner::multiplan_move(std::vector<double> position, std::vector<double> orientation){
-    geometry_msgs::Pose target_pose;
-    target_pose = createGoalPose(position, orientation);
-    move_group_ptr->setPoseTarget(target_pose);
-    move_group_ptr->setStartStateToCurrentState();
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    bool success = (this->move_group_ptr->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-    ROS_INFO("Plan was computed");
-    if (success){
-        this->move_group_ptr->execute(plan); //this call should be blocking
-        ROS_INFO("Plan found");
-        ROS_INFO("Executing!");
-    }
-    else { ROS_WARN("Could not Plan Motion successfully");}
-}
-
-void TaskPlanner::moveit_move(std::vector<double> position, std::vector<double> orientation){
-    geometry_msgs::Pose target_pose;
-    target_pose = createGoalPose(position, orientation);
-    bool success = plan_until_successful(this->move_group_ptr, 3);
-}
-
+/**
 void TaskPlanner::move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info){
     double trajectory_intervals = 0.15;
     geometry_msgs::PoseStamped target_pose;
-    target_pose.header.frame_id = " ";
+    target_pose.header.frame_id = "waypoint";
     Eigen::Map<Eigen::Vector3d> goal_position(position.data());
     Eigen::Map<Eigen::Vector3d> goal_orientation(position.data());
     Eigen::Matrix<double, 6, 1> waypoint_number;
     waypoint_number.head(3) = ((goal_position-global_ee_position)/trajectory_intervals).array().abs().ceil(); //position with 0.1 spaced waypoints
+	//EXCEPTION HANDLING Waypoint number = 0 (is at goal):
+	waypoint_number.head(3) = waypoint_number.head(3).cwiseMax(Eigen::Vector3d::Ones());
+	waypoint_number.tail(3).setZero();
+	//END of EXCEPTION
     ROS_INFO_STREAM(" waypoints are distributed as " << waypoint_number);
     waypoint_number.tail(3).setZero();
     //at the moment only use position
@@ -97,11 +41,11 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
     ROS_INFO_STREAM("going from " << start_position.transpose() << " to " << " " << goal_position.transpose());
     tol *= 3; //double tolerance for middle waypoints
     double goal_time = 1;
-    /** publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint **/
+    // publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint
     for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
         if (i == waypoint_number.maxCoeff()){
             tol *= 0.25;//get back tolerance for last waypoint
-            target_pose.header.frame_id = header_info;
+            target_pose.header.frame_id = "goal";
             goal_time = 10;
         }
         Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
@@ -122,8 +66,51 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
     }//for loop
 
 }
+**/
+
+void TaskPlanner::move(std::vector<double> position, std::vector<double> orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info){
+	double goal_time = 6.5;
+    geometry_msgs::PoseStamped target_pose;
+    Eigen::Vector3d start_position = global_ee_position;
+
+	Eigen::Map<Eigen::Vector3d> goal_vector(position.data());
+	target_pose.pose = createGoalPose(position, orientation);
+	goal_pose_publisher->publish(target_pose);
+
+
+	double elapsed_time = 0.0;
+	double start_time = ros::Time::now().toSec();
+	while((goal_vector-global_ee_position).norm() > tol && elapsed_time < goal_time){
+		double current_time = ros::Time::now().toSec();
+		elapsed_time = current_time - start_time;
+		ros::Duration(0.1).sleep();
+	}
+}//for loop
+
+
+// with Eigen
+void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info) const{
+	double goal_time = 2.8;
+    geometry_msgs::PoseStamped target_pose;
+
+	std::vector<double> reference_for_msg = {goal_position(0,0), goal_position(1,0), goal_position(2,0)};
+	target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
+	target_pose.header.frame_id = header_info;
+	goal_pose_publisher->publish(target_pose);
+
+	double elapsed_time = 0.0;
+	double start_time = ros::Time::now().toSec();
+	while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time && (goal_orientation-global_ee_euler_angles).norm() > 0.075 ){
+		double current_time = ros::Time::now().toSec();
+		elapsed_time = current_time - start_time;
+		ros::Duration(0.1).sleep();
+	}
+}//for loop
+
 
 void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
+	//ToDo: Make the first part of the code as callback , that sets the local goal according to the new one. Watch out for threading and waypoints
+	ros::Rate loop_rate(10);
 	double trajectory_intervals = 0.15;
 	geometry_msgs::PoseStamped target_pose;
 	Eigen::Matrix<double, 6, 1> waypoint_number;
@@ -134,32 +121,32 @@ void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	//END of EXCEPTION
 	//at the moment only use position
 	Eigen::Vector3d step_size = (goal_position - global_ee_position).array() / waypoint_number.head(3).array();
-	ROS_INFO_STREAM("step sizes are " << step_size);
+	//ROS_INFO_STREAM("step sizes are " << step_size);
 	Eigen::Vector3d start_position = global_ee_position;
 	Eigen::Vector3d lower_bound = start_position.cwiseMin(goal_position);
 	Eigen::Vector3d upper_bound = start_position.cwiseMax(goal_position);
 	ROS_INFO_STREAM("going from " << start_position.transpose() << " to " << " " << goal_position.transpose());
-	tol *= 3; //double tolerance for middle waypoints
-	double goal_time = 1;
-	/** publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint **/
+	tol *= 5; //double tolerance for middle waypoints
+	double goal_time = 0.7;
+	// publish end goal once to delete the object in the planning scene, then proceed by quickly publishing the first waypoint
 	for (int i = 1; i < waypoint_number.maxCoeff() + 1; i++){
-		if (i == waypoint_number.maxCoeff()){
-			tol *= 0.25;//get back tolerance for last waypoint
-			goal_time = 10;
-		}
 		Eigen::Vector3d reference_pos = (start_position + i * step_size); //just add up correct later
 		reference_pos = reference_pos.cwiseMax(lower_bound).cwiseMin(upper_bound);
+		if (i == waypoint_number.maxCoeff()){
+			tol *= 0.2;//get back tolerance for last waypoint
+			goal_time = 2;
+			target_pose.header.frame_id = "goal"; // will give the controller w_des = 0
+		} else{ reference_pos.z() += 0.08; target_pose.header.frame_id = "waypoint"; } //for grasping and will give controller w_des = 0.07
 		std::vector<double> reference_for_msg = {reference_pos(0,0), reference_pos(1,0), reference_pos(2,0)};
-		//ROS_INFO_STREAM("waypoint " << i << " is " << reference_pos);
-		//generate a trajectory with waypoints
 		target_pose.pose = createGoalPose(reference_for_msg, {goal_orientation(0,0), goal_orientation(1,0), goal_orientation(2,0)});
+		//publish target pose
 		goal_pose_publisher->publish(target_pose);
 		double elapsed_time = 0.0;
 		double start_time = ros::Time::now().toSec();
 		while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time){
 			double current_time = ros::Time::now().toSec();
 			elapsed_time = current_time - start_time;
-			ros::Duration(0.05).sleep();
+			loop_rate.sleep();
 		}
 		ROS_INFO("Reached waypoint");
 	}//for loop
@@ -210,18 +197,37 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
     target_pose.pose.orientation.y = global_ee_orientation.y();
     target_pose.pose.orientation.z = global_ee_orientation.z();
     target_pose.pose.orientation.w = global_ee_orientation.w();
+	ROS_INFO(" publishing intermediate pose after grasp ");
     equilibrium_pose_pub.publish(target_pose);
-    ros::Duration(2.0).sleep();
+    ros::Duration(1.0).sleep();
 
 }
 
 void TaskPlanner::ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
     // for the time being we only need ee positions without orientations
-    //ROS_INFO("got new end effector position");
     global_ee_position.x() = msg->O_T_EE[12]; // O_T_EE is a float[16] array in COLUMN MAJOR format!
     global_ee_position.y() = msg->O_T_EE[13];
     global_ee_position.z() = msg->O_T_EE[14];
     F_ext = Eigen::Map<const Eigen::Matrix<double, 6, 1>>((msg->O_F_ext_hat_K).data());
+	Eigen::Affine3d transform(Eigen::Map<const Eigen::Matrix<double, 4, 4, Eigen::ColMajor>>(msg->O_T_EE.data()));
+	global_ee_orientation = transform.rotation();
+	global_ee_euler_angles = global_ee_orientation.toRotationMatrix().eulerAngles(0, 1, 2);
+}
+
+void TaskPlanner::stop(ros::Publisher *goal_pose_publisher) const {
+	//send actual pose as goal pose and clear integrator such that we dont move
+	geometry_msgs::PoseStamped stop_goal;
+	ROS_INFO("stopping");
+	stop_goal.pose.position.x = global_ee_position.x();
+	stop_goal.pose.position.y = global_ee_position.y();
+	stop_goal.pose.position.z = global_ee_position.z();
+	stop_goal.pose.orientation.x = global_ee_orientation.x();
+	stop_goal.pose.orientation.y = global_ee_orientation.y();
+	stop_goal.pose.orientation.z = global_ee_orientation.z();
+	stop_goal.pose.orientation.w = global_ee_orientation.w();
+	stop_goal.header.frame_id = "CLEAR";
+	goal_pose_publisher->publish(stop_goal);
+
 }
 
 

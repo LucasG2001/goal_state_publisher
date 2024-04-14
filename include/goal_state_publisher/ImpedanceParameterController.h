@@ -10,16 +10,18 @@
 #include <Eigen/Dense>
 #include <TaskPlanner.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Bool.h>
 #include <custom_msgs/action_primitive_message.h>
 #include <custom_msgs/ImpedanceParameterMsg.h>
-#include <TaskPlanner.h>
+#include <geometry_msgs/Point.h>
 
 class ImpedanceParameterController {
 public:
-	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub);
+	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub);
 	// Callback functions
-	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void rightHandCallback(const geometry_msgs::Pose::ConstPtr & msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);
 
@@ -45,6 +47,10 @@ public:
 	TaskPlanner task_planner;
 	ros::Publisher* reference_pose_publisher_;  // Pointer to ROS publisher
 	ros::Publisher* impedance_param_pub;  // Pointer to ROS publisher
+	ros::Publisher* task_finished_publisher;  // Pointer to ROS publisher
+	//feedback message
+	std_msgs::Bool is_task_finished;
+
 
 private:
 

@@ -1641,6 +1641,71 @@ franka_msgs_generate_messages_py/fast:
 .PHONY : franka_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_cpp
+
+# Build rule for target.
+custom_msgs_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_cpp
+.PHONY : custom_msgs_generate_messages_cpp
+
+# fast build rule for target.
+custom_msgs_generate_messages_cpp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_cpp.dir/build.make CMakeFiles/custom_msgs_generate_messages_cpp.dir/build
+.PHONY : custom_msgs_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_eus
+
+# Build rule for target.
+custom_msgs_generate_messages_eus: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_eus
+.PHONY : custom_msgs_generate_messages_eus
+
+# fast build rule for target.
+custom_msgs_generate_messages_eus/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_eus.dir/build.make CMakeFiles/custom_msgs_generate_messages_eus.dir/build
+.PHONY : custom_msgs_generate_messages_eus/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_lisp
+
+# Build rule for target.
+custom_msgs_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_lisp
+.PHONY : custom_msgs_generate_messages_lisp
+
+# fast build rule for target.
+custom_msgs_generate_messages_lisp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_lisp.dir/build.make CMakeFiles/custom_msgs_generate_messages_lisp.dir/build
+.PHONY : custom_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_nodejs
+
+# Build rule for target.
+custom_msgs_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_nodejs
+.PHONY : custom_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+custom_msgs_generate_messages_nodejs/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_nodejs.dir/build.make CMakeFiles/custom_msgs_generate_messages_nodejs.dir/build
+.PHONY : custom_msgs_generate_messages_nodejs/fast
+
+#=============================================================================
+# Target rules for targets named custom_msgs_generate_messages_py
+
+# Build rule for target.
+custom_msgs_generate_messages_py: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_msgs_generate_messages_py
+.PHONY : custom_msgs_generate_messages_py
+
+# fast build rule for target.
+custom_msgs_generate_messages_py/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_msgs_generate_messages_py.dir/build.make CMakeFiles/custom_msgs_generate_messages_py.dir/build
+.PHONY : custom_msgs_generate_messages_py/fast
+
+#=============================================================================
 # Target rules for targets named goal_state_publisher_generate_messages
 
 # Build rule for target.
@@ -1886,6 +1951,45 @@ impedance_param_controller: cmake_check_build_system
 impedance_param_controller/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/build
 .PHONY : impedance_param_controller/fast
+
+#=============================================================================
+# Target rules for targets named action_primitive_tester
+
+# Build rule for target.
+action_primitive_tester: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 action_primitive_tester
+.PHONY : action_primitive_tester
+
+# fast build rule for target.
+action_primitive_tester/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/build
+.PHONY : action_primitive_tester/fast
+
+#=============================================================================
+# Target rules for targets named moveit_collision_checker
+
+# Build rule for target.
+moveit_collision_checker: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 moveit_collision_checker
+.PHONY : moveit_collision_checker
+
+# fast build rule for target.
+moveit_collision_checker/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/build
+.PHONY : moveit_collision_checker/fast
+
+#=============================================================================
+# Target rules for targets named datalogger
+
+# Build rule for target.
+datalogger: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 datalogger
+.PHONY : datalogger
+
+# fast build rule for target.
+datalogger/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/build
+.PHONY : datalogger/fast
 
 #=============================================================================
 # Target rules for targets named subscriber
@@ -2227,6 +2331,30 @@ src/impedance_setter_node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/impedance_param_controller.dir/build.make CMakeFiles/impedance_param_controller.dir/src/impedance_setter_node.cpp.s
 .PHONY : src/impedance_setter_node.cpp.s
 
+src/logging/DataLogger.o: src/logging/DataLogger.cpp.o
+.PHONY : src/logging/DataLogger.o
+
+# target to build an object file
+src/logging/DataLogger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.o
+.PHONY : src/logging/DataLogger.cpp.o
+
+src/logging/DataLogger.i: src/logging/DataLogger.cpp.i
+.PHONY : src/logging/DataLogger.i
+
+# target to preprocess a source file
+src/logging/DataLogger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.i
+.PHONY : src/logging/DataLogger.cpp.i
+
+src/logging/DataLogger.s: src/logging/DataLogger.cpp.s
+.PHONY : src/logging/DataLogger.s
+
+# target to generate assembly for a file
+src/logging/DataLogger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/datalogger.dir/build.make CMakeFiles/datalogger.dir/src/logging/DataLogger.cpp.s
+.PHONY : src/logging/DataLogger.cpp.s
+
 src/subscriber_node.o: src/subscriber_node.cpp.o
 .PHONY : src/subscriber_node.o
 
@@ -2308,6 +2436,54 @@ src/utility.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/command_publisher.dir/build.make CMakeFiles/command_publisher.dir/src/utility.cpp.s
 .PHONY : src/utility.cpp.s
 
+test/action_primitive_tester.o: test/action_primitive_tester.cpp.o
+.PHONY : test/action_primitive_tester.o
+
+# target to build an object file
+test/action_primitive_tester.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.o
+.PHONY : test/action_primitive_tester.cpp.o
+
+test/action_primitive_tester.i: test/action_primitive_tester.cpp.i
+.PHONY : test/action_primitive_tester.i
+
+# target to preprocess a source file
+test/action_primitive_tester.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.i
+.PHONY : test/action_primitive_tester.cpp.i
+
+test/action_primitive_tester.s: test/action_primitive_tester.cpp.s
+.PHONY : test/action_primitive_tester.s
+
+# target to generate assembly for a file
+test/action_primitive_tester.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/action_primitive_tester.dir/build.make CMakeFiles/action_primitive_tester.dir/test/action_primitive_tester.cpp.s
+.PHONY : test/action_primitive_tester.cpp.s
+
+test/moveit_collision_check.o: test/moveit_collision_check.cpp.o
+.PHONY : test/moveit_collision_check.o
+
+# target to build an object file
+test/moveit_collision_check.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.o
+.PHONY : test/moveit_collision_check.cpp.o
+
+test/moveit_collision_check.i: test/moveit_collision_check.cpp.i
+.PHONY : test/moveit_collision_check.i
+
+# target to preprocess a source file
+test/moveit_collision_check.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.i
+.PHONY : test/moveit_collision_check.cpp.i
+
+test/moveit_collision_check.s: test/moveit_collision_check.cpp.s
+.PHONY : test/moveit_collision_check.s
+
+# target to generate assembly for a file
+test/moveit_collision_check.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/moveit_collision_checker.dir/build.make CMakeFiles/moveit_collision_checker.dir/test/moveit_collision_check.cpp.s
+.PHONY : test/moveit_collision_check.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -2340,6 +2516,11 @@ help:
 	@echo "... control_msgs_generate_messages_lisp"
 	@echo "... control_msgs_generate_messages_nodejs"
 	@echo "... control_msgs_generate_messages_py"
+	@echo "... custom_msgs_generate_messages_cpp"
+	@echo "... custom_msgs_generate_messages_eus"
+	@echo "... custom_msgs_generate_messages_lisp"
+	@echo "... custom_msgs_generate_messages_nodejs"
+	@echo "... custom_msgs_generate_messages_py"
 	@echo "... download_extra_data"
 	@echo "... doxygen"
 	@echo "... dynamic_reconfigure_gencfg"
@@ -2448,7 +2629,9 @@ help:
 	@echo "... visualization_msgs_generate_messages_lisp"
 	@echo "... visualization_msgs_generate_messages_nodejs"
 	@echo "... visualization_msgs_generate_messages_py"
+	@echo "... action_primitive_tester"
 	@echo "... command_publisher"
+	@echo "... datalogger"
 	@echo "... demo"
 	@echo "... force_field"
 	@echo "... gmock"
@@ -2457,6 +2640,7 @@ help:
 	@echo "... gtest"
 	@echo "... gtest_main"
 	@echo "... impedance_param_controller"
+	@echo "... moveit_collision_checker"
 	@echo "... subscriber"
 	@echo "... unity"
 	@echo "... utility"
@@ -2490,6 +2674,9 @@ help:
 	@echo "... src/impedance_setter_node.o"
 	@echo "... src/impedance_setter_node.i"
 	@echo "... src/impedance_setter_node.s"
+	@echo "... src/logging/DataLogger.o"
+	@echo "... src/logging/DataLogger.i"
+	@echo "... src/logging/DataLogger.s"
 	@echo "... src/subscriber_node.o"
 	@echo "... src/subscriber_node.i"
 	@echo "... src/subscriber_node.s"
@@ -2499,6 +2686,12 @@ help:
 	@echo "... src/utility.o"
 	@echo "... src/utility.i"
 	@echo "... src/utility.s"
+	@echo "... test/action_primitive_tester.o"
+	@echo "... test/action_primitive_tester.i"
+	@echo "... test/action_primitive_tester.s"
+	@echo "... test/moveit_collision_check.o"
+	@echo "... test/moveit_collision_check.i"
+	@echo "... test/moveit_collision_check.s"
 .PHONY : help
 
 

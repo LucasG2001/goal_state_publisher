@@ -4,6 +4,7 @@ Ros package GoalStatePublisher for Master Thesis
 This is a helper package to publish commands from/to moveit and from/to the robot controller. It controls repulsive force fields and feeds them to the controller in the force_control package and iuncludes the demo.
 
 Force Fields:
+-rosrun goal_state_publisher moveit_collision_checker (will filter BBOXES colliding with robot)
 -rosrun goal_state_publisher force_field (publishes force field to controller)
 -when node is ready publish a planning scene manually from rviz or via custom node to the force_field node, then all bounding boxes and potential fields are updated at       high frequency (20Hz, can be set via argc)
 
@@ -41,3 +42,7 @@ To Run full example on gazebo you can run
 3) rosrun goal_state_publisher impedance_setter_node
 
 You will be promted by 3) to enter a number - the task will be executed accordingly. Enjoy :D
+
+_________________________________________________________________________________________________________________
+Update March 2024.
+-Added Moveit Collision checker node, to filter bounding boxes colliding wh the robot

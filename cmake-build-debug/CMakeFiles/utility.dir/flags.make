@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"goal_state_publisher\" -Dutility_EXPORTS
 
-CXX_INCLUDES = -I/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/include -I/home/lucas/catkin_ws/src/goal_state_publisher/include -I/home/lucas/catkin_ws/devel/.private/franka_gripper/include -I/home/lucas/catkin_ws/devel/.private/franka_msgs/include -I/home/lucas/catkin_ws/src/franka_ros/franka_gripper/include -I/home/lucas/catkin_ws/src/franka_ros/franka_hw/include -I/home/lucas/catkin_ws/src/franka_ros/franka_control/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/eigen3 -I/usr/include/bullet -I/usr/include/OGRE -I/catkin_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher}
+CXX_INCLUDES = -I/home/lucas/catkin_ws/src/goal_state_publisher/cmake-build-debug/devel/include -I/home/lucas/catkin_ws/src/goal_state_publisher/include -I/home/lucas/catkin_ws/devel/.private/franka_gripper/include -I/home/lucas/catkin_ws/devel/.private/franka_msgs/include -I/home/lucas/catkin_ws/devel/.private/custom_msgs/include -I/home/lucas/catkin_ws/src/franka_ros/franka_gripper/include -I/home/lucas/catkin_ws/src/franka_ros/franka_hw/include -I/home/lucas/catkin_ws/src/franka_ros/franka_control/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/eigen3 -I/usr/include/bullet -I/usr/include/OGRE -I/ros_ws/devel/include/.private/goal_state_publisher/include/goal_state_publisher}
 
 CXX_FLAGS = -g -fPIC -fdiagnostics-color=always
 

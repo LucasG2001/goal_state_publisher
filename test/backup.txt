@@ -1,0 +1,38 @@
+/**
+	ROS_INFO("Received planning scene callback");
+	planning_scene::PlanningScenePtr planning_scene;
+	ROS_INFO("created planning scene ptr");
+
+	planning_scene->setPlanningSceneMsg(*scene_msg);
+	ROS_INFO("set planning scene");
+	// Check for collisions in the received scene
+	collision_detection::CollisionRequest collision_request;
+	collision_detection::CollisionResult collision_result;
+	planning_scene->checkCollision(collision_request, collision_result);
+	ROS_INFO("Reached if");
+	if (collision_result.collision) {
+		ROS_WARN("Collision detected in the received scene");
+
+		// Get the names of the colliding objects
+		std::vector<std::string> objects_to_remove;
+		const collision_detection::CollisionResult::ContactMap& contacts = collision_result.contacts;
+		for (const auto& contact : contacts) {
+			const std::string& object1 = contact.first.first;
+			const std::string& object2 = contact.first.second;
+			ROS_INFO_STREAM("Collision between: " << object1 << " and " << object2);
+			// Add colliding objects to the removal list
+			objects_to_remove.push_back(object1);
+			objects_to_remove.push_back(object2);
+		}
+
+		// Remove the colliding objects from the planning scene
+		moveit_msgs::CollisionObject remove_object;
+		remove_object.operation = moveit_msgs::CollisionObject::REMOVE;
+		for (const auto& object : objects_to_remove) {
+			remove_object.id = object;
+			planning_scene->processCollisionObjectMsg(remove_object);
+		}
+	} else {
+		ROS_INFO("No collision in the received scene");
+	}
+	 **/

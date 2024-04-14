@@ -1,9 +1,0 @@
-<launch>
-
-  <node name="pick_and_place" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
-
-  args="-sdf -file /home/gazebo_worlds/two_benches.sdf -model pick_place_model" />
-
-</launch>
-
-

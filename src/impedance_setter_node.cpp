@@ -8,6 +8,7 @@
 #include <iostream>
 #include <TaskPlanner.h>
 #include <custom_msgs/ImpedanceParameterMsg.h>
+#include <std_msgs/Bool.h>
 
 
 
@@ -23,20 +24,22 @@ int main(int argc, char** argv) {
 
 	//publishers
 	ros::Publisher equilibrium_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/cartesian_impedance_controller/reference_pose", 1);
+	ros::Publisher task_finish_pub = nh.advertise<std_msgs::Bool>("/is_task_finished", 1);
 	ros::Publisher impedance_parameter_pub = nh.advertise<custom_msgs::ImpedanceParameterMsg>("/cartesian_impedance_controller/impedance_param_reconfig", 1);
 	//ImpedanceParamController Object
-	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub);
+	ImpedanceParameterController controller(&equilibrium_pose_pub, &impedance_parameter_pub, &task_finish_pub);
 	//subscribers
-	ros::Subscriber rightHandSub = nh.subscribe("/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
-	ros::Subscriber leftHandSub = nh.subscribe("/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
+	ros::Subscriber rightHandSub = nh.subscribe("cartesian_impedance_controller/right_hand", 1, &ImpedanceParameterController::rightHandCallback, &controller);
+	ros::Subscriber leftHandSub = nh.subscribe("cartesian_impedance_controller/left_hand", 1, &ImpedanceParameterController::leftHandCallback, &controller);
+	ros::Subscriber placePoseSub = nh.subscribe("/place_pose", 1, &ImpedanceParameterController::placePoseCallback, &controller);
 	ros::Subscriber FextSub = nh.subscribe("/F_ext", 1, &ImpedanceParameterController::FextCallback, &controller);
 	ros::Subscriber task_sub = nh.subscribe("/action_primitive", 1, &ImpedanceParameterController::TaskCallback, &controller);
-	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 10, &TaskPlanner::ee_callback, &controller.task_planner);
+	ros::Subscriber ee_pose = nh.subscribe("/franka_state_controller/franka_states", 5, &TaskPlanner::ee_callback, &controller.task_planner);
 
 
 
 
-	ros::Rate loop_rate(1); // 1
+	ros::Rate loop_rate(250); // 1
 	//int task_type;
 
 	while (ros::ok()) {
