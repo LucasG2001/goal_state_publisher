@@ -18,7 +18,12 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::
 	// ROS_INFO("Got Hand Position");
 	geometry_msgs::PoseStamped goal;
 	goal.header.frame_id = "none";
-	rightHandPose << msg->position.x, msg->position.y, msg->position.z, 3.14156, 0.0, 0.0;
+	double angle = M_PI / 2.0;  // 90 degrees in radians
+	Eigen::Quaterniond rotationQuat(std::cos(angle / 2), 0, 0, std::sin(angle / 2));  // Rotating about z-axis, we follow the hand rotated by 90 degrees
+	Eigen::Quaterniond hand_orientation;
+	hand_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+	Eigen::Quaterniond follow_orientation = rotationQuat * hand_orientation; //rotate the EE by 90 degrees in z direction
+	rightHandPose << msg->position.x, msg->position.y, msg->position.z, 3.14156, 0.0, 1.51; //turn by 90 deg around z
 	//if task is FOLLOW ME update the goal pose
 	if(activeTask == &follow_me_task){
 		//ROS_INFO(" following hand ");
@@ -26,10 +31,10 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::
 		goal.pose.position.x = msg->position.x + follow_me_task.fixed_offset.x();
 		goal.pose.position.y = msg->position.y + follow_me_task.fixed_offset.y();
 		goal.pose.position.z = msg->position.z + follow_me_task.fixed_offset.z();
-		goal.pose.orientation.x = msg->orientation.x;
-		goal.pose.orientation.y = msg->orientation.y;
-		goal.pose.orientation.z = msg->orientation.z;
-		goal.pose.orientation.w = msg->orientation.w;
+		goal.pose.orientation.x = follow_orientation.x();
+		goal.pose.orientation.y = follow_orientation.y();
+		goal.pose.orientation.z = follow_orientation.z();
+		goal.pose.orientation.w = follow_orientation.w();
 		reference_pose_publisher_->publish(goal);
 	}
 }
@@ -73,6 +78,7 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	Eigen::Matrix<double, 6, 1> goal_pose = convert_pose_to_eigen(msg->goal_pose);
 	Eigen::Matrix<double, 6, 1> object_pose = convert_pose_to_eigen(msg->object_pose);
 	Eigen::Matrix<double, 6, 1> neutral_pose;
+	double total_orientation; // EE orientation in z direction is turned about 90 degrees if x extent is smaller than y
 	neutral_pose << POSE_NEUTRAL;
 
 	// Switch the active task pointer based on the task_type
@@ -80,7 +86,40 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 		case 1:
 			object_pose.tail(3).x() = 3.14156; // EE orientation for grasp should be -PI (neutral) + x rotation of BBOX
 			object_pose.tail(3).y() = 0.0;
-			object_pose.tail(3).z() += msg->grasp * M_PI/2; // EE orientation in z direction is turned about 90 degrees if x extent is smaller than y
+			object_pose.tail(3).z() = msg->object_orientation_euler.z * M_PI/180; // convert to radian
+			if (true){
+				ROS_INFO(" situation 0, x smaller than y");
+				std::cout << " case 0 got object pose as, " << object_pose.tail(3).z() << std::endl;
+				// no 90 deg rotation
+				/*
+				if (object_pose.tail(3).z() > 0 && abs(object_pose.tail(3).z()) > M_PI){
+					std::cout << " case 00 got object pose as, " << object_pose.tail(3).z() << " going to " << object_pose.tail(3).z() - 2 * M_PI << std::endl;
+					object_pose.tail(3).z() = object_pose.tail(3).z() - 2 * M_PI;
+				}
+				else if (object_pose.tail(3).z() < -M_PI){
+					std::cout << " case 01 got object pose as, " << object_pose.tail(3).z() << " going to " << object_pose.tail(3).z() + M_PI << std::endl;
+					object_pose.tail(3).z() += M_PI;
+				}
+				 */
+				//quaternion sent by message should have the equivalent rotation of (0, 0, rotz()), thus no further transformation is necessary
+			}
+			if (false){
+				ROS_INFO(" situation 1, y smaller than x");
+				total_orientation = object_pose.tail(3).z() + M_PI/2; // rotate by 90 deg
+				if (total_orientation > M_PI && object_pose.tail(3).z() > 0){
+					std::cout << " case 10 got object pose as, " << object_pose.tail(3).z() << " going to " << object_pose.tail(3).z() - 3.0 * M_PI_2 << std::endl;
+					object_pose.tail(3).z() = object_pose.tail(3).z() - 3.0 * M_PI_2;
+				}
+				else if (total_orientation < -M_PI){
+					std::cout << " case 11 got object pose as, " << object_pose.tail(3).z() << " going to " << total_orientation + M_PI << std::endl;
+					object_pose.tail(3).z() = total_orientation + M_PI;
+				}
+				else {
+					std::cout << " case 12 got object pose as, " << object_pose.tail(3).z() << " going to " << total_orientation << std::endl;
+					object_pose.tail(3).z() = total_orientation;
+				}
+			}
+
 			activeTask = &get_me_task;
 			ROS_INFO("active task is now GET ME");
 			break;
@@ -112,14 +151,12 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	activeTask->setGoalPose(goal_pose);
 	activeTask->setObjectPose(object_pose);
 	activeTask->setGrasp(msg->grasp);
-	ROS_INFO("executing task");
 	//impedance is updated in action execution
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub, *task_finished_publisher);
 
 	if (activeTask == &get_me_task || activeTask == &take_this_task){
-		ROS_INFO("publishing info over goal state reached");
 		is_task_finished.data = true;
 		task_finished_publisher->publish(is_task_finished);
 		//go back to neutral
@@ -155,16 +192,14 @@ void ImpedanceParameterController::updateImpedanceParameters() const {
 
 	ROS_INFO("Updating Impedance parameters");
 	std::copy(stiffness.data(), stiffness.data() + 36, compliance_update.stiffness.begin());
-	ROS_INFO("Updated Stiffness");
+
 	std::copy(damping.data(), damping.data() + 36, compliance_update.damping.begin());
-	ROS_INFO("Updated Damping");
+
 	std::copy(inertia.data(), inertia.data() + 36, compliance_update.inertia_factors.begin());
-	ROS_INFO("Updated Inertia");
+
 	std::copy(bubble_stiffness.data(), bubble_stiffness.data() + 36, compliance_update.safety_bubble_stiffness.begin());
-	ROS_INFO("Updated Safety bubble Stiffness");
+
 	std::copy(bubble_damping.data(), bubble_damping.data() + 36, compliance_update.safety_bubble_damping.begin());
-	ROS_INFO("Updated safety bubble damping");
 
 	impedance_param_pub->publish(compliance_update);
-	ROS_INFO("published message");
 }

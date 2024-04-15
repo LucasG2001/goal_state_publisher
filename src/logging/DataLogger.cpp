@@ -24,7 +24,7 @@ public:
 		reference_pose_sub = nh.subscribe("/cartesian_impedance_controller/reference_pose", 1, &DataLogger::referencePoseCallback, this);
 		ee_pose_sub = nh.subscribe("/franka_state_controller/franka_states", 1, &DataLogger::eePoseCallback, this);
 		action_primitive_sub = nh.subscribe("/action_primitive", 1, &DataLogger::actionPrimitiveCallback, this);
-		nearest_point_sub = nh.subscribe("/nearest_point", 1, &DataLogger::nearestPointCallback, this);
+		nearest_point_sub = nh.subscribe("/nearest_distance", 1, &DataLogger::nearestPointCallback, this);
 		hand_pose_sub = nh.subscribe("/cartesian_impedance_controller/right_hand", 1, &DataLogger::handPoseCallback, this);
 		// Set up timer for continuous logging
 		std::cout << " created subscribers " << std::endl;
@@ -149,6 +149,12 @@ public:
 			               << hand_pose_msg.orientation.z << ","
 			               << hand_pose_msg.orientation.w << std::endl;
 		}
+
+		reference_pose_file.close();
+		ee_pose_file.close();
+		action_primitive_file.close();
+		nearest_distance_file.close();
+		hand_pose_file.close();
 	}
 
 private:

@@ -1,7 +1,5 @@
 #include <ros/ros.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
-#include <moveit/robot_model/robot_model.h>
-#include <moveit/robot_state/robot_state.h>
 #include <moveit/collision_detection/collision_common.h>
 
 void planningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene_msg, planning_scene::PlanningScenePtr& planning_scene) {

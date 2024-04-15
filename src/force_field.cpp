@@ -74,6 +74,8 @@ void SceneGeometry::planning_scene_callback(const moveit_msgs::PlanningSceneCons
         this->boundingBoxes_[k].x_center = msg->world.collision_objects[k].pose.position.x;
         this->boundingBoxes_[k].y_center = msg->world.collision_objects[k].pose.position.y;
         this->boundingBoxes_[k].z_center = msg->world.collision_objects[k].pose.position.z;
+		//reset force_mode
+		this->boundingBoxes_[k].force_mode = 1;
         //state transforms according to box translation
         Eigen::Vector3d translation;
         Eigen::Quaterniond rotation;
@@ -196,7 +198,7 @@ void SceneGeometry::graspFeedbackCallback(const franka_gripper::GraspActionResul
         planning_scene_update.is_diff = true; // publish the difference to the current planning scene
         picked_object->collision_object.operation = moveit_msgs::CollisionObject::REMOVE; //delete object from the planning scene
         planning_scene_update.world.collision_objects.push_back(picked_object->collision_object);
-        this->planning_scene_publisher.publish(planning_scene_update);
+        //this->planning_scene_publisher.publish(planning_scene_update);
         //TODO ?? delete object from scene geometry object ??
     }
 }
@@ -222,7 +224,7 @@ void SceneGeometry::moveFeedbackCallback(const franka_gripper::MoveActionResultC
         picked_object->collision_object.operation = moveit_msgs::CollisionObject::ADD;
         planning_scene.world.collision_objects.push_back(picked_object->collision_object);
         planning_scene.is_diff = true;
-        planning_scene_publisher.publish(planning_scene);
+        //planning_scene_publisher.publish(planning_scene);
         /** change transform for force generation**/
         Eigen::Vector3d new_translation; new_translation << picked_object->collision_object.pose.position.x, picked_object->collision_object.pose.position.y, picked_object->collision_object.pose.position.z;
         transforms_[grasped_index].translation() = -1 * transforms_[grasped_index].rotation().transpose() * new_translation; //we assume the orientation is unchanged
@@ -233,7 +235,6 @@ void SceneGeometry::moveFeedbackCallback(const franka_gripper::MoveActionResultC
 }
 
 void SceneGeometry::check_for_grasp_in_force_field(Eigen::Vector3d & ee_pos){
-	ROS_INFO("started pick & place action");
 	//grasping logic
 	//find nearest box of target pose
 	double minDistanceSquared = 100.0;
@@ -269,42 +270,17 @@ void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedCons
     if(target_pose->header.frame_id == "grasp") {
 	    ROS_INFO("started pick & place action");
 	    //grasping logic
-	    //find nearest box of target pose
-	    double minDistanceSquared = 100.0;
-	    BoundingBox* nearestBox = &this->boundingBoxes_[0];
-	    int box_index = 0;
-	    for (BoundingBox& box : this->boundingBoxes_) { //nearest box is based on box.x/y/z_center -> need to reset
-		    grasp_diff[0] = box.x_center - target_pose->pose.position.x;
-		    grasp_diff[1] = box.y_center - target_pose->pose.position.y;
-		    grasp_diff[2] = box.z_center - target_pose->pose.position.z;
-		    double distanceSquared =  grasp_diff[0] * grasp_diff[0] + grasp_diff[1] * grasp_diff[1] + grasp_diff[2] * grasp_diff[2];
-		    if (distanceSquared < minDistanceSquared) {
-			    minDistanceSquared = distanceSquared;
-			    nearestBox = &box;
-			    grasped_index = box_index;
-		    }
-		    box_index++;
-	    } //for loop
-	    ROS_INFO_STREAM("Grasping box at " << nearestBox->collision_object.pose.position);
-	    grasp_diff[0] = nearestBox->x_center - target_pose->pose.position.x;
-	    grasp_diff[1] = nearestBox->y_center - target_pose->pose.position.y;
-	    grasp_diff[2] = nearestBox->z_center - target_pose->pose.position.z;
-	    nearestBox->force_mode = 0; //disable repulsion for grasping -> no need to change transform yet since contribution is 0 anyway
-	    this->boundingBoxes_[grasped_index].force_mode = 0;
-	    ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[grasped_index].force_mode);
-	    ROS_INFO_STREAM("grasped box is at index " << grasped_index);
-	    ROS_INFO("----------------------------------");
-	    picked_object = nearestBox; //sets object to be picked at nearest box
+	    is_grasping = true;
     }
-    else if (target_pose->header.frame_id == "place"){
-        //do placement logic
+    else {
+		is_grasping = false;
     }
 }
 
 int main(int argc, char **argv) {
-    double stiffness = 4;  // Default value
-    double Q = 0.05;         // Default value
-    double publishing_frequency = 20;
+    double stiffness = 8;  // Default value
+    double Q = 0.04;         // Default value
+    double publishing_frequency = 50;
     double exponent = 0.6;
     if (argc >= 4) {
         try {
@@ -344,7 +320,7 @@ int main(int argc, char **argv) {
     ros::Publisher force_publisher = n.advertise<geometry_msgs::Vector3>("/resulting_force", 1);
 	ros::Publisher distance_publisher = n.advertise<std_msgs::Float64>("/nearest_distance", 1);
 	//planning scene publisher
-    aligned_geometry.planning_scene_publisher = n.advertise<moveit_msgs::PlanningScene>("/move_group/monitored_planning_scene", 1);
+    //aligned_geometry.planning_scene_publisher = n.advertise<moveit_msgs::PlanningScene>("/move_group/monitored_planning_scene", 1);
     ROS_INFO("set up publishers and subscribers");
     geometry_msgs:: Vector3 resulting_force_msg;
 
@@ -358,7 +334,9 @@ int main(int argc, char **argv) {
         //std::cout << "Starting time measurement in loop. " <<  "size of loop is " << size << std::endl;
         auto start = std::chrono::high_resolution_clock ::now();
         //get bbox bounds
-		aligned_geometry.check_for_grasp_in_force_field(global_EE_position); //remove force fields from objects to be grasped
+		if(aligned_geometry.is_grasping){
+			aligned_geometry.check_for_grasp_in_force_field(global_EE_position); //remove force fields from objects to be grasped
+		}
         F_res = aligned_geometry.compute_force(global_EE_position, exponent);
         //crete messages
         resulting_force_msg.x = F_res.x();

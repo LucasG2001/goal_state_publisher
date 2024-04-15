@@ -18,7 +18,7 @@ GetMe::GetMe() : ActionPrimitive() {
 
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
-	damping.topLeftCorner(3, 3) << 65, 0, 0, 0, 65, 0, 0, 0, 65;
+	damping.topLeftCorner(3, 3) << 75, 0, 0, 0, 75, 0, 0, 0, 75;
 	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7.5;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 
@@ -28,7 +28,7 @@ GetMe::GetMe() : ActionPrimitive() {
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 
 	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
-	bubble_stiffness.topLeftCorner(3, 3) << 220, 0, 0, 0, 220, 0, 0, 0, 180;
+	bubble_stiffness.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 180;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
 	bubble_damping.topLeftCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 25;
@@ -71,7 +71,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//now construct more different impedances to be safe in handover
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/2.0;
-	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.25;
+	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping/1.41;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("bringing you object ");
@@ -91,9 +91,9 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	ros::Duration(0.1).sleep();
 	//wait for human input, i.e. forcing to open gripper
 	ROS_INFO("Waiting for forcing");
-	while(task_planner.F_ext.norm() < 15.5){
+	while(task_planner.F_ext.norm() < 8.5){
 		ros::Duration(0.05).sleep();
-		std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
+		//std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
 		ros::spinOnce();
 	}
 	task_planner.open_gripper();
@@ -200,7 +200,7 @@ TakeThis::TakeThis() : ActionPrimitive() {
 	//Damping
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
-	damping.topLeftCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+	damping.topLeftCorner(3, 3) << 65, 0, 0, 0, 65, 0, 0, 0, 65;
 	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7;
 	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertias
@@ -244,9 +244,9 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	task_planner.open_gripper();
 	//wait for human input, i.e. forcing to close gripper
 	ROS_INFO("Waiting for forcing");
-	while(task_planner.F_ext.norm() < 15.5){
+	while(task_planner.F_ext.norm() < 8.5){
 		ros::Duration(0.05).sleep();
-		std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
+		//std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
 		ros::spinOnce();
 	}
 	//grasp object out of hand

@@ -90,7 +90,7 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 
 // with Eigen
 void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info) const{
-	double goal_time = 2.8;
+	double goal_time = 3.5;
     geometry_msgs::PoseStamped target_pose;
 
 	std::vector<double> reference_for_msg = {goal_position(0,0), goal_position(1,0), goal_position(2,0)};
