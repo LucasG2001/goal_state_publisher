@@ -147,13 +147,14 @@ Eigen::Vector3d SceneGeometry::compute_force(const Eigen::Vector3d& global_ee_po
         Eigen::Vector3d effective_distance = local_ee_position - projected_point;
         //ROS_INFO_STREAM("effective distance is " << (transforms_[i].rotation().transpose() * effective_distance).transpose());
         double D = effective_distance.norm();
+		if (D == 0.0){ D= 0.001; }
 		nearest_distance = D;
         if (D <= Q_){
             Eigen::Vector3d nabla_D = effective_distance * (1/D); //unit distance vector
             F_object = (transforms_[i].rotation().transpose() * //transform back to global frame global_F = T_lg^-1 * l_F
                     (stiffness_ * std::pow((1/D - 1/Q_), exponent) * nabla_D)); //is 0 if object is to be grasped (no repulsion)
                     if(i==grasped_index){
-                        F_object.setZero(); //quick and dirty fix if f_objects tends to infinity * 0 or nan * 0
+                        F_object.setZero();
                         ROS_INFO_STREAM("grasp goal force contribution is " << F_object);
                         ROS_INFO_STREAM("force mode of grasped object is " << boundingBoxes_[i].force_mode);
                         ROS_INFO_STREAM("grasped box is at index " << grasped_index);
@@ -280,7 +281,7 @@ void SceneGeometry::pick_and_place_callback(const geometry_msgs::PoseStampedCons
 int main(int argc, char **argv) {
     double stiffness = 8;  // Default value
     double Q = 0.04;         // Default value
-    double publishing_frequency = 50;
+    double publishing_frequency = 30;
     double exponent = 0.6;
     if (argc >= 4) {
         try {
@@ -298,7 +299,7 @@ int main(int argc, char **argv) {
     //node functionality
     ros::init(argc, argv, "force_field");
     ros::NodeHandle n;
-    ros::AsyncSpinner spinner(5);
+    ros::AsyncSpinner spinner(2);
     spinner.start();
     SceneGeometry aligned_geometry(1, stiffness, Q);
     ROS_INFO("set up node");

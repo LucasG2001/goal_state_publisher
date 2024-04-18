@@ -14,15 +14,16 @@
 #include <custom_msgs/action_primitive_message.h>
 #include <custom_msgs/ImpedanceParameterMsg.h>
 #include <geometry_msgs/Point.h>
+#include <custom_msgs/HandPose.h>
 
 class ImpedanceParameterController {
 public:
-	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub);
+	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub, ros::Publisher* forcing_pub);
 	// Callback functions
-	void rightHandCallback(const geometry_msgs::Pose::ConstPtr & msg);
+	void rightHandCallback(const custom_msgs::HandPoseConstPtr msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg);
-	void FextCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void FrankaStateCallback(const franka_msgs::FrankaStateConstPtr & msg);
 	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);
 
 	// Setters for active task
@@ -48,6 +49,7 @@ public:
 	ros::Publisher* reference_pose_publisher_;  // Pointer to ROS publisher
 	ros::Publisher* impedance_param_pub;  // Pointer to ROS publisher
 	ros::Publisher* task_finished_publisher;  // Pointer to ROS publisher
+	ros::Publisher* forcing_publisher;  // Pointer to ROS publisher
 	//feedback message
 	std_msgs::Bool is_task_finished;
 
@@ -58,6 +60,7 @@ private:
 	Eigen::Matrix<double, 6, 1> rightHandPose;
 	Eigen::Matrix<double, 6, 1> leftHandPose;
 	Eigen::Matrix<double, 6, 1> externalForce;
+	std::mutex mutex; // Mutex member variable
 };
 
 #endif // IMPEDANCE_PARAMETER_CONTROLLER_H

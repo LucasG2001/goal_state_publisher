@@ -9,8 +9,10 @@ void planningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene_msg, 
 	// Your code snippet here
 	planning_scene->processPlanningSceneWorldMsg(scene_msg->world);
 	const std::vector<std::string>& collision_object_ids = planning_scene->getWorld()->getObjectIds();
+	planning_scene->setPlanningSceneMsg(*scene_msg);
 	// Print the number of collision objects
 	ROS_INFO_STREAM("Number of collision objects: " << collision_object_ids.size());
+	ROS_INFO_STREAM("Number of collision objects received: " << scene_msg->world.collision_objects.size());
 
 	collision_detection::CollisionRequest collision_request;
 	collision_request.contacts = true;
@@ -80,10 +82,11 @@ int main(int argc, char** argv) {
 		// Get the collision objects
 
 		planning_scene_monitor->getPlanningScene()->getPlanningSceneMsg(modified_scene_msg);
+		modified_scene_msg.is_diff = false;
 		planning_scene_publisher.publish(modified_scene_msg);
 
 		ros::spinOnce();
-		ros::Rate(10).sleep();
+		ros::Rate(2).sleep();
 	}
 
 

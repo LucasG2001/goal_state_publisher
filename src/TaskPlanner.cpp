@@ -11,9 +11,10 @@ TaskPlanner::TaskPlanner() :
 		gripper_stop_client("franka_gripper/stop", true)
 {
 	// Wait for the action servers to start up
-	//gripper_grasp_client.waitForServer();
-	//gripper_move_client.waitForServer();
-	//gripper_stop_client.waitForServer();
+	//
+	gripper_grasp_client.waitForServer();
+	gripper_move_client.waitForServer();
+	gripper_stop_client.waitForServer();
 } // end constructor
 
 /**
@@ -179,7 +180,7 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
     grasp.epsilon.outer = tol;
     gripper_grasp_client.sendGoal(grasp);
     // Wait for the action to finish
-    bool finished_before_timeout = gripper_grasp_client.waitForResult(ros::Duration(10.0)); // Adjust the timeout as needed
+    bool finished_before_timeout = gripper_grasp_client.waitForResult(ros::Duration(5.0)); // Adjust the timeout as needed
 
     if (finished_before_timeout) {
         ROS_INFO("Action finished successfully!");

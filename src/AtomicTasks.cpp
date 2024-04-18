@@ -8,6 +8,8 @@
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
+#define IDENTITY Eigen::MatrixXd::Identity(6,6)
+
 // Default constructor for GetMe
 GetMe::GetMe() : ActionPrimitive() {
 	// Custom values for GetMe
@@ -28,7 +30,7 @@ GetMe::GetMe() : ActionPrimitive() {
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 
 	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
-	bubble_stiffness.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 180;
+	bubble_stiffness.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 150;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
 	bubble_damping.topLeftCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 25;
@@ -41,7 +43,12 @@ GetMe::GetMe() : ActionPrimitive() {
 
 void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                           ros::Publisher &is_task_finished_publisher) {
-	Eigen::Vector3d grasp_offset; grasp_offset << -0.00, 0, 0.08;
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> dist6(1,6); // distribution in range [1, 6]
+	int rand_number = dist6(rng);
+	//
+	Eigen::Vector3d grasp_offset; grasp_offset << 0, 0, 0.08;
 	ROS_INFO("starting get me action");
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
@@ -51,18 +58,18 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.02, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.025, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.015, "grasp");
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//publish that it finished grasping
-	std_msgs::Bool done_msg; done_msg.data = true;
+	std_msgs::Bool done_msg; done_msg.data = false; //publish false when waiting for goal pse publish true when waiting for forcing
 	is_task_finished_publisher.publish(done_msg);
 	//wait for goal pose
 	ROS_INFO("Finished grasping, waiting for goal ");
 	while(!this->hasGrasped){
-		ros::Duration(0.1).sleep();
 		ros::spinOnce();
+		ros::Duration(0.1).sleep();
 	}
 	//TODO: add publihing of goal pose reached here
 	this->hasGrasped = false;
@@ -78,7 +85,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.03, "grasp");
 	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance for handover
 
 	//SHUT OFF repulsion during opening
@@ -91,11 +98,18 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	ros::Duration(0.1).sleep();
 	//wait for human input, i.e. forcing to open gripper
 	ROS_INFO("Waiting for forcing");
-	while(task_planner.F_ext.norm() < 8.5){
-		ros::Duration(0.05).sleep();
-		//std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
+	done_msg.data = true; //true for waiting for forcing
+	is_task_finished_publisher.publish(done_msg);
+	// Start time
+    ros::Time start_time = ros::Time::now();
+	double measured_force = 0.0;
+	while(measured_force < 6.5){
+		measured_force = task_planner.F_ext.norm();
+		std::cout << "Fext is " << measured_force << "and random number is" << rand_number <<std::endl;
 		ros::spinOnce();
+		ros::Duration(0.2).sleep();
 	}
+	std::cout << "finished while loop" << std::endl;
 	task_planner.open_gripper();
 }
 
@@ -104,10 +118,10 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	// Custom values for FollowMe
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
-	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 12;
+	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 15;
 	Eigen::Matrix<double, 6, 6> damping;           
-	damping.topLeftCorner(3, 3) << 28, 0, 0, 0, 28, 0, 0, 0, 28;
-	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 7;
+	damping.topLeftCorner(3, 3) << 35, 0, 0, 0, 35, 0, 0, 0, 35;
+	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 6;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -151,8 +165,8 @@ HoldThis::HoldThis() : ActionPrimitive() {
 	stiffness.topLeftCorner(3, 3) << 4000, 0, 0, 0, 4000, 0, 0, 0, 4000;
 	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 15;
 	Eigen::Matrix<double, 6, 6> damping;           
-	damping.topLeftCorner(3, 3) << 85, 0, 0, 0, 85, 0, 0, 0, 85;
-	damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 8;
+	damping.topLeftCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 100;
+	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 8;
 	//ToDo: Inertia matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -185,8 +199,37 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		task_planner.stop(&goal_publisher);
 	}
 
-
 	this->free_float = false;
+
+	//wait for goal pose nad handle it
+	ROS_INFO("Finished grasping, waiting for goal ");
+	this->hasGrasped = false;
+	while(!this->hasGrasped){
+		ros::spinOnce();
+		ros::Duration(0.1).sleep();
+	}
+	//TODO: add publihing of goal pose reached here
+	this->hasGrasped = false;
+	//go back to hand
+	ROS_INFO("finished waiting ");
+	//now construct more different impedances to be safe in handover
+	ImpedanceMatrices post_grasp_impedance;
+	post_grasp_impedance.spring_stiffness = IDENTITY * 250;
+	post_grasp_impedance.spring_stiffness.bottomRightCorner(3, 3) << 40, 0, 0, 0, 40, 0, 0, 0, 15;
+	post_grasp_impedance.damping = IDENTITY * 35;
+	post_grasp_impedance.damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 6;
+	post_grasp_impedance.repulsion_stiffness = IDENTITY * 0;
+	post_grasp_impedance.repulsion_damping = IDENTITY * 0;
+	construct_impedance_message(post_grasp_impedance);
+	impedance_publisher.publish(this->compliance_update);
+	ros::Duration(1.0).sleep(); //waiting for impedances to converge to new value
+	ROS_INFO("going from HOLD THIS to GOAL ");
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
+	ros::Duration(1.0).sleep();
+	task_planner.open_gripper();
+	std_msgs::Bool done_msg; done_msg.data = false;
+	is_task_finished_publisher.publish(done_msg);
+	ros::Duration(0.2).sleep();
 }
 
 // Default constructor for TakeThis
@@ -221,11 +264,15 @@ TakeThis::TakeThis() : ActionPrimitive() {
 void
 TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                         ros::Publisher &is_task_finished_publisher) {
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> dist6(1,6); // distribution in range [1, 6]
+	int rand_number = dist6(rng);
+	//
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
-	Eigen::Vector3d grasp_offset; grasp_offset << -0.04, 0, 0.08;
+	Eigen::Vector3d grasp_offset; grasp_offset << -0.05, 0, 0.08;
 	// Implementation of performAction for TakeThis
 	// Custom logic for TakeThis
-	task_planner.grasp_object(0.1, 0.02); //approach with not fully closed gripper
 	//go to object/hand
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
@@ -244,21 +291,27 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	task_planner.open_gripper();
 	//wait for human input, i.e. forcing to close gripper
 	ROS_INFO("Waiting for forcing");
-	while(task_planner.F_ext.norm() < 8.5){
-		ros::Duration(0.05).sleep();
-		//std::cout << "Fext is " << task_planner.F_ext.norm() << std::endl;
+	std_msgs::Bool done_msg; done_msg.data = true; //false for goal pose wait, true for force wait
+	is_task_finished_publisher.publish(done_msg);
+	ros::Time start_time = ros::Time::now();
+	double measured_force = 0.0;
+	while(measured_force < 6.5){
+		measured_force = task_planner.F_ext.norm();
+		std::cout << "Fext is " << measured_force << "and random number is " << rand_number <<std::endl;
 		ros::spinOnce();
+		ros::Duration(0.2).sleep();
 	}
 	//grasp object out of hand
+	std::cout << "finished while loop" << std::endl;
 	task_planner.grasp_object();
 	//publish that it finished grasping
-	std_msgs::Bool done_msg; done_msg.data = true;
+	done_msg.data = false; //false for goal pose wait, true for force wait
 	is_task_finished_publisher.publish(done_msg);
 	//now wait for goal posiiton
 	ROS_INFO("Waiting for goal position");
 	while(!this->hasGrasped){
-		ros::Duration(0.1).sleep();
 		ros::spinOnce();
+		ros::Duration(0.1).sleep();
 	}
 	ROS_INFO("ended wait time");
 	//TODO:: publish "goal reached"

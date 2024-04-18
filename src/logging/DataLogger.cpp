@@ -54,7 +54,7 @@ public:
 		hand_pose_msg = *msg;
 	}
 
-	void startLogging() {
+	void startLogging(const std::string& participant_id) {
 		//create date timestamp
 		auto now = std::chrono::system_clock::now();
 		std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
@@ -62,9 +62,14 @@ public:
 		std::ostringstream oss;
 		oss << std::put_time(timeinfo, "%Y%m%d%H%M");
 		timestamp = oss.str();
-		//
+		std::string participant_folder = "/home/lucas/catkin_ws/src/goal_state_publisher/src/logging/data/" + participant_id + "/";
+		if (mkdir(participant_folder.c_str(), 0777) == -1) {
+			std::cerr << "Error creating directory: " << participant_folder << std::endl;
+			std::cerr << "Error message: " << strerror(errno) << std::endl;
+			// Handle error if needed
+		}
 		// Construct the path to the subfolder
-		subfolder = "/home/lucas/catkin_ws/src/goal_state_publisher/src/logging/data/" + timestamp + "/";
+		subfolder = participant_folder + "/" + timestamp + "/";
 		// Create the subfolder using mkdir
 		if (mkdir(subfolder.c_str(), 0777) == -1) {
 			std::cerr << "Error creating directory: " << subfolder << std::endl;
@@ -193,11 +198,17 @@ bool checkUserInput(char& input) {
 }
 
 int main(int argc, char** argv) {
+	if (argc != 2) {
+		ROS_ERROR("Usage: No participant ID!");
+		return 1; // Exit with error
+	}
+	// Save the participant id in a local variable
+	std::string participant_id = argv[1];
 	ros::init(argc, argv, "logger_node");
 	ros::AsyncSpinner spinner(2);
 	spinner.start();
 	ros::NodeHandle nh;
-	ros::Rate rate(30); // 30 Hz
+	ros::Rate rate(20); // 30 Hz
 	//create data logger object
 	DataLogger logger(nh);
 
@@ -215,7 +226,7 @@ int main(int argc, char** argv) {
 
 	//main loop
 	bool stopLogging = false;
-	logger.startLogging();
+	logger.startLogging(participant_id);
 	while (ros::ok() && !stopLogging) {
 			// Log data if logging has started
 			logger.logData();

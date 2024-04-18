@@ -3,10 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define timestamp
-timestamp = "202404121519"
+participant = "0"
+timestamp = "202404171844"
+sampling_frequency = 20 # Hz
 
 # Define file paths
-folder_path = "data/" + timestamp + "/"
+folder_path = "data/" + participant + "/" + timestamp + "/"
 csv_files = ["action_primitive_"+timestamp,
              "ee_pose_"+timestamp,
              "hand_pose_"+timestamp,
@@ -14,26 +16,34 @@ csv_files = ["action_primitive_"+timestamp,
              "reference_pose_"+timestamp]
 
 # Create plots folder if it doesn't exist
-plots_folder = "plots/" + timestamp + "/"
+plots_folder = "plots/" + participant + "/" + timestamp + "/"
 os.makedirs(plots_folder, exist_ok=True)
 
 # Plot each CSV file
 for file in csv_files:
     # Read CSV
     df = pd.read_csv(folder_path + file + ".csv")
+    time_values = df.index / sampling_frequency  # Assuming the sampling frequency is 30 Hz
+    # Add the time column to the DataFrame
+    df['time'] = time_values
+    total_time = time_values[-1]  # Extract last timestep as total time
 
     # Plot data
     plt.figure(figsize=(10, 6))
-    plt.plot(df)
+    plt.plot(df['time'], df.drop(columns=['time']))  # Use 'time' as x-axis
     plt.title(file)
-    plt.xlabel("Time Step")
+    plt.xlabel("Time (seconds)")
     plt.ylabel("Value")
     plt.grid(True)
 
+    # Add total time to the plot as annotation
+    plt.text(0.95, 0.05, f'Total Time: {total_time:.2f} s',
+             verticalalignment='bottom', horizontalalignment='right',
+             transform=plt.gca().transAxes,
+             fontsize=10, bbox=dict(facecolor='white', alpha=0.5))
+
     # Save plot
     plt.savefig(plots_folder + "data_" + file + ".png")
-    # Optionally, save as jpg
-    # plt.savefig(plots_folder + "data_" + file + ".jpg")
 
     # Close plot to avoid overlapping plots in memory
     plt.close()
