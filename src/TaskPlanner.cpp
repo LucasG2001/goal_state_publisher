@@ -100,11 +100,12 @@ void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	goal_pose_publisher->publish(target_pose);
 
 	double elapsed_time = 0.0;
-	double start_time = ros::Time::now().toSec();
-	while((goal_position-global_ee_position).norm() > tol && elapsed_time < goal_time && (goal_orientation-global_ee_euler_angles).norm() > 0.075 ){
-		double current_time = ros::Time::now().toSec();
-		elapsed_time = current_time - start_time;
+	int counter = 0;
+	while((goal_position-global_ee_position).norm() > tol || (goal_orientation-global_ee_euler_angles).norm() > 0.075){
+		counter += 1;
 		ros::Duration(0.1).sleep();
+		std::cout << " counter is " << counter << std::endl;
+		if(counter > 25) { break; }
 	}
 }//for loop
 

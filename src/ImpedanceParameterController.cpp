@@ -132,7 +132,6 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	}
 	activeTask->setGoalPose(goal_pose);
 	activeTask->setObjectPose(object_pose);
-	activeTask->setGrasp(msg->grasp);
 	//impedance is updated in action execution
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");

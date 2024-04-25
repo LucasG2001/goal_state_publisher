@@ -58,9 +58,10 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.025, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.015, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.08, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
 	ROS_INFO("grasping ");
+	ros::Duration(0.1).sleep();
 	task_planner.grasp_object();
 	//publish that it finished grasping
 	std_msgs::Bool done_msg; done_msg.data = false; //publish false when waiting for goal pse publish true when waiting for forcing
@@ -85,7 +86,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.03, "grasp");
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
 	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance for handover
 
 	//SHUT OFF repulsion during opening
@@ -103,11 +104,15 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	// Start time
     ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 6.5){
+	while(measured_force < 5.5){
+		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
 		std::cout << "Fext is " << measured_force << "and random number is" << rand_number <<std::endl;
 		ros::spinOnce();
 		ros::Duration(0.2).sleep();
+		if(elapsed_time > 4.0){
+			break;
+		}
 	}
 	std::cout << "finished while loop" << std::endl;
 	task_planner.open_gripper();
@@ -277,7 +282,7 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
 	// execute handover ( go to hand)
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.08, "grasp");
 	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance in handover
 	//do not move
 	//lower repulsive stiffness during handover
@@ -295,11 +300,15 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	is_task_finished_publisher.publish(done_msg);
 	ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 6.5){
+	while(measured_force < 5.5){
+		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
-		std::cout << "Fext is " << measured_force << "and random number is " << rand_number <<std::endl;
+		std::cout << "Fext is " << measured_force << "and random number is" << rand_number <<std::endl;
 		ros::spinOnce();
 		ros::Duration(0.2).sleep();
+		if(elapsed_time > 4.0){
+			break;
+		}
 	}
 	//grasp object out of hand
 	std::cout << "finished while loop" << std::endl;
@@ -326,6 +335,7 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	ROS_INFO("published impedance message");
 	//no grasp offset needed
 	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
+	ros::Duration(0.1).sleep();
 	task_planner.open_gripper();
 
 }
