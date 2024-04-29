@@ -81,7 +81,7 @@ public:
 		reference_pose_file << "x, y, z, ry, ry, rz, w" << std::endl;
 		reference_pose_file.close();
 		ee_pose_file.open(subfolder + "ee_pose_" + timestamp + ".csv");
-		ee_pose_file << "x, y, z, ry, ry, rz, w" << std::endl;
+		ee_pose_file << "x, y, z, rx, ry, rz, w" << std::endl;
 		ee_pose_file.close(),
 		action_primitive_file.open(subfolder + "action_primitive_" + timestamp + ".csv");
 		action_primitive_file.close();
