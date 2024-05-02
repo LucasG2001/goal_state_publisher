@@ -78,10 +78,10 @@ public:
 		}
 
 		reference_pose_file.open(subfolder + "reference_pose_" + timestamp + ".csv");
-		reference_pose_file << "x, y, z, ry, ry, rz, w" << std::endl;
+		reference_pose_file << "x, y, z, rx, ry, rz, w" << std::endl;
 		reference_pose_file.close();
 		ee_pose_file.open(subfolder + "ee_pose_" + timestamp + ".csv");
-		ee_pose_file << "x, y, z, ry, ry, rz, w" << std::endl;
+		ee_pose_file << "x, y, z, rx, ry, rz, w" << std::endl;
 		ee_pose_file.close(),
 		action_primitive_file.open(subfolder + "action_primitive_" + timestamp + ".csv");
 		action_primitive_file.close();
@@ -90,7 +90,7 @@ public:
 		nearest_distance_file << "nearest_distance" << std::endl;
 		nearest_distance_file.close();
 		hand_pose_file.open(subfolder + "hand_pose_" + timestamp + ".csv");
-		hand_pose_file << "x, y, z, ry, ry, rz, w" << std::endl;
+		hand_pose_file << "x, y, z, rx, ry, rz, w" << std::endl;
 														hand_pose_file.close();
 		std::cout << "started logging and opened files" << std::endl;
 		//start logging time
