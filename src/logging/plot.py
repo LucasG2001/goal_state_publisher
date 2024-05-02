@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define timestamp
-participant = "10"
-timestamp = "202404251630"
+participant = "100"
+timestamp = "202404261025"
 sampling_frequency = 20 # Hz
 
 # Define file paths
