@@ -22,7 +22,7 @@ public:
 
 	DataLogger(ros::NodeHandle & nh) {
 		reference_pose_sub = nh.subscribe("/cartesian_impedance_controller/reference_pose", 1, &DataLogger::referencePoseCallback, this);
-		ee_pose_sub = nh.subscribe("/franka_state_controller/franka_states", 1, &DataLogger::eePoseCallback, this);
+		ee_pose_sub = nh.subscribe("/franka_state_controller/franka_states", 1, &DataLogger::franka_state_callback, this);
 		action_primitive_sub = nh.subscribe("/action_primitive", 1, &DataLogger::actionPrimitiveCallback, this);
 		nearest_point_sub = nh.subscribe("/nearest_distance", 1, &DataLogger::nearestPointCallback, this);
 		hand_pose_sub = nh.subscribe("/cartesian_impedance_controller/right_hand", 1, &DataLogger::handPoseCallback, this);
@@ -34,12 +34,14 @@ public:
 		reference_pose_msg = *msg;
 	}
 
-	void eePoseCallback(const franka_msgs::FrankaStateConstPtr msg) {
+	void franka_state_callback(const franka_msgs::FrankaStateConstPtr msg) {
 		ee_position.x() = msg->O_T_EE[12]; // O_T_EE is a float[16] array in COLUMN MAJOR format!
 		ee_position.y() = msg->O_T_EE[13];
 		ee_position.z() = msg->O_T_EE[14];
 		Eigen::Affine3d transform(Eigen::Map<const Eigen::Matrix<double, 4, 4, Eigen::ColMajor>>(msg->O_T_EE.data()));
 		ee_orientation = transform.rotation();
+		// Step 2: Use Eigen's Map to create an Eigen::VectorXd
+		F_ext = Eigen::Map<const Eigen::Matrix<double, 6, 1>>(msg->O_F_ext_hat_K.data());
 	}
 
 	void actionPrimitiveCallback(const custom_msgs::action_primitive_messageConstPtr& msg) {
@@ -91,7 +93,9 @@ public:
 		nearest_distance_file.close();
 		hand_pose_file.open(subfolder + "hand_pose_" + timestamp + ".csv");
 		hand_pose_file << "x, y, z, rx, ry, rz, w" << std::endl;
-														hand_pose_file.close();
+		hand_pose_file.close();
+		f_ext_file.open(subfolder + "F_ext_" + timestamp + ".csv");
+		f_ext_file << "Fx, Fy, Fz, Mx, My, Mz" << std::endl;
 		std::cout << "started logging and opened files" << std::endl;
 		//start logging time
 		start_time = system_clock::now();
@@ -107,6 +111,7 @@ public:
 		action_primitive_file.close();
 		nearest_distance_file.close();
 		hand_pose_file.close();
+		f_ext_file.close();
 	}
 
 	void logData() {
@@ -115,6 +120,7 @@ public:
 		action_primitive_file.open(subfolder + "action_primitive_" + timestamp + ".csv", std::ios::app);
 		nearest_distance_file.open(subfolder + "nearest_point_" + timestamp + ".csv", std::ios::app);
 		hand_pose_file.open(subfolder + "hand_pose_" + timestamp + ".csv", std::ios::app);
+		f_ext_file.open(subfolder + "F_ext_" + timestamp + ".csv", std::ios::app);
 
 		if (reference_pose_file.is_open()) {
 			std::cout << "true" << std::endl;
@@ -155,11 +161,21 @@ public:
 			               << hand_pose_msg.orientation.w << std::endl;
 		}
 
+		if (f_ext_file.is_open()) {
+			f_ext_file << F_ext(0) << ","
+				<< F_ext(1) << ","
+				<< F_ext(2) << ","
+				<< F_ext(3) << ","
+				<< F_ext(4) << ","
+				<< F_ext(5) << std::endl;
+		}
+
 		reference_pose_file.close();
 		ee_pose_file.close();
 		action_primitive_file.close();
 		nearest_distance_file.close();
 		hand_pose_file.close();
+		f_ext_file.close();
 	}
 
 private:
@@ -175,6 +191,7 @@ private:
 	geometry_msgs::PoseStamped reference_pose_msg;
 	Eigen::Vector3d ee_position;
 	Eigen::Quaterniond  ee_orientation;
+	Eigen::Matrix<double, 6, 1> F_ext;
 	custom_msgs::action_primitive_message action_primitive_msg;
 	double nearest_distance;
 	geometry_msgs::Pose hand_pose_msg;
@@ -187,6 +204,7 @@ private:
 	std::ofstream action_primitive_file;
 	std::ofstream nearest_distance_file;
 	std::ofstream hand_pose_file;
+	std::ofstream f_ext_file;
 };
 
 bool checkUserInput(char& input) {

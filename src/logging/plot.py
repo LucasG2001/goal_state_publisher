@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define timestamp
-participant = "11"
-timestamp = "202405021149"
+participant = "f_ext"
+timestamp = "202406031646"
 sampling_frequency = 20 # Hz
 
 # Define file paths
@@ -13,7 +13,8 @@ csv_files = ["action_primitive_"+timestamp,
              "ee_pose_"+timestamp,
              "hand_pose_"+timestamp,
              "nearest_point_"+timestamp,
-             "reference_pose_"+timestamp]
+             "reference_pose_"+timestamp,
+             "F_ext_"+timestamp]
 
 # Create plots folder if it doesn't exist
 plots_folder = "plots/" + participant + "/" + timestamp + "/"
