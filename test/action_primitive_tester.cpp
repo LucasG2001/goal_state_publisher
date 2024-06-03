@@ -34,7 +34,8 @@ int main(int argc, char** argv) {
 	bool free_float = 0;
 
 	while (ros::ok()) {
-		std::cout << "Enter a task. 1 (GetMe), 2 (FollowMe), 3 (HoldThis), 4 (TakeThis), or 5 (AvoidMe): ";
+		std::cout
+				<< "Enter a task. 1 (GetMe), 2 (FollowMe), 3 (HoldThis), 4 (TakeThis), or 5 (AvoidMe), or 6 (sinusoid trajectory 3D): ";
 		std::cin >> task_type;
 		action_message.task_type = task_type;
 		// Switch-case statement
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
 				hand_pose.orientation.w = -0.3399;
 				action_message.grasp = false;
 				task_publisher.publish(action_message);
-				for (int i = 0; i < 10; i++){
+				for (int i = 0; i < 10; i++) {
 					hand_pose.position.y = action_message.goal_pose.position.y - 0.09 * i;
 					hand_publisher.publish(hand_pose);
 					ros::Duration(0.5).sleep();
@@ -90,14 +91,46 @@ int main(int argc, char** argv) {
 				action_message.grasp = false;
 				task_publisher.publish(action_message);
 				break;
+
 			default:
 				std::cout << "Invalid task\n";
 				break;
 		}
 
-		loop_rate.sleep();
-	}
-	spinner.stop();
+		if (task_type == 6) {
+			ros::Publisher pose_pub = nh.advertise<geometry_msgs::PoseStamped>(
+					"/cartesian_impedance_controller/reference_pose", 10);
 
-	return 0;
+			ros::Rate inner_rate(100); // 100 Hz
+
+			double startTime = ros::Time::now().toSec();
+			double frequency = 2 * M_PI / 12.0; // Full cycle in 15 seconds
+
+			while (ros::ok()) {
+				double currentTime = ros::Time::now().toSec() - startTime;
+
+				geometry_msgs::PoseStamped pose_msg;
+				pose_msg.header.stamp = ros::Time::now();
+				pose_msg.header.frame_id = "base_link";
+
+				// Define the sinusoidal trajectory
+				pose_msg.pose.position.x = 0.5 + 0.1 * sin(5 * frequency * currentTime);
+				pose_msg.pose.position.y = 0.0 + 0.4 * sin(frequency * currentTime);
+				pose_msg.pose.position.z = 0.3 + 0.1 * sin(5* frequency * currentTime);
+
+				// Orientation (quaternion) - Keeping it constant for simplicity
+				pose_msg.pose.orientation.x = 1.0;
+				pose_msg.pose.orientation.y = 0.0;
+				pose_msg.pose.orientation.z = 0.0;
+				pose_msg.pose.orientation.w = 0.0;
+
+				pose_pub.publish(pose_msg);
+				inner_rate.sleep();
+			}
+
+		}
+		spinner.stop();
+
+		return 0;
+	}
 }
