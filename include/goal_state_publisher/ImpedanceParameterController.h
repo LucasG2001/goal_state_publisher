@@ -15,14 +15,14 @@
 #include <custom_msgs/ImpedanceParameterMsg.h>
 #include <geometry_msgs/Point.h>
 #include <custom_msgs/HandPose.h>
-
+#include <custom_msgs/PlacePose.h>
 class ImpedanceParameterController {
 public:
 	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub, ros::Publisher* forcing_pub);
 	// Callback functions
 	void rightHandCallback(const custom_msgs::HandPoseConstPtr msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
-	void placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void placePoseCallback(const custom_msgs::PlacePoseConstPtr& msg);
 	void FrankaStateCallback(const franka_msgs::FrankaStateConstPtr & msg);
 	void TaskCallback(const custom_msgs::action_primitive_messageConstPtr& msg);
 

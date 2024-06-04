@@ -52,14 +52,17 @@ void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::C
 	leftHandPose << left_hand_position, left_hand_orientation;
 }
 
-void ImpedanceParameterController::placePoseCallback(const geometry_msgs::Pose::ConstPtr& msg) {
+void ImpedanceParameterController::placePoseCallback(const custom_msgs::PlacePoseConstPtr & msg) {
 	// Extract relevant information from the message and set the left hand pose
-	ROS_INFO("got place pose");
+	if(msg->isLineConstraint.data || msg-> isPlaneConstraint.data){
+		activeTask->hasGrasped = true;
+	}
 	if (activeTask == &get_me_task || activeTask == &take_this_task || activeTask == &hold_this_task){
+		ROS_INFO("got place pose");
 		Eigen::Matrix<double, 6, 1> new_goal_pose;
-		new_goal_pose.head(3) << msg->position.x, msg->position.y, msg->position.z;
+		new_goal_pose.head(3) << msg->goalPose.position.x, msg->goalPose.position.y, msg->goalPose.position.z;
 		Eigen::Quaterniond new_goal_orientation;
-		new_goal_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+		new_goal_orientation.coeffs() << msg->goalPose.orientation.x, msg->goalPose.orientation.y, msg->goalPose.orientation.z, msg->goalPose.orientation.w;
 		new_goal_pose.tail(3) = new_goal_orientation.toRotationMatrix().eulerAngles(0, 1, 2);
 		ROS_INFO_STREAM("goal pose orientation" << new_goal_pose.tail(3));
 		activeTask->setGoalPose(new_goal_pose);

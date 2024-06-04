@@ -192,7 +192,7 @@ HoldThis::HoldThis() : ActionPrimitive() {
 void
 HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                         ros::Publisher &is_task_finished_publisher) {
-	// Implementation of performAction for HoldThis
+	// stop at current position
 	if (this->free_float){
 		construct_impedance_message(this->impedance_params * 0.0);
 		impedance_publisher.publish(this->compliance_update);
@@ -205,14 +205,14 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	}
 
 	this->free_float = false;
-
-	//wait for goal pose nad handle it
-	ROS_INFO("Finished grasping, waiting for goal ");
+	//wait for goal pose and handle it
+	ROS_INFO("Stopped, waiting for goal ");
 	this->hasGrasped = false;
 	while(!this->hasGrasped){
 		ros::spinOnce();
 		ros::Duration(0.1).sleep();
 	}
+	//finished waiting now either be passive and move on a plane/line or to goal
 	//TODO: add publihing of goal pose reached here
 	this->hasGrasped = false;
 	//go back to hand
