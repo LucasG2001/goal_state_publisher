@@ -5,6 +5,7 @@
 #include <ros/spinner.h>
 #include <iostream>
 #include <custom_msgs/action_primitive_message.h>
+#include <custom_msgs/PlacePose.h>
 #include "Utility.h"
 
 int main(int argc, char** argv) {
@@ -17,6 +18,8 @@ int main(int argc, char** argv) {
 	ros::Publisher task_publisher = nh.advertise<custom_msgs::action_primitive_message>("/action_primitive", 10);
 	//test follow me mode
 	ros::Publisher hand_publisher = nh.advertise<geometry_msgs::Pose>("cartesian_impedance_controller/right_hand", 10);
+	//place pose publisher for testing purposes
+	ros::Publisher place_pose_pub = nh.advertise<custom_msgs::PlacePose>("/place_pose", 10);
 	geometry_msgs::Pose hand_pose;
 
 	ros::AsyncSpinner spinner(4);
@@ -26,6 +29,9 @@ int main(int argc, char** argv) {
 
 	int task_type;
 	custom_msgs::action_primitive_message action_message;
+	custom_msgs::PlacePose place_pose_msg;
+	std::vector<double> direction(3); // this can be either the place position a line constraint (direction) or a plane constraint (normal)
+	double norm = 0.0; // norm of direction vector
 	action_message.goal_pose = createGoalPose({0.5, 0.0, 0.5}, {3.14156, 0.0, 0.0});
 	action_message.object_pose = createGoalPose({0.3, 0.3, 0.15}, {3.14156, 0.0, 0.0});
 	action_message.grasp = false;
@@ -76,6 +82,31 @@ int main(int argc, char** argv) {
 				action_message.grasp = true;
 				action_message.isFreeFloat = free_float;
 				task_publisher.publish(action_message);
+				// wait, then send place pose message to test free float with plane constraints
+				ros::Duration(4.0).sleep();
+				std::cout << "Send Place Pose. Type in your place position. If you chose free float it will be interpreted as Plane constraint (normal)" << std::endl;
+				std::cin >> direction[0] >> direction[1] >> direction[2];
+				norm = std::sqrt((direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
+				if(free_float){
+					if(norm > 1.0){
+					// norm the direction of it is bigger than unit vector, but only in free float mode since it is interpreted as position else
+					direction[0] = direction[0] / norm;
+					direction[1] = direction[1] / norm;
+					direction[2] = direction[2] / norm;
+				}
+					//create a place pose where the position is interpreted as Plane constraint (normal vector)
+					place_pose_msg.goalPose = createGoalPose(direction, {3.14156, 0.0, 0.0});
+					place_pose_msg.isLineConstraint.data = true;
+					place_pose_msg.isPlaneConstraint.data = false;
+				}
+				else{
+					//create a place pose where the position is interpreted as Plane constraint (normal vector)
+					place_pose_msg.goalPose = createGoalPose(direction, {3.14156, 0.0, 0.0});
+					place_pose_msg.isLineConstraint.data = false;
+					place_pose_msg.isPlaneConstraint.data = false;
+				}
+				//publish place pose
+				place_pose_pub.publish(place_pose_msg);
 				break;
 			case 4:
 				std::cout << "TakeThis selected\n";
@@ -129,8 +160,8 @@ int main(int argc, char** argv) {
 			}
 
 		}
-		spinner.stop();
 
-		return 0;
 	}
+	spinner.stop();
+	return 0;
 }

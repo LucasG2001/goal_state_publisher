@@ -36,6 +36,7 @@ public:
 	                   ros::Publisher &is_task_finished_publisher) override;
 
 	bool free_float;
+	bool is_constrained;  // tells us if we free float but with direction constraints
 };
 
 class TakeThis : public ActionPrimitive {

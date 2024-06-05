@@ -53,8 +53,33 @@ void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::C
 }
 
 void ImpedanceParameterController::placePoseCallback(const custom_msgs::PlacePoseConstPtr & msg) {
+	// helper
+	Eigen::MatrixXd eye = Eigen::MatrixXd::Identity(6,6);
 	// Extract relevant information from the message and set the left hand pose
-	if(msg->isLineConstraint.data || msg-> isPlaneConstraint.data){
+	if((msg->isLineConstraint.data || msg-> isPlaneConstraint.data) && activeTask == &hold_this_task){
+		hold_this_task.is_constrained = true;
+		//construct new impedance Matrices
+		ImpedanceMatrices constrained_impedances = activeTask->getImpedanceParams();
+		// create projection
+		Eigen::Vector3d dir; dir << msg->goalPose.position.x, msg->goalPose.position.y, msg->goalPose.position.z; // normal vector or direction vector
+		if (msg->isPlaneConstraint.data == true){
+			constrained_impedances.spring_stiffness.topLeftCorner(3,3) = 1200* dir*dir.transpose();
+			//get down rotational stiffness as well
+			constrained_impedances.spring_stiffness.bottomRightCorner(3,3) = 120.0 * eye.bottomRightCorner(3,3);
+		}
+		else if (msg->isLineConstraint.data == true){
+			constrained_impedances.spring_stiffness.topLeftCorner(3,3) = 1200* (eye.topLeftCorner(3,3) - dir*dir.transpose());
+			//get down rotational stiffness as well
+			constrained_impedances.spring_stiffness.bottomRightCorner(3,3) = 120.0 * eye.bottomRightCorner(3,3);
+		}
+		constrained_impedances.spring_stiffness.bottomRightCorner(1, 1) << 15; //lower stiffness for joint 7
+		std::cout << "constrained K matrix is " << constrained_impedances.spring_stiffness << std::endl;
+		//add some cautious damping, cwise abs because there might be negative entries in K
+		constrained_impedances.damping = 1.1 * 2 * constrained_impedances.spring_stiffness.array().cwiseAbs().sqrt().matrix();
+		std::cout << "constrained D matrix is " << constrained_impedances.damping << std::endl;
+		// we do not need to update the desired goal pose, since we stop anyways
+		// create impedance message and update state
+		activeTask->construct_impedance_message(constrained_impedances);
 		activeTask->hasGrasped = true;
 	}
 	if (activeTask == &get_me_task || activeTask == &take_this_task || activeTask == &hold_this_task){
@@ -139,8 +164,8 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 	ros::Duration(0.05).sleep();
 	ROS_INFO("will perform action");
 	activeTask->performAction(task_planner, *reference_pose_publisher_, *impedance_param_pub, *task_finished_publisher);
-
-	if (activeTask == &get_me_task || activeTask == &take_this_task || activeTask == &hold_this_task){
+	//only go back to neutral after a handover in hold this task, nbot when we are free floating with constraints
+	if (activeTask == &get_me_task || activeTask == &take_this_task || (activeTask == &hold_this_task && !hold_this_task.free_float)){
 		is_task_finished.data = false; //false if not waiting for forcing
 		task_finished_publisher->publish(is_task_finished);
 		//go back to neutral

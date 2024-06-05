@@ -186,6 +186,7 @@ HoldThis::HoldThis() : ActionPrimitive() {
 	              bubble_stiffness, bubble_damping);
 
 	free_float = false;
+	is_constrained = false;
 
 }
 
@@ -203,8 +204,6 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		impedance_publisher.publish(this->compliance_update);
 		task_planner.stop(&goal_publisher);
 	}
-
-	this->free_float = false;
 	//wait for goal pose and handle it
 	ROS_INFO("Stopped, waiting for goal ");
 	this->hasGrasped = false;
@@ -215,26 +214,39 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	//finished waiting now either be passive and move on a plane/line or to goal
 	//TODO: add publihing of goal pose reached here
 	this->hasGrasped = false;
-	//go back to hand
-	ROS_INFO("finished waiting ");
-	//now construct more different impedances to be safe in handover
-	ImpedanceMatrices post_grasp_impedance;
-	post_grasp_impedance.spring_stiffness = IDENTITY * 250;
-	post_grasp_impedance.spring_stiffness.bottomRightCorner(3, 3) << 40, 0, 0, 0, 40, 0, 0, 0, 15;
-	post_grasp_impedance.damping = IDENTITY * 35;
-	post_grasp_impedance.damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 6;
-	post_grasp_impedance.repulsion_stiffness = IDENTITY * 0;
-	post_grasp_impedance.repulsion_damping = IDENTITY * 0;
-	construct_impedance_message(post_grasp_impedance);
-	impedance_publisher.publish(this->compliance_update);
-	ros::Duration(1.0).sleep(); //waiting for impedances to converge to new value
-	ROS_INFO("going from HOLD THIS to GOAL ");
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
-	ros::Duration(1.0).sleep();
-	task_planner.open_gripper();
-	std_msgs::Bool done_msg; done_msg.data = false;
-	is_task_finished_publisher.publish(done_msg);
-	ros::Duration(0.2).sleep();
+	//go back to hand if not free float with constraints
+	if (!this->is_constrained){ // if is constrained we handle it directly in the callback
+		this->free_float = false; // if we do not want to have constrained free float we got a place pose
+		ROS_INFO("finished waiting ");
+		//now construct more different impedances to be safe in handover
+		ImpedanceMatrices post_grasp_impedance;
+		post_grasp_impedance.spring_stiffness = IDENTITY * 250;
+		post_grasp_impedance.spring_stiffness.bottomRightCorner(3, 3) << 40, 0, 0, 0, 40, 0, 0, 0, 15;
+		post_grasp_impedance.damping = IDENTITY * 35;
+		post_grasp_impedance.damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 6;
+		post_grasp_impedance.repulsion_stiffness = IDENTITY * 0;
+		post_grasp_impedance.repulsion_damping = IDENTITY * 0;
+		construct_impedance_message(post_grasp_impedance);
+		impedance_publisher.publish(this->compliance_update);
+		ros::Duration(1.0).sleep(); //waiting for impedances to converge to new value
+		ROS_INFO("going from HOLD THIS to GOAL ");
+		task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
+		ros::Duration(1.0).sleep();
+		task_planner.open_gripper();
+		std_msgs::Bool done_msg; done_msg.data = false;
+		is_task_finished_publisher.publish(done_msg);
+		ros::Duration(0.2).sleep();
+	}
+	else { //case that we are constrained we go nowhere
+		std::cout << "publishing constrained free float" << std::endl;
+		task_planner.stop(&goal_publisher); // make sure we dont move
+		impedance_publisher.publish(this->compliance_update);
+		ros::Duration(0.4).sleep(); //waiting for impedances to converge to new value
+		this->is_constrained = false;
+	}
+
+	//return
+
 }
 
 // Default constructor for TakeThis
@@ -269,10 +281,6 @@ TakeThis::TakeThis() : ActionPrimitive() {
 void
 TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                         ros::Publisher &is_task_finished_publisher) {
-	std::random_device dev;
-	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist6(1,6); // distribution in range [1, 6]
-	int rand_number = dist6(rng);
 	//
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	Eigen::Vector3d grasp_offset; grasp_offset << -0.05, 0, 0.08;
@@ -303,7 +311,7 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	while(measured_force < 5.5){
 		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
-		std::cout << "Fext is " << measured_force << "and random number is" << rand_number <<std::endl;
+		std::cout << "Fext is " << measured_force <<std::endl;
 		ros::spinOnce();
 		ros::Duration(0.2).sleep();
 		if(elapsed_time > 4.0){

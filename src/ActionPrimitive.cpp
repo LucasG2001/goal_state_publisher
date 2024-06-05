@@ -60,6 +60,9 @@ void ActionPrimitive::setParameters(const Eigen::Matrix<double, 6, 6>& spring_st
 	impedance_params.repulsion_damping = repulsion_damping;
 }
 
+ImpedanceMatrices ActionPrimitive::getImpedanceParams(){
+	return impedance_params;
+}
 
 // Getters
 Eigen::Matrix<double, 6, 1> ActionPrimitive::getStartPose() const {

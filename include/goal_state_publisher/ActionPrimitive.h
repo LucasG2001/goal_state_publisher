@@ -45,6 +45,7 @@ public:
                        const Eigen::Matrix<double, 6, 6>& inertia,
                        const Eigen::Matrix<double, 6, 6>& repulsion_stiffness,
                        const Eigen::Matrix<double, 6, 6>& repulsion_damping);
+	ImpedanceMatrices getImpedanceParams();
 
     // Getters
     Eigen::Matrix<double, 6, 1> getStartPose() const;
