@@ -1,0 +1,8 @@
+The followMeTest was conducted in the following order:
+
+1) FreeFloat
+2) Plane constraint with n = 0 0 1
+3) free float
+4) line constraint with line 0 0 1
+
+end

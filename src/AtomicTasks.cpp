@@ -239,6 +239,8 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	}
 	else { //case that we are constrained we go nowhere
 		std::cout << "publishing constrained free float" << std::endl;
+		// fake move
+		task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
 		task_planner.stop(&goal_publisher); // make sure we dont move
 		impedance_publisher.publish(this->compliance_update);
 		ros::Duration(0.4).sleep(); //waiting for impedances to converge to new value

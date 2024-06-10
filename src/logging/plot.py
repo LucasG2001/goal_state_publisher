@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Define timestamp
-participant = "f_ext"
-timestamp = "202406031646"
+participant = "constrainedFreeFloat"
+timestamp = "202406101613"
 sampling_frequency = 20 # Hz
 
 # Define file paths

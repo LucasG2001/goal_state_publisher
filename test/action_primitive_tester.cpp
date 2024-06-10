@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 	ros::Rate loop_rate(50); // 20Hz
 
 	int task_type;
+	int constraint = false;
 	custom_msgs::action_primitive_message action_message;
 	custom_msgs::PlacePose place_pose_msg;
 	std::vector<double> direction(3); // this can be either the place position a line constraint (direction) or a plane constraint (normal)
@@ -83,8 +84,8 @@ int main(int argc, char** argv) {
 				action_message.isFreeFloat = free_float;
 				task_publisher.publish(action_message);
 				// wait, then send place pose message to test free float with plane constraints
-				ros::Duration(4.0).sleep();
-				std::cout << "Send Place Pose. Type in your place position. If you chose free float it will be interpreted as Plane constraint (normal)" << std::endl;
+				ros::Duration(2.0).sleep();
+				std::cout << "Send Place Pose. Type in your place position. If this should be a constraint you can select later which it should be" << std::endl;
 				std::cin >> direction[0] >> direction[1] >> direction[2];
 				norm = std::sqrt((direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2]));
 				if(free_float){
@@ -95,12 +96,20 @@ int main(int argc, char** argv) {
 					direction[2] = direction[2] / norm;
 				}
 					//create a place pose where the position is interpreted as Plane constraint (normal vector)
-					place_pose_msg.goalPose = createGoalPose(direction, {3.14156, 0.0, 0.0});
-					place_pose_msg.isLineConstraint.data = true;
-					place_pose_msg.isPlaneConstraint.data = false;
+					place_pose_msg.goalPose = createGoalPose(direction, {3.14156, 0.0, 0.0}); // keep rotation in any case
+					std::cout << "Choose line constraint (0) or plane constraint (1)" << std::endl;
+					std::cin >> constraint;
+					if(constraint == 0){ //line constraint
+						place_pose_msg.isLineConstraint.data = true;
+						place_pose_msg.isPlaneConstraint.data = false;
+					}
+					else{ //plane constraint
+						place_pose_msg.isPlaneConstraint.data = true;
+						place_pose_msg.isLineConstraint.data = false;
+					}
 				}
 				else{
-					//create a place pose where the position is interpreted as Plane constraint (normal vector)
+					//create a place pose without constraints
 					place_pose_msg.goalPose = createGoalPose(direction, {3.14156, 0.0, 0.0});
 					place_pose_msg.isLineConstraint.data = false;
 					place_pose_msg.isPlaneConstraint.data = false;
