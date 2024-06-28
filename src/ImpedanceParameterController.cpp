@@ -70,13 +70,13 @@ void ImpedanceParameterController::placePoseCallback(const custom_msgs::PlacePos
 		else if (msg->isLineConstraint.data == true){
 			// fake move
 			Eigen::Matrix<double, 6, 1> new_goal_pose;
-			new_goal_pose = this->hold_this_task.getGoalPose(); new_goal_pose.head(3) = new_goal_pose.head(3) + 0.2 * dir; // dubious use
+			new_goal_pose = this->hold_this_task.getGoalPose(); new_goal_pose.tail(3) << -3.14156, 0.0, 0.0;
 			activeTask->setGoalPose(new_goal_pose);
 			constrained_impedances.spring_stiffness.topLeftCorner(3,3) = 800* (eye.topLeftCorner(3,3) - dir*dir.transpose());
 			//get down rotational stiffness as well
 			constrained_impedances.spring_stiffness.bottomRightCorner(3,3) = 150 * eye.bottomRightCorner(3,3);
 		}
-		constrained_impedances.spring_stiffness.bottomRightCorner(1, 1) << 15; //lower stiffness for joint 7
+		constrained_impedances.spring_stiffness.bottomRightCorner(1, 1) << 12; //lower stiffness for joint 7
 		std::cout << "constrained K matrix is " << constrained_impedances.spring_stiffness << std::endl;
 		//add some cautious damping, cwise abs because there might be negative entries in K
 		constrained_impedances.damping = 1.1 * 2 * constrained_impedances.spring_stiffness.array().cwiseAbs().sqrt().matrix();

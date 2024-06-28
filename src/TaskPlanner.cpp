@@ -201,7 +201,7 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
     target_pose.pose.orientation.w = global_ee_orientation.w();
 	ROS_INFO(" publishing intermediate pose after grasp ");
     equilibrium_pose_pub.publish(target_pose);
-    ros::Duration(1.0).sleep();
+    ros::Duration(0.1).sleep();
 
 }
 
@@ -216,18 +216,27 @@ void TaskPlanner::ee_callback(const franka_msgs::FrankaStateConstPtr & msg){
 	global_ee_euler_angles = global_ee_orientation.toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
-void TaskPlanner::stop(ros::Publisher *goal_pose_publisher) const {
+void TaskPlanner::stop(ros::Publisher *goal_pose_publisher, bool default_orientation) const {
 	//send actual pose as goal pose and clear integrator such that we dont move
 	geometry_msgs::PoseStamped stop_goal;
 	ROS_INFO("stopping");
 	stop_goal.pose.position.x = global_ee_position.x();
 	stop_goal.pose.position.y = global_ee_position.y();
 	stop_goal.pose.position.z = global_ee_position.z();
-	stop_goal.pose.orientation.x = global_ee_orientation.x();
-	stop_goal.pose.orientation.y = global_ee_orientation.y();
-	stop_goal.pose.orientation.z = global_ee_orientation.z();
-	stop_goal.pose.orientation.w = global_ee_orientation.w();
-	stop_goal.header.frame_id = "CLEAR";
+	if (default_orientation == true){
+		stop_goal.pose.orientation.x = 1.0;
+		stop_goal.pose.orientation.y = 0.0;
+		stop_goal.pose.orientation.z = 0.0;
+		stop_goal.pose.orientation.w = 0.0;
+	}
+	else{
+		stop_goal.pose.orientation.x = global_ee_orientation.x();
+		stop_goal.pose.orientation.y = global_ee_orientation.y();
+		stop_goal.pose.orientation.z = global_ee_orientation.z();
+		stop_goal.pose.orientation.w = global_ee_orientation.w();
+		stop_goal.header.frame_id = "CLEAR";
+	}
+
 	goal_pose_publisher->publish(stop_goal);
 
 }
