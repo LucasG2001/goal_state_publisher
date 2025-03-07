@@ -91,7 +91,6 @@ void TaskPlanner::move(std::vector<double> position, std::vector<double> orienta
 
 // with Eigen
 void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol, std::string header_info) const{
-	double goal_time = 3.5;
     geometry_msgs::PoseStamped target_pose;
 
 	std::vector<double> reference_for_msg = {goal_position(0,0), goal_position(1,0), goal_position(2,0)};
@@ -99,7 +98,6 @@ void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	target_pose.header.frame_id = header_info;
 	goal_pose_publisher->publish(target_pose);
 
-	double elapsed_time = 0.0;
 	int counter = 0;
 	while((goal_position-global_ee_position).norm() > tol || (goal_orientation-global_ee_euler_angles).norm() > 0.075){
 		counter += 1;

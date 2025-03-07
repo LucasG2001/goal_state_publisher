@@ -61,7 +61,6 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.08, "grasp");
 	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
 	ROS_INFO("grasping ");
-	ros::Duration(0.1).sleep();
 	task_planner.grasp_object();
 	//publish that it finished grasping
 	std_msgs::Bool done_msg; done_msg.data = false; //publish false when waiting for goal pse publish true when waiting for forcing
@@ -70,7 +69,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	ROS_INFO("Finished grasping, waiting for goal ");
 	while(!this->hasGrasped){
 		ros::spinOnce();
-		ros::Duration(0.1).sleep();
+		ros::Duration(0.05).sleep();
 	}
 	//TODO: add publihing of goal pose reached here
 	this->hasGrasped = false;
@@ -87,7 +86,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
 	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance for handover
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.01, "grasp"); //higher tolerance for handover
 
 	//SHUT OFF repulsion during opening
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0;
@@ -96,7 +95,6 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	impedance_publisher.publish(this->compliance_update);
 	//do not move
 	task_planner.stop(&goal_publisher);
-	ros::Duration(0.1).sleep();
 	//wait for human input, i.e. forcing to open gripper
 	ROS_INFO("Waiting for forcing");
 	done_msg.data = true; //true for waiting for forcing
@@ -104,13 +102,13 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	// Start time
     ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 5.5){
+	while(measured_force < 3.5){
 		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
-		std::cout << "Fext is " << measured_force << "and random number is" << rand_number <<std::endl;
+		std::cout << "Fext is " << measured_force <<std::endl;
 		ros::spinOnce();
-		ros::Duration(0.2).sleep();
-		if(elapsed_time > 4.0){
+		ros::Duration(0.05).sleep();
+		if(elapsed_time > 3.0){
 			break;
 		}
 	}
@@ -228,14 +226,14 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		post_grasp_impedance.repulsion_damping = IDENTITY * 0;
 		construct_impedance_message(post_grasp_impedance);
 		impedance_publisher.publish(this->compliance_update);
-		ros::Duration(1.0).sleep(); //waiting for impedances to converge to new value
+		ros::Duration(0.1).sleep(); //waiting for impedances to converge to new value
 		ROS_INFO("going from HOLD THIS to GOAL ");
 		task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
-		ros::Duration(1.0).sleep();
+		ros::Duration(0.1).sleep();
 		task_planner.open_gripper();
 		std_msgs::Bool done_msg; done_msg.data = false;
 		is_task_finished_publisher.publish(done_msg);
-		ros::Duration(0.2).sleep();
+		ros::Duration(0.1).sleep();
 	}
 	else { //case that we are constrained we go nowhere
 		std::cout << "publishing constrained free float" << std::endl;
@@ -243,7 +241,7 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		// fake move
 		std::cout << " moving to orientation of " << this->goal_pose_.tail(3) << "before stopping " << std::endl;
 		task_planner.stop(&goal_publisher, true); // make sure we dont move
-		ros::Duration(0.4).sleep(); //waiting for impedances to converge to new value
+		ros::Duration(0.2).sleep(); //waiting for impedances to converge to new value
 		this->is_constrained = false;
 	}
 
@@ -310,13 +308,13 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	is_task_finished_publisher.publish(done_msg);
 	ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 5.5){
+	while(measured_force < 3.5){
 		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
 		std::cout << "Fext is " << measured_force <<std::endl;
 		ros::spinOnce();
-		ros::Duration(0.2).sleep();
-		if(elapsed_time > 4.0){
+		ros::Duration(0.05).sleep();
+		if(elapsed_time > 3.0){
 			break;
 		}
 	}
@@ -339,7 +337,7 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 2;
 	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 1.414; //sqrt of 2
 	construct_impedance_message(post_grasp_impedance);
-	ros::Duration(1.5).sleep();
+	ros::Duration(0.5).sleep();
 	//go back to delivery pose
 	impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("published impedance message");
