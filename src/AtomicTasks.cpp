@@ -167,11 +167,11 @@ FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 HoldThis::HoldThis() : ActionPrimitive() {
 	// Custom values for HoldThis
 	Eigen::Matrix<double, 6, 6> stiffness;  
-	stiffness.topLeftCorner(3, 3) << 4000, 0, 0, 0, 4000, 0, 0, 0, 4000;
-	stiffness.bottomRightCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 15;
+	stiffness.topLeftCorner(3, 3) << 3500, 0, 0, 0, 3500, 0, 0, 0, 3500;
+	stiffness.bottomRightCorner(3, 3) << 75, 0, 0, 0, 75, 0, 0, 0, 15;
 	Eigen::Matrix<double, 6, 6> damping;           
-	damping.topLeftCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 100;
-	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 8;
+	damping.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 150;
+	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 9;
 	//ToDo: Inertia matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
