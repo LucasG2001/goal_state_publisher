@@ -29,6 +29,7 @@ class ActionPrimitive {
 public:
     // Constructor
     ActionPrimitive();
+	Eigen::Vector3d pick_offset; //offset for object pickup
 
     // Pure virtual function - to be implemented by derived classes
     virtual void

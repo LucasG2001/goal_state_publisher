@@ -43,12 +43,8 @@ GetMe::GetMe() : ActionPrimitive() {
 
 void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                           ros::Publisher &is_task_finished_publisher) {
-	std::random_device dev;
-	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist6(1,6); // distribution in range [1, 6]
-	int rand_number = dist6(rng);
-	//
 	Eigen::Vector3d grasp_offset; grasp_offset << 0, 0, 0.08;
+	pick_offset << 0, 0, -0.015;
 	ROS_INFO("starting get me action");
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
@@ -58,8 +54,8 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.08, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3) + pick_offset, this->getObjectPose().tail(3), &goal_publisher, 0.005, "grasp");
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//publish that it finished grasping
@@ -85,8 +81,8 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
 	grasp_offset << -0.05, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.04, "grasp");
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.01, "grasp"); //higher tolerance for handover
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.01, "grasp");
+	task_planner.primitive_move(this->goal_pose_.head(3) - pick_offset, this->goal_pose_.tail(3), &goal_publisher, 0.005, "grasp"); //higher tolerance for handover
 
 	//SHUT OFF repulsion during opening
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0;
@@ -102,13 +98,13 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	// Start time
     ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 3.5){
+	while(measured_force < 2.5){
 		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
 		std::cout << "Fext is " << measured_force <<std::endl;
 		ros::spinOnce();
 		ros::Duration(0.05).sleep();
-		if(elapsed_time > 3.0){
+		if(elapsed_time > 2.0){
 			break;
 		}
 	}
@@ -228,7 +224,7 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		impedance_publisher.publish(this->compliance_update);
 		ros::Duration(0.1).sleep(); //waiting for impedances to converge to new value
 		ROS_INFO("going from HOLD THIS to GOAL ");
-		task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.02, ""); //higher tolerance for handover
+		task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.01, ""); //higher tolerance for handover
 		ros::Duration(0.1).sleep();
 		task_planner.open_gripper();
 		std_msgs::Bool done_msg; done_msg.data = false;
@@ -284,14 +280,15 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	//
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	Eigen::Vector3d grasp_offset; grasp_offset << -0.05, 0, 0.08;
+	pick_offset << 0, 0, -0.015;
 	// Implementation of performAction for TakeThis
 	// Custom logic for TakeThis
 	//go to object/hand
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
 	// execute handover ( go to hand)
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.08, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.04, "grasp"); //higher tolerance in handover
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3) - pick_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp"); //higher tolerance in handover
 	//do not move
 	//lower repulsive stiffness during handover
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/1000.0;
@@ -308,13 +305,13 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	is_task_finished_publisher.publish(done_msg);
 	ros::Time start_time = ros::Time::now();
 	double measured_force = 0.0;
-	while(measured_force < 3.5){
+	while(measured_force < 2.5){
 		double elapsed_time = (ros::Time::now() - start_time).toSec();
 		measured_force = task_planner.F_ext.norm();
 		std::cout << "Fext is " << measured_force <<std::endl;
 		ros::spinOnce();
-		ros::Duration(0.05).sleep();
-		if(elapsed_time > 3.0){
+		ros::Duration(0.01).sleep();
+		if(elapsed_time > 2.0){
 			break;
 		}
 	}
@@ -362,7 +359,7 @@ AvoidMe::AvoidMe() : ActionPrimitive() {
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	//
-	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
+	Eigen::Matrix<double, 6, 6> bubble_stiffness;
 	bubble_stiffness.topLeftCorner(3, 3) << 500, 0, 0, 0, 500, 0, 0, 0, 500;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
