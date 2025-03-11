@@ -221,7 +221,7 @@ void TaskPlanner::stop(ros::Publisher *goal_pose_publisher, bool default_orienta
 	stop_goal.pose.position.x = global_ee_position.x();
 	stop_goal.pose.position.y = global_ee_position.y();
 	stop_goal.pose.position.z = global_ee_position.z();
-	if (default_orientation == true){
+	if (default_orientation){
 		stop_goal.pose.orientation.x = 1.0;
 		stop_goal.pose.orientation.y = 0.0;
 		stop_goal.pose.orientation.z = 0.0;

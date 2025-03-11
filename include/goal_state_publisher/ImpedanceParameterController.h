@@ -20,7 +20,7 @@ class ImpedanceParameterController {
 public:
 	explicit ImpedanceParameterController(ros::Publisher* ref_pub, ros::Publisher* impedance_pub, ros::Publisher* task_finish_pub, ros::Publisher* forcing_pub);
 	// Callback functions
-	void rightHandCallback(const custom_msgs::HandPoseConstPtr msg);
+	void rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg);
 	void placePoseCallback(const custom_msgs::PlacePoseConstPtr& msg);
 	void FrankaStateCallback(const franka_msgs::FrankaStateConstPtr & msg);

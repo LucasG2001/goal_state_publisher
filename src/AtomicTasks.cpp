@@ -16,12 +16,12 @@ GetMe::GetMe() : ActionPrimitive() {
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
 	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
-	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 15;
+	stiffness.bottomRightCorner(3, 3) << 35, 0, 0, 0, 35, 0, 0, 0, 15;
 
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
-	damping.topLeftCorner(3, 3) << 75, 0, 0, 0, 75, 0, 0, 0, 75;
-	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 7.5;
+	damping.topLeftCorner(3, 3) << 36, 0, 0, 0, 36, 0, 0, 0, 36;
+	damping.bottomRightCorner(3, 3) << 15, 0, 0, 0, 15, 0, 0, 0, 8;
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 
 	Eigen::Matrix<double, 6, 6> inertia;           
@@ -30,10 +30,10 @@ GetMe::GetMe() : ActionPrimitive() {
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 
 	Eigen::Matrix<double, 6, 6> bubble_stiffness;  
-	bubble_stiffness.topLeftCorner(3, 3) << 150, 0, 0, 0, 150, 0, 0, 0, 150;
+	bubble_stiffness.topLeftCorner(3, 3) << 120, 0, 0, 0, 120, 0, 0, 0, 120;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
-	bubble_damping.topLeftCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 25;
+	bubble_damping.topLeftCorner(3, 3) << 6, 0, 0, 0, 6, 0, 0, 0, 6;
 	bubble_damping.bottomRightCorner(3, 3) << 14, 0, 0, 0, 14, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
@@ -43,7 +43,7 @@ GetMe::GetMe() : ActionPrimitive() {
 
 void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publisher, ros::Publisher &impedance_publisher,
                           ros::Publisher &is_task_finished_publisher) {
-	Eigen::Vector3d grasp_offset; grasp_offset << 0, 0, 0.08;
+	grasp_offset << 0, 0, 0.08;
 	pick_offset << 0, 0, -0.015;
 	ROS_INFO("starting get me action");
 	construct_impedance_message(this->impedance_params);
@@ -59,7 +59,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//publish that it finished grasping
-	std_msgs::Bool done_msg; done_msg.data = false; //publish false when waiting for goal pse publish true when waiting for forcing
+	std_msgs::Bool done_msg; done_msg.data = false; //publish false when waiting for goal pose publish true when waiting for forcing
 	is_task_finished_publisher.publish(done_msg);
 	//wait for goal pose
 	ROS_INFO("Finished grasping, waiting for goal ");
@@ -80,7 +80,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	ROS_INFO("bringing you object ");
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
-	grasp_offset << -0.05, 0, 0.08;
+	grasp_offset << -0.02, 0, 0.08;
 	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.01, "grasp");
 	task_planner.primitive_move(this->goal_pose_.head(3) - pick_offset, this->goal_pose_.tail(3), &goal_publisher, 0.005, "grasp"); //higher tolerance for handover
 
@@ -90,7 +90,7 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
 	//do not move
-	task_planner.stop(&goal_publisher);
+	/*task_planner.stop(&goal_publisher);*/ //TODO: why?
 	//wait for human input, i.e. forcing to open gripper
 	ROS_INFO("Waiting for forcing");
 	done_msg.data = true; //true for waiting for forcing
@@ -279,7 +279,7 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
                         ros::Publisher &is_task_finished_publisher) {
 	//
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
-	Eigen::Vector3d grasp_offset; grasp_offset << -0.05, 0, 0.08;
+	grasp_offset << -0.02, 0, 0.08;
 	pick_offset << 0, 0, -0.015;
 	// Implementation of performAction for TakeThis
 	// Custom logic for TakeThis

@@ -15,7 +15,7 @@ ImpedanceParameterController::ImpedanceParameterController(ros::Publisher* ref_p
 	is_task_finished.data = false;
 	// Initialize other members if needed
 }
-void ImpedanceParameterController::rightHandCallback(const custom_msgs::HandPoseConstPtr msg) {
+void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {
 	// Extract relevant information from the message and set the right hand pose
 	// ROS_INFO("Got Hand Position");
 	geometry_msgs::PoseStamped goal;
@@ -23,12 +23,8 @@ void ImpedanceParameterController::rightHandCallback(const custom_msgs::HandPose
 	double angle = M_PI / 2.0;  // 90 degrees in radians
 	Eigen::Quaterniond rotationQuat(std::cos(angle / 2), 0, 0, std::sin(angle / 2));  // Rotating about z-axis, we follow the hand rotated by 90 degrees
 	Eigen::Quaterniond hand_orientation;
-	if (msg->isTracked) {
-		hand_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
-		Eigen::Quaterniond follow_orientation =
-				rotationQuat * hand_orientation; //rotate the EE by 90 degrees in z direction
-		rightHandPose
-				<< msg->position.x, msg->position.y, msg->position.z, 3.14156, 0.0, 1.51; //turn by 90 deg around z
+	hand_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
+	Eigen::Quaterniond follow_orientation = rotationQuat * hand_orientation; //rotate the EE by 90 degrees in z direction
 		//if task is FOLLOW ME update the goal pose
 		if (activeTask == &follow_me_task) {
 			//ROS_INFO(" following hand ");
@@ -42,7 +38,6 @@ void ImpedanceParameterController::rightHandCallback(const custom_msgs::HandPose
 			goal.pose.orientation.w = follow_orientation.w();
 			reference_pose_publisher_->publish(goal);
 		}
-	}
 }
 
 void ImpedanceParameterController::leftHandCallback(const geometry_msgs::Pose::ConstPtr& msg) {

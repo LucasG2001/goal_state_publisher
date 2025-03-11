@@ -30,6 +30,7 @@ public:
     // Constructor
     ActionPrimitive();
 	Eigen::Vector3d pick_offset; //offset for object pickup
+	Eigen::Vector3d grasp_offset; //offset for nearing objects from above (or hand)
 
     // Pure virtual function - to be implemented by derived classes
     virtual void
