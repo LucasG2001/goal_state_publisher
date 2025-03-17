@@ -25,10 +25,10 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::
 	Eigen::Quaterniond hand_orientation;
 	hand_orientation.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
 	Eigen::Quaterniond follow_orientation = rotationQuat * hand_orientation; //rotate the EE by 90 degrees in z direction
-		//if task is FOLLOW ME update the goal pose
+	follow_orientation.normalize();
+	//if task is FOLLOW ME update the goal pose
 		if (activeTask == &follow_me_task) {
 			//ROS_INFO(" following hand ");
-			activeTask->setGoalPose(rightHandPose);
 			goal.pose.position.x = msg->position.x + follow_me_task.fixed_offset.x();
 			goal.pose.position.y = msg->position.y + follow_me_task.fixed_offset.y();
 			goal.pose.position.z = msg->position.z + follow_me_task.fixed_offset.z();
@@ -37,6 +37,10 @@ void ImpedanceParameterController::rightHandCallback(const geometry_msgs::Pose::
 			goal.pose.orientation.z = follow_orientation.z();
 			goal.pose.orientation.w = follow_orientation.w();
 			reference_pose_publisher_->publish(goal);
+		}
+		else{
+			//only update hand pose for initialization and leave it constant throughout the task
+			follow_me_task.hand_pose << msg->position.x, msg->position.y, msg->position.z, 0, 0, 0;
 		}
 }
 
@@ -134,7 +138,6 @@ void ImpedanceParameterController::TaskCallback(const custom_msgs::action_primit
 			break;
 		case 2:
 			activeTask = &follow_me_task;
-			follow_me_task.hand_pose = this->rightHandPose; //initial hand pose for leash creation
 			ROS_INFO("active task is now FOLLOW ME");
 			break;
 		case 3:

@@ -34,8 +34,8 @@ public:
 	void primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol = 0.04, std::string header_info = "none") const; // equilibrium pose movement
 	void stop(ros::Publisher* goal_pose_publisher, bool default_orientation = false) const; // equilibrium pose movement
 	void execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol = 0.04) const; // same as move for Eigen Maatrix INput
-    void open_gripper(double speed=0.1, double width=0.08);
-    void grasp_object(double speed=0.1, double width=0.0, double force=40, double tol=0.08);
+    void open_gripper(double speed=0.2, double width=0.08);
+    void grasp_object(double speed=0.2, double width=0.0, double force=40, double tol=0.1);
     void ee_callback(const franka_msgs::FrankaStateConstPtr & msg);
 	// Call this method to update the impedance parameters based on the active task
 	void updateImpedanceParameters() const;

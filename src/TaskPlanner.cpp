@@ -99,13 +99,21 @@ void TaskPlanner::primitive_move(Eigen::Matrix<double, 3, 1>goal_position, Eigen
 	goal_pose_publisher->publish(target_pose);
 
 	int counter = 0;
-	while((goal_position-global_ee_position).norm() > tol || (goal_orientation-global_ee_euler_angles).norm() > 0.075){
+	while((goal_position-global_ee_position).norm() > tol || (goal_orientation-global_ee_euler_angles).norm() > 0.01){
 		counter += 1;
 		ros::Duration(0.1).sleep();
-		std::cout << " counter is " << counter << std::endl;
-		if(counter > 25) { break; }
+
+		if(counter > 30) { break; }
 	}
-}//for loop
+	if ((goal_position-global_ee_position).norm() < tol){
+		std::cout << " reached goal by TOLERANCE" << std::endl;
+	}
+	else{
+		std::cout << " reached goal by TIMEOUT" << std::endl;
+	}
+
+
+};//for loop
 
 
 void TaskPlanner::execute_action(Eigen::Matrix<double, 3, 1>goal_position, Eigen::Matrix<double, 3, 1> goal_orientation, ros::Publisher* goal_pose_publisher, double tol) const{
@@ -159,7 +167,6 @@ void TaskPlanner::open_gripper(double speed, double width){
     gripper_open.width = width;
     gripper_open.speed = speed;
     gripper_move_client.sendGoal(gripper_open);
-    ros::Duration(0.01).sleep();
     bool finished_before_timeout = gripper_move_client.waitForResult(ros::Duration(10.0)); // Adjust the timeout as needed
     if (finished_before_timeout) {
         ROS_INFO("Action finished successfully!");
@@ -199,7 +206,6 @@ void TaskPlanner::grasp_object(double speed, double width, double force, double 
     target_pose.pose.orientation.w = global_ee_orientation.w();
 	ROS_INFO(" publishing intermediate pose after grasp ");
     equilibrium_pose_pub.publish(target_pose);
-    ros::Duration(0.1).sleep();
 
 }
 

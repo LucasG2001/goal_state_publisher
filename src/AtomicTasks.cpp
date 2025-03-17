@@ -54,8 +54,8 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	task_planner.open_gripper();
 	//go to object here we can have high impedances and low repulsion as we should tipically go away from the human (default)
 	ROS_INFO("going towards object ");
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp");
-	task_planner.primitive_move(this->getObjectPose().head(3) + pick_offset, this->getObjectPose().tail(3), &goal_publisher, 0.005, "grasp");
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
+	task_planner.primitive_move(this->getObjectPose().head(3) + pick_offset, this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
 	ROS_INFO("grasping ");
 	task_planner.grasp_object();
 	//publish that it finished grasping
@@ -72,23 +72,27 @@ void GetMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publis
 	//go back to hand
 	ROS_INFO("finished waiting ");
 	//now construct more different impedances to be safe in handover
-	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
-	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/2.0;
-	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping/1.41;
-	construct_impedance_message(post_grasp_impedance);
-	impedance_publisher.publish(this->compliance_update);
+	//ImpedanceMatrices post_grasp_impedance = this->impedance_params;
+	//post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness/2.0;
+	//post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping/1.41;
+	//construct_impedance_message(post_grasp_impedance);
+	//impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("bringing you object ");
 	//intermediate waypoint
 	//TODO: should we handle if going to hand or to goal pose directly?
-	grasp_offset << -0.02, 0, 0.08;
-	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.01, "grasp");
-	task_planner.primitive_move(this->goal_pose_.head(3) - pick_offset, this->goal_pose_.tail(3), &goal_publisher, 0.005, "grasp"); //higher tolerance for handover
-
-	//SHUT OFF repulsion during opening
+	grasp_offset << -0.05, 0, 0.12;
+	//go to handover point above
+	task_planner.primitive_move((this->goal_pose_.head(3)) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.03, "grasp");
+	//shut off safety bubble for handover
+	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0;
-	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping * 0.25;
+	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
+	// go to hand now
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.005, "grasp"); //higher tolerance for handover
+
+
 	//do not move
 	/*task_planner.stop(&goal_publisher);*/ //TODO: why?
 	//wait for human input, i.e. forcing to open gripper
@@ -129,12 +133,12 @@ FollowMe::FollowMe() : ActionPrimitive() {
 	bubble_stiffness.topLeftCorner(3, 3) << 0, 0, 0, 0, 0, 0, 0, 0, 0;
 	bubble_stiffness.bottomRightCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
-	bubble_damping.topLeftCorner(3, 3) << 12, 0, 0, 0, 12, 0, 0, 0, 8;
+	bubble_damping.topLeftCorner(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 1;
 	bubble_damping.bottomRightCorner(3, 3) << 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
 	//offset for leash
-	fixed_offset << -0.1, 0.0, 0.0, 0.0, 0.0, 0.0;
+	fixed_offset << -0.15, 0.0, 0.0, 0.0, 0.0, 0.0;
 	hand_pose << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
 
@@ -148,9 +152,10 @@ FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	ROS_INFO("performing follow me");
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
+	ROS_INFO_STREAM("Follow Mw Hand Pose " << hand_pose.head(3));
 	fixed_offset.head(3) = task_planner.global_ee_position - hand_pose.head(3); //construct the fixed offset once, change orientation upon callback (offset is 0)
-	// Clamp the fixed offset between -0.3 and 0.3 in the first three dimensions
-	fixed_offset.head(3) = fixed_offset.head(3) * 0.13/fixed_offset.head(3).norm();
+	//Clamp the fixed offset between -0.3 and 0.3 in the first three dimensions
+	//fixed_offset.head(3) = fixed_offset.head(3) * 0.13/fixed_offset.head(3).norm();
 	ROS_INFO_STREAM("fixed offset leash is " << fixed_offset.head(3));
 	//go to hand
 	// continuous following is handled in impedance parameter controller
@@ -160,11 +165,11 @@ FollowMe::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 HoldThis::HoldThis() : ActionPrimitive() {
 	// Custom values for HoldThis
 	Eigen::Matrix<double, 6, 6> stiffness;  
-	stiffness.topLeftCorner(3, 3) << 3500, 0, 0, 0, 3500, 0, 0, 0, 3500;
-	stiffness.bottomRightCorner(3, 3) << 80, 0, 0, 0, 80, 0, 0, 0, 12;
+	stiffness.topLeftCorner(3, 3) << 1000, 0, 0, 0, 1000, 0, 0, 0, 1000;
+	stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 10;
 	Eigen::Matrix<double, 6, 6> damping;           
-	damping.topLeftCorner(3, 3) << 130, 0, 0, 0, 130, 0, 0, 0, 130;
-	damping.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 7.5;
+	damping.topLeftCorner(3, 3) << 70, 0, 0, 0, 70, 0, 0, 0, 70;
+	damping.bottomRightCorner(3, 3) << 16, 0, 0, 0, 16, 0, 0, 0, 7;
 	//ToDo: Inertia matrix should be specified as multiple of physical inertia
 	Eigen::Matrix<double, 6, 6> inertia;           
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -190,12 +195,12 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	if (this->free_float){
 		construct_impedance_message(this->impedance_params * 0.0);
 		impedance_publisher.publish(this->compliance_update);
-		task_planner.stop(&goal_publisher);
+		//task_planner.stop(&goal_publisher);
 	}
 	else {
 		construct_impedance_message(this->impedance_params);
 		impedance_publisher.publish(this->compliance_update);
-		//task_planner.stop(&goal_publisher);
+		//task_planner.stop(&goal_publisher, false);
 	}
 	//wait for goal pose and handle it
 	ROS_INFO("Stopped, waiting for goal ");
@@ -218,7 +223,7 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		post_grasp_impedance.damping = IDENTITY * 35;
 		post_grasp_impedance.damping.bottomRightCorner(3, 3) << 18, 0, 0, 0, 18, 0, 0, 0, 6;
 		post_grasp_impedance.repulsion_stiffness = IDENTITY * 0;
-		post_grasp_impedance.repulsion_damping = IDENTITY * 0;
+		post_grasp_impedance.repulsion_damping = IDENTITY * 3;
 		construct_impedance_message(post_grasp_impedance);
 		impedance_publisher.publish(this->compliance_update);
 		ros::Duration(0.1).sleep(); //waiting for impedances to converge to new value
@@ -227,7 +232,6 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		task_planner.open_gripper();
 		std_msgs::Bool done_msg; done_msg.data = false;
 		is_task_finished_publisher.publish(done_msg);
-		ros::Duration(0.1).sleep();
 	}
 	else { //case that we are constrained we go nowhere
 		std::cout << "publishing constrained free float" << std::endl;
@@ -235,7 +239,6 @@ HoldThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 		// fake move
 		std::cout << " moving to orientation of " << this->goal_pose_.tail(3) << "before stopping " << std::endl;
 		task_planner.stop(&goal_publisher, true); // make sure we dont move
-		ros::Duration(0.2).sleep(); //waiting for impedances to converge to new value
 		this->is_constrained = false;
 	}
 
@@ -250,12 +253,12 @@ TakeThis::TakeThis() : ActionPrimitive() {
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness =  Eigen::MatrixXd::Identity(6,6);
 	stiffness.topLeftCorner(3, 3) << 300, 0, 0, 0, 300, 0, 0, 0, 300;
-	stiffness.bottomRightCorner(3, 3) << 35, 0, 0, 0, 35, 0, 0, 0, 15;
+	stiffness.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 10;
 	//Damping
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping =  Eigen::MatrixXd::Identity(6,6);
 	damping.topLeftCorner(3, 3) << 35, 0, 0, 0, 35, 0, 0, 0, 35;
-	damping.bottomRightCorner(3, 3) << 12, 0, 0, 0, 12, 0, 0, 0, 8;
+	damping.bottomRightCorner(3, 3) << 9, 0, 0, 0, 9, 0, 0, 0, 7;
 	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertias
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
@@ -277,22 +280,20 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
                         ros::Publisher &is_task_finished_publisher) {
 	//
 	ImpedanceMatrices post_grasp_impedance = this->impedance_params;
-	grasp_offset << -0.02, 0, 0.08;
+	grasp_offset << -0.05, 0, 0.12;
 	pick_offset << 0, 0, -0.015;
 	// Implementation of performAction for TakeThis
 	// Custom logic for TakeThis
-	//go to object/hand
 	construct_impedance_message(this->impedance_params);
 	impedance_publisher.publish(this->compliance_update);
-	// execute handover ( go to hand)
-	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp");
+	//go to object/hand + offset
+	task_planner.primitive_move((this->getObjectPose().head(3)) + grasp_offset, this->getObjectPose().tail(3), &goal_publisher, 0.03, "grasp");
 	//lower repulsive stiffness during handover
 	post_grasp_impedance.repulsion_stiffness = impedance_params.repulsion_stiffness * 0.0;
-	post_grasp_impedance.repulsion_damping = impedance_params.repulsion_damping;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
-	//move to goal
-	task_planner.primitive_move(this->getObjectPose().head(3) - pick_offset, this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp"); //higher tolerance in handover
+	//move to hand for handover
+	task_planner.primitive_move(this->getObjectPose().head(3), this->getObjectPose().tail(3), &goal_publisher, 0.01, "grasp"); //higher tolerance in handover
 	task_planner.open_gripper(); //now is ready -> open gripper
 	//wait for human input, i.e. forcing to close gripper
 	ROS_INFO("Waiting for forcing");
@@ -325,14 +326,12 @@ TakeThis::performAction(TaskPlanner &task_planner, ros::Publisher &goal_publishe
 	ROS_INFO("ended wait time");
 	//TODO:: publish "goal reached"
 	this->hasGrasped = false;
-	// lift away
-	task_planner.primitive_move(this->getObjectPose().head(3) + grasp_offset, this->goal_pose_.tail(3), &goal_publisher, 0.01);
 	// now that object is grasped increase safety bubble stiffness
 	post_grasp_impedance.repulsion_stiffness.topLeftCorner(3,3) << 94, 0, 0, 0, 94, 0, 0, 0, 94;
 	construct_impedance_message(post_grasp_impedance);
 	impedance_publisher.publish(this->compliance_update);
 	ROS_INFO("published impedance message");
-	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.03);
+	task_planner.primitive_move(this->goal_pose_.head(3), this->goal_pose_.tail(3), &goal_publisher, 0.01);
 	//no grasp offset needed
 	task_planner.open_gripper();
 
@@ -343,20 +342,20 @@ AvoidMe::AvoidMe() : ActionPrimitive() {
 	// Custom values for AvoidMe
 	Eigen::Matrix<double, 6, 6> stiffness;  
 	stiffness.topLeftCorner(3, 3) << 450, 0, 0, 0, 450, 0, 0, 0, 450;
-	stiffness.bottomRightCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 12;
+	stiffness.bottomRightCorner(3, 3) << 25, 0, 0, 0, 25, 0, 0, 0, 12;
 	Eigen::Matrix<double, 6, 6> damping;           
 	damping.topLeftCorner(3, 3) << 45, 0, 0, 0, 45, 0, 0, 0, 45;
-	damping.bottomRightCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 7;
+	damping.bottomRightCorner(3, 3) << 11, 0, 0, 0, 11, 0, 0, 0, 7;
 	Eigen::Matrix<double, 6, 6> inertia;           
 	//ToDo: Inerta matrix should be specified as multiple of physical inertia
 	inertia.topLeftCorner(3, 3) << 200, 0, 0, 0, 200, 0, 0, 0, 200;
 	inertia.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	//
 	Eigen::Matrix<double, 6, 6> bubble_stiffness;
-	bubble_stiffness.topLeftCorner(3, 3) << 500, 0, 0, 0, 500, 0, 0, 0, 500;
+	bubble_stiffness.topLeftCorner(3, 3) << 100, 0, 0, 0, 100, 0, 0, 0, 100;
 	bubble_stiffness.bottomRightCorner(3, 3) << 50, 0, 0, 0, 50, 0, 0, 0, 50;
 	Eigen::Matrix<double, 6, 6> bubble_damping;   
-	bubble_damping.topLeftCorner(3, 3) << 20, 0, 0, 0, 20, 0, 0, 0, 20;
+	bubble_damping.topLeftCorner(3, 3) << 4, 0, 0, 0, 4, 0, 0, 0, 4;
 	bubble_damping.bottomRightCorner(3, 3) << 3, 0, 0, 0, 3, 0, 0, 0, 1;
 	setParameters(stiffness, damping, inertia,
 	              bubble_stiffness, bubble_damping);
